@@ -65,8 +65,10 @@ public class Render4D : MonoBehaviour
         Dictionary<Vector4, HashSet<Vector4>> adj = new();
         List<Vector4[]> faces = new();
 
-        public float rotation;
+        public bool useAxialRotations = false;
 
+        public float rotation;
+        public float[] allRotations = new float[6];
 
         public Cube(Render4D r4)
         {
@@ -94,10 +96,31 @@ public class Render4D : MonoBehaviour
             }
             getFaces();
         }
+        // applies all x axis of rotation to vector
+        Vector4 AxialRotations( Vector4 vertex ) {
+            Vector4 r = render.Vector4DeepCopy( vertex );
+            int axisCount = 0;
+            for ( int i = 0; i < 3; ++i )
+            {
+                for ( int j = i + 1; j < 4; ++j )
+                {
+                    r = render.rotate( r, i, j, allRotations[ axisCount ] );
+                    axisCount++;
+                }
+            }
+            return r;
+        }
 
         Vector4 rotate(Vector4 vertex)
         {
-            return render.rotate(render.rotate(vertex, 1, 3, rotation),2,0,rotation*2);
+            if ( useAxialRotations )
+            {
+                return AxialRotations( vertex );
+            }
+            else
+            {
+                return render.rotate(render.rotate(vertex, 1, 3, rotation),2,0,rotation*2);
+            }
         }
 
         public void drawLines()
@@ -206,17 +229,84 @@ public class Render4D : MonoBehaviour
         {
             cameraPos.w -= Time.deltaTime * 2;
         }
-        if (Input.GetKey(KeyCode.Q))
+        // Use R key to swap rotation modes
+        if (Input.GetKeyUp(KeyCode.R))
+        {
+            cube.useAxialRotations = !cube.useAxialRotations;
+        }
+        if (Input.GetKey(KeyCode.Q) && !cube.useAxialRotations )
         {
             cube.rotation += Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) && !cube.useAxialRotations )
         {
             cube.rotation -= Time.deltaTime;
         }
 
+        if ( cube.useAxialRotations )
+        {
+            CheckAxialRotationInputs();
+        }
+
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
+    }
+
+    /*
+        Y and U : +/- rotation around within wx plane
+        H and J : +/- rotation around within wy plane
+        N and M : +/- rotation around within wz plane
+        I and O : +/- rotation around within xy plane
+        K and L : +/- rotation around within xz plane
+        , and . : +/- rotation around within yz plane
+    */
+    private void CheckAxialRotationInputs() {
+        // get input for all axial rotations, which takes 4 keys horizontally (Y to O) and 3 keys vertically (Y to N)
+        if( Input.GetKey(KeyCode.Y) ) {
+            cube.allRotations[0] += Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.U) ) {
+            cube.allRotations[0] -= Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.H) ) {
+            cube.allRotations[1] += Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.J) ) {
+            cube.allRotations[1] -= Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.N) ) {
+            cube.allRotations[2] += Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.M) ) {
+            cube.allRotations[2] -= Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.I) ) {
+            cube.allRotations[3] += Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.O) ) {
+            cube.allRotations[3] -= Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.K) ) {
+            cube.allRotations[4] += Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.L) ) {
+            cube.allRotations[4] -= Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.Comma ) ) {
+            cube.allRotations[5] += Time.deltaTime;
+        }
+        if( Input.GetKey(KeyCode.Period ) ) {
+            cube.allRotations[5] -= Time.deltaTime;
+        }
+    }
+
+    private Vector4 Vector4DeepCopy( Vector4 a ) {
+        Vector4 b = new Vector4();
+        b.w = a.w;
+        b.x = a.x;
+        b.y = a.y;
+        b.z = a.z;
+        return b;
     }
 
     //private void OnDrawGizmos()
