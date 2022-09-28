@@ -17,9 +17,24 @@ public abstract class Shape4D {
     public Shape4D(Render4D r4)
     {
         this.render = r4;
+
+        getPoints();
+        foreach (var p in this.points)
+            adj[p] = new();
+
+        getLines();
+        foreach(var l in this.lines)
+        {
+            adj[l.a].Add(l.b);
+            adj[l.b].Add(l.a);
+        }
+
+        findSquares();
+        findTriangles();
     }
 
-    protected abstract void getFaces();
+    protected abstract void getPoints();
+    protected abstract void getLines();
 
     // applies all x axis of rotation to vector
     protected Vector4 AxialRotations( Vector4 vertex ) {
@@ -54,5 +69,62 @@ public abstract class Shape4D {
             render.line(rotate(l.a), rotate(l.b));
     }
 
-    public abstract void fillFaces();
+    public void fillFaces()
+    {
+        foreach (var f in faces)
+        {
+            var f_transformed = f.Select(rotate).ToArray();
+            if (f.Length == 3)
+                render.drawTriangle(f_transformed);
+            else if (f.Length == 4)
+                render.drawSquare(f_transformed);
+            else
+                throw new System.NotImplementedException();
+        }
+    }
+
+    void findTriangles()
+    {
+        for (int i = 0; i < points.Count; i++)
+        {
+            Vector4 p_i = points[i];
+            for (int j = i + 1; j < points.Count; j++)
+            {
+                Vector4 p_j = points[j];
+                if (!adj[p_i].Contains(p_j)) continue; // check if the first two lines connect
+                for (int k = i + 1; k < points.Count; k++)
+                {
+                    Vector4 p_k = points[k];
+                    if (!adj[p_j].Contains(p_k) || !adj[p_i].Contains(p_k)) continue; // 3rd point adjacent to both
+                    faces.Add(new Vector4[] { p_i, p_j, p_k });
+                }
+            }
+        }
+    }
+
+    void findSquares()
+    {
+        for (int i = 0; i < points.Count; i++)
+        {
+            Vector4 p_i = points[i];
+            for (int j = i + 1; j < points.Count; j++)
+            {
+                Vector4 p_j = points[j];
+                if (!adj[p_i].Contains(p_j)) continue; // check if the first two lines connect
+
+                for (int k = i + 1; k < points.Count; k++)
+                {
+                    Vector4 p_k = points[k];
+                    if (!adj[p_j].Contains(p_k)) continue; // 2nd pair of lines, ...
+                    for (int l = i + 1; l < points.Count; l++)
+                    {
+                        Vector4 p_l = points[l];
+                        if (!adj[p_k].Contains(p_l) || !adj[p_l].Contains(p_i)) continue;
+
+                        faces.Add(new Vector4[] { p_i, p_j, p_k, p_l });
+                    }
+                }
+            }
+        }
+    }
 }
