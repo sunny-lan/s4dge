@@ -124,6 +124,17 @@ public class Render4D : MonoBehaviour
         //drawCircle(new(0, 1, 0, 0), new(1, 0, 0, 0));
         //drawCircle(new(0, 0, 1, 0), new(0, 0, 0, 1));
 
+        // Slicing Visualization Key inputs
+
+        if (Input.GetKey(KeyCode.LeftBracket))
+        {
+            shape.w += Time.deltaTime * 2;
+        }
+        if (Input.GetKey(KeyCode.RightBracket))
+        {
+            shape.w -= Time.deltaTime * 2;
+        }
+
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             cameraPos.x += Time.deltaTime * 2;

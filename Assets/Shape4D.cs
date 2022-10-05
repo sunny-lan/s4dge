@@ -13,6 +13,7 @@ public abstract class Shape4D {
     public bool useAxialRotations = false;
     public float rotation;
     public float[] allRotations = new float[6];
+    public float w = 0;
 
     public Shape4D(Render4D r4)
     {
