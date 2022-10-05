@@ -45,12 +45,13 @@ public class Render4D : MonoBehaviour
         }
     }
 
-    private void Awake()
+    private void Awake() // init shape
     {
         shapesList = new List<Shape4D>();
         shapesList.Add(new Cube(this));
         shapesList.Add(new FiveCell(this));
-        shape = shapesList[0];
+        shapesList.Add(new InclinedPlane(this));
+        shape = shapesList[2]; // Set which shape to render
         
         ResetMesh();
     }
@@ -75,6 +76,9 @@ public class Render4D : MonoBehaviour
     {
         this.vertices.AddRange(triangleVertices.Select(v => project(cameraTransform(v), screenPlane)));
         for (int i = 0; i < 3; i++) triangles.Add(triangles.Count);
+
+        this.vertices.AddRange(triangleVertices.Select(v => project(cameraTransform(v), screenPlane)).Reverse());
+        for (int i = 2; i >= 0; i--) triangles.Add(triangles.Count);
     }
 
     public void drawSquare(Vector4[] vertices)
@@ -82,7 +86,27 @@ public class Render4D : MonoBehaviour
         drawTriangle(vertices[0], vertices[1], vertices[2]);
         drawTriangle(vertices[2], vertices[3], vertices[0]);
     }
-    
+
+
+    public void line(Vector3 p, Vector3 q)
+    {
+        Debug.DrawLine(p,q);
+    }
+
+    public void drawTriangle(params Vector3[] triangleVertices)
+    {
+        this.vertices.AddRange(triangleVertices);
+        for (int i = 0; i < 3; i++) triangles.Add(triangles.Count);
+
+        this.vertices.AddRange(triangleVertices.Reverse());
+        for (int i = 2; i >= 0; i--) triangles.Add(triangles.Count);
+    }
+
+    public void drawSquare(params Vector3[] vertices)
+    {
+        drawTriangle(vertices[0], vertices[1], vertices[2]);
+        drawTriangle(vertices[2], vertices[3], vertices[0]);
+    }
 
     private void Update()
     {

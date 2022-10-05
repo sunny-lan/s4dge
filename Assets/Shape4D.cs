@@ -63,13 +63,13 @@ public abstract class Shape4D {
         }
     }
 
-    public void drawLines()
+    public virtual void drawLines()
     {
         foreach (var l in lines) 
             render.line(rotate(l.a), rotate(l.b));
     }
 
-    public void fillFaces()
+    public virtual void fillFaces()
     {
         foreach (var f in faces)
         {
