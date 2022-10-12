@@ -37,6 +37,7 @@ public abstract class Shape4D {
     protected abstract void getPoints();
     protected abstract void getLines();
 
+
     // applies all x axis of rotation to vector
     protected Vector4 AxialRotations( Vector4 vertex ) {
         Vector4 r = render.Vector4DeepCopy( vertex );
@@ -69,6 +70,11 @@ public abstract class Shape4D {
         foreach (var l in lines) 
             render.line(rotate(l.a), rotate(l.b));
     }
+
+    // used for generating 4d slice
+    public virtual void drawLines(float w){
+        drawLines();
+    } // purely abstract function, 
 
     public virtual void fillFaces()
     {

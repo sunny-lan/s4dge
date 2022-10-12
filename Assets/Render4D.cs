@@ -51,7 +51,8 @@ public class Render4D : MonoBehaviour
         shapesList.Add(new Cube(this));
         shapesList.Add(new FiveCell(this));
         shapesList.Add(new InclinedPlane(this));
-        shape = shapesList[2]; // Set which shape to render
+        shapesList.Add(new Shape4DSlice(this, "inclinedPlaneModel.s4dge"));
+        shape = shapesList[3]; // Set which shape to render
         
         ResetMesh();
     }
@@ -115,7 +116,8 @@ public class Render4D : MonoBehaviour
 
         Camera.main.transform.forward = project(cameraTransform(Vector4.zero), screenPlane) - Camera.main.transform.position;
 
-        shape.drawLines();
+        // shape.drawLines();
+        shape.drawLines(shape.w);
         shape.fillFaces();
 
 
