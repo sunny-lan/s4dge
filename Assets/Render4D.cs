@@ -52,7 +52,7 @@ public class Render4D : MonoBehaviour
         shapesList.Add(new FiveCell(this));
         shapesList.Add(new InclinedPlane(this));
         shapesList.Add(new Shape4DSlice(this, "Assets/Models/inclinedPlaneModel.s4dge"));
-        shape = shapesList[3]; // Set which shape to render
+        shape = shapesList[0]; // Set which shape to render
         
         ResetMesh();
     }
@@ -96,11 +96,42 @@ public class Render4D : MonoBehaviour
 
     public void drawTriangle(params Vector3[] triangleVertices)
     {
+        int tmp = vertices.Count;
         this.vertices.AddRange(triangleVertices);
-        for (int i = 0; i < 3; i++) triangles.Add(triangles.Count);
 
-        this.vertices.AddRange(triangleVertices.Reverse());
-        for (int i = 2; i >= 0; i--) triangles.Add(triangles.Count);
+        //add front face
+        for (int i = 0; i < 3; i++)
+        {
+            triangles.Add(tmp+i);
+        }
+
+        //add back face
+        for (int i = 0; i < 3; i++)
+            triangles.Add(tmp + (2 - i));
+
+    }
+
+    /// <summary>
+    /// Draws polygon out of triangles
+    /// </summary>
+    /// <param name="polygon"></param>
+    public void drawPolygon(params Vector3[] polygon)
+    {
+        int tmp = vertices.Count;
+        this.vertices.AddRange(polygon);
+
+        for (int i = 1; i + 1 < polygon.Length; i++)
+        {
+            //front face
+            triangles.Add(tmp);
+            triangles.Add(tmp + i);
+            triangles.Add(tmp + (i+1));
+
+            //back face
+            triangles.Add(tmp + (i + 1));
+            triangles.Add(tmp + i);
+            triangles.Add(tmp);
+        }
     }
 
     public void drawSquare(params Vector3[] vertices)

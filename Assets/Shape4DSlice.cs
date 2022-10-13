@@ -13,6 +13,24 @@ class Point4D{
         initialPoint = p1Var;
         finalPoint = p2Var;
     }
+
+    /// <summary>
+    /// Interpolates this point given w.
+    /// </summary>
+    /// <param name="w"></param>
+    /// <returns></returns>
+    public Vector3 getPoint( float w)
+    {
+        var percent = Mathf.InverseLerp(initialPoint.w, finalPoint.w, w);
+        /*if (percent<0 || percent>1)
+        {
+            return null; //point out of range
+        }*/
+        return Vector3.Lerp(
+            initialPoint.XYZ(), 
+            finalPoint.XYZ(), 
+            percent);
+    }
 }
 
 class Line4D{
@@ -135,22 +153,7 @@ class Shape4DSlice : Shape4D
     // p1 initial point, p2 final point
     // [x,y,z,w]
     private Vector3 getPoint(Vector4 p1, Vector4 p2, float w){
-        float x1 = p1[0];
-        float y1 = p1[1];
-        float z1 = p1[2];
-        float w1 = p1[3];
-
-        float x2 = p2[0];
-        float y2 = p2[1];
-        float z2 = p2[2];
-        float w2 = p2[3];
-
-        float x = ((x2-x1)/(w2-w1)) * (w-w2) + x2;
-        float y = ((y2-y1)/(w2-w1)) * (w-w2) + y2;
-        float z = ((z2-z1)/(w2-w1)) * (w-w2) + z2;
-
-        Vector3 p3 = new Vector4(x, y, z);
-        return p3;
+        return Vector3.Lerp(p1.XYZ(), p2.XYZ(), Mathf.InverseLerp(p1.w, p2.w, w));
     }
 
     protected override void getLines()
@@ -171,35 +174,23 @@ class Shape4DSlice : Shape4D
 
             // Find point location given w
             // for each line, get each point from their start and end location and w
-            Vector4 p1 = getPoint(line.p1.initialPoint, line.p1.finalPoint, w);
-            Vector4 p2 = getPoint(line.p2.initialPoint, line.p2.finalPoint, w); 
-
+            Vector3 p1 = line.p1.getPoint(w);
+            Vector3 p2 = line.p2.getPoint(w);
             render.line(p1, p2); // draw line
         }
         
         // faces
         // Debug.Log("Faces");
         foreach(Face4D face in faces4D){ // face is an array of faces
-            // Limit to drawing triangles and squares
-            
-            // generate calculated points
-            
-            if (face.points.Count == 3) {
-                Vector4 p1 = getPoint(face.points[0].initialPoint, face.points[0].finalPoint, w);
-                Vector4 p2 = getPoint(face.points[1].initialPoint, face.points[1].finalPoint, w);
-                Vector4 p3 = getPoint(face.points[2].initialPoint, face.points[2].finalPoint, w);
+                                         // Limit to drawing triangles and squares
 
-                render.drawTriangle(p1, p2, p3);
-            } else if (face.points.Count == 4) {
-                Vector4 p1 = getPoint(face.points[0].initialPoint, face.points[0].finalPoint, w);
-                Vector4 p2 = getPoint(face.points[1].initialPoint, face.points[1].finalPoint, w);
-                Vector4 p3 = getPoint(face.points[2].initialPoint, face.points[2].finalPoint, w);
-                Vector4 p4 = getPoint(face.points[3].initialPoint, face.points[3].finalPoint, w);
-                
-                render.drawSquare(p1, p2, p3, p4);
-            } else {
-                //More than 4 sided face
-            }
+            // generate calculated points
+            //  1. Select = for each point x apply x.getPoint(w)
+            //  3. Pass all calculated points to drawPolygon
+            var slicedPoints = face.points
+                .Select(x => x.getPoint(w))
+                .ToArray();
+            render.drawPolygon(slicedPoints);
         }
     }
 
