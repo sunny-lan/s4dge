@@ -80,7 +80,7 @@ class Shape4DSlice : Shape4D
                 string[] terms = fileLine.Split( ':', '(', ')');
                 string pName = terms[0];
                 string[] p1Terms = terms[2].Split(',');
-                string[] p2Terms = terms[4].Split(',');;
+                string[] p2Terms = terms[4].Split(',');
 
                 //Convert p1 & p2 to vector4
                 Vector4 p1 = new Vector4();
@@ -101,7 +101,22 @@ class Shape4DSlice : Shape4D
             }
         }
 
-        
+        float w = 0.0f;
+        //Debugging
+        if (true) {
+            Debug.Log("Lines");
+            foreach (Line4D line in lines4D) {
+                Debug.Log(getPoint(line.p1.initialPoint, line.p1.finalPoint, w));
+                Debug.Log(getPoint(line.p2.initialPoint, line.p2.finalPoint, w));
+            }
+            Debug.Log("Faces");
+            foreach (Face4D face in faces4D) {
+                Debug.Log(getPoint(face.points[0].initialPoint, face.points[0].finalPoint, w));
+                Debug.Log(getPoint(face.points[1].initialPoint, face.points[1].finalPoint, w));
+                Debug.Log(getPoint(face.points[2].initialPoint, face.points[2].finalPoint, w));
+                Debug.Log(getPoint(face.points[3].initialPoint, face.points[3].finalPoint, w));
+            }
+        }
     }
 
 
@@ -131,7 +146,7 @@ class Shape4DSlice : Shape4D
         float w2 = p2[3];
 
         float x = ((x2-x1)/(w2-w1)) * (w-w2) + x2;
-        float y = ((y2-y1)/(w2-w1)) * (w-y2) + y2;
+        float y = ((y2-y1)/(w2-w1)) * (w-w2) + y2;
         float z = ((z2-z1)/(w2-w1)) * (w-w2) + z2;
 
         Vector3 p3 = new Vector4(x, y, z);
@@ -151,6 +166,7 @@ class Shape4DSlice : Shape4D
     override public void drawLines(float w){
 
         // lines
+        // Debug.Log("Lines");
         foreach(Line4D line in lines4D){ // iterate over every line 
 
             // Find point location given w
@@ -161,6 +177,8 @@ class Shape4DSlice : Shape4D
             render.line(p1, p2); // draw line
         }
         
+        // faces
+        // Debug.Log("Faces");
         foreach(Face4D face in faces4D){ // face is an array of faces
             // Limit to drawing triangles and squares
             
@@ -172,7 +190,6 @@ class Shape4DSlice : Shape4D
                 Vector4 p3 = getPoint(face.points[2].initialPoint, face.points[2].finalPoint, w);
 
                 render.drawTriangle(p1, p2, p3);
-
             } else if (face.points.Count == 4) {
                 Vector4 p1 = getPoint(face.points[0].initialPoint, face.points[0].finalPoint, w);
                 Vector4 p2 = getPoint(face.points[1].initialPoint, face.points[1].finalPoint, w);
@@ -180,6 +197,8 @@ class Shape4DSlice : Shape4D
                 Vector4 p4 = getPoint(face.points[3].initialPoint, face.points[3].finalPoint, w);
                 
                 render.drawSquare(p1, p2, p3, p4);
+            } else {
+                //More than 4 sided face
             }
         }
     }
