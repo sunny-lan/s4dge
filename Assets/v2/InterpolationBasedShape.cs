@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;  
 using UnityEngine;
+using System;
 
 // TODO: 1) Add rendering of squares
 namespace v2
 {
+    [Serializable]
     public class Point4D
     {
         public Vector4 initialPoint;
@@ -32,6 +34,7 @@ namespace v2
         }
     }
 
+    [Serializable]
     public class Line4D
     {
         public Point4D p1; // initial point
@@ -43,6 +46,7 @@ namespace v2
         }
     }
 
+    [Serializable]
     public class Face4D
     {
         public List<Point4D> points;
@@ -56,7 +60,8 @@ namespace v2
     /// <summary>
     /// Shape based on interpolating between two points by w
     /// </summary>
-    public class InterpolationBasedShape
+    [CreateAssetMenu]
+    public class InterpolationBasedShape : ScriptableObject
     {
         public List<Line4D> lines4D = new List<Line4D>() { };
         public List<Face4D> faces4D = new List<Face4D>() { };

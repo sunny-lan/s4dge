@@ -8,6 +8,7 @@ using UnityEngine;
 public class Transform4D : MonoBehaviour
 {
     public Vector4 position;
+    public Vector4 scale = Vector4.one;
 
     /// <summary>
     /// applies transform to point
@@ -16,11 +17,11 @@ public class Transform4D : MonoBehaviour
     /// <returns></returns>
     public Vector4 Transform(Vector4 point)
     {
-        return point + position;
+        return Vector4.Scale(scale, point) + position;
     }
 
     public Vector4 InverseTransform(Vector4 point)
     {
-        return point - position;
+        return (point - position).Divide(scale);
     }
 }
