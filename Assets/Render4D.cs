@@ -52,7 +52,7 @@ public class Render4D : MonoBehaviour
         shapesList.Add(new FiveCell(this));
         shapesList.Add(new InclinedPlane(this));
         shapesList.Add(new Shape4DSlice(this, "Assets/Models/inclinedPlaneModel.s4dge"));
-        shape = shapesList[0]; // Set which shape to render
+        shape = shapesList[3]; // Set which shape to render
         
         ResetMesh();
     }
@@ -117,6 +117,12 @@ public class Render4D : MonoBehaviour
     /// <param name="polygon"></param>
     public void drawPolygon(params Vector3[] polygon)
     {
+        if (polygon.Length == 0) {
+            this.vertices.Clear();
+            this.triangles.Clear();
+            return;
+        }
+
         int tmp = vertices.Count;
         this.vertices.AddRange(polygon);
 
@@ -149,7 +155,7 @@ public class Render4D : MonoBehaviour
 
         // shape.drawLines();
         shape.drawLines(shape.w);
-        shape.fillFaces();
+        // shape.fillFaces();
 
 
         //drawCircle(new(0, 0, 0, 1), new(1, 0, 0, 0));
