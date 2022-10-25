@@ -50,6 +50,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   position: {x: 0, y: 0, z: 0, w: 0}
+  rotation: {x: 1, y: 3.75, z: -0.5}
+  scale: {x: 1, y: 1, z: 1, w: 1}
 --- !u!114 &6262987207706134012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,6 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf1e6b9efc40dce459d6fd0dd4e22c29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shape: {fileID: 0}
 --- !u!114 &6262987207706133987
 MonoBehaviour:
   m_ObjectHideFlags: 0
