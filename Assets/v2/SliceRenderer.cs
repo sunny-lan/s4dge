@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 namespace v2
 {
-
+    [ExecuteAlways]
     public class SliceRenderer : MonoBehaviour
     {
         Transform4D t4d;
@@ -13,6 +14,11 @@ namespace v2
         Geometry3D slice = new();
 
         public InterpolationBasedShape shape;
+
+        private void Awake()
+        {
+            //EditorApplication
+        }
 
         // Start is called before the first frame update
         void Start()

@@ -3,12 +3,29 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+[ExecuteAlways]
 public class Camera4D : MonoBehaviour
 {
     /// <summary>
     /// the current active camera
     /// </summary>
-    public static Camera4D main = null;
+    public static Camera4D main
+    {
+        get
+        {
+            if(_main == null)
+            {
+                _main= FindObjectOfType<Camera4D>();
+            }
+            return _main;
+        }
+
+        set
+        {
+            _main = value;
+        }
+    }
+    static Camera4D _main = null;
 
     /// <summary>
     /// The 4D transform of this camera.

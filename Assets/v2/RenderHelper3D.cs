@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Helper component for mesh rendering
 /// </summary>
+[ExecuteAlways]
 public class RenderHelper3D : MonoBehaviour
 {
     Mesh mesh;

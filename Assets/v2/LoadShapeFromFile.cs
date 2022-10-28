@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using v2;
 
+[ExecuteAlways]
 public class LoadShapeFromFile : MonoBehaviour
 {
     public string filePath= "Assets/Models/inclinedPlaneModel.s4dge";

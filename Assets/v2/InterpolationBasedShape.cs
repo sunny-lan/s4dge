@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;  
 using UnityEngine;
 using System;
+using System.Text;
 
 // TODO: 1) Add rendering of squares
 namespace v2
@@ -32,6 +33,11 @@ namespace v2
                 finalPoint.XYZ(),
                 percent);
         }
+
+        public override string ToString()
+        {
+            return initialPoint.ToString() + finalPoint.ToString();
+        }
     }
 
     [Serializable]
@@ -44,6 +50,11 @@ namespace v2
             p1 = p1Var;
             p2 = p2Var;
         }
+
+        public override string ToString()
+        {
+            return p1.ToString() + "-" + p2.ToString();
+        }
     }
 
     [Serializable]
@@ -53,6 +64,16 @@ namespace v2
         public Face4D(List<Point4D> points)
         {
             this.points = points;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (Point4D p in points)
+            {
+                sb.Append(p.ToString());
+            }
+            return sb.ToString();
         }
     }
 
@@ -65,6 +86,7 @@ namespace v2
     {
         public List<Line4D> lines4D = new List<Line4D>() { };
         public List<Face4D> faces4D = new List<Face4D>() { };
+        public Dictionary<string, Point4D> points = new Dictionary<string, Point4D>() { };
 
 
         //public class Shape4DSlice(Render4D r4) : base(r4) {}
@@ -82,7 +104,6 @@ namespace v2
         */
         public InterpolationBasedShape( string fileName)
         {
-            Dictionary<string, Point4D> points = new Dictionary<string, Point4D>();
 
             // Static file name (for now)
             string[] fileLines = File.ReadAllLines(fileName);
@@ -144,10 +165,30 @@ namespace v2
         //protected List<Point4D> points4D = new List<Point4D>(){};
         //protected List<Point4D> lines4D = new List<Point4D>(){};
 
+        // writes shape information to file in shape4D file format
+        public void toFile(string fileName)
+        {
+            using (StreamWriter sw = File.CreateText(fileName))
+            {
+                foreach (KeyValuePair<string, Point4D> point in points)
+                {
+                    sw.WriteLine(string.Format("{0}:{1}",
+                        point.Key, 
+                        point.Value
+                        ));
+                }
 
+                foreach(Line4D line in lines4D)
+                {
+                    sw.WriteLine(string.Format("l:{1}", line));
+                }
 
-
-
+                foreach(Face4D face in faces4D)
+                {
+                    sw.WriteLine(string.Format("f:{1}", face));
+                }
+            }
+        }
 
     }
 
