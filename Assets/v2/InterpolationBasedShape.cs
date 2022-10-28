@@ -12,20 +12,46 @@ namespace v2
     [Serializable]
     public class Point4D
     {
-        public Vector4 initialPoint;
-        public Vector4 finalPoint;
-        public Point4D(Vector4 p1Var, Vector4 p2Var)
+        public List<Vector4> subpoints; // sort by increasing w
+
+        // There shouldn't be multiple points with the same w coordinate
+        public Point4D(List<Vector4> points)
         {
-            initialPoint = p1Var;
-            finalPoint = p2Var;
+            subpoints = points;
+        }
+
+        /// <summary>
+        /// First applies transforms to the current point's subpoints
+        /// Then gets the value of this point in 3D at w=w
+        /// </summary>
+        /// <param name="w"></param>
+        /// <returns></returns>
+        public Vector3 getPoint(float w, Transform4D t4d)
+        {
+            SortedSet<Vector4> transformedPoints = new(subpoints.Select(x => t4d.Transform(x)).ToList(), 
+                Comparer<Vector4>.Create((x, y) => x.w.CompareTo(y.w))); // sort by increasing w
+
+            Vector4 right = transformedPoints.FirstOrDefault(x => x.w > w);
+
+            // point does not exist at this w
+            // TODO: figure out the convention here Royi
+            if (w > right.w || right == transformedPoints.First())
+            {
+                return new Vector3();
+            }
+
+            Vector4 left = transformedPoints.LastOrDefault(x => x.w <= w);
+            return interpolatePoint(w, left, right);
         }
 
         /// <summary>
         /// Interpolates this point given w.
         /// </summary>
         /// <param name="w"></param>
+        /// <param name="initialPoint"></param>
+        /// <param name="finalPoint"></param>
         /// <returns></returns>
-        public Vector3 getPoint(float w)
+        private Vector3 interpolatePoint(float w, Vector4 initialPoint, Vector4 finalPoint)
         {
             var percent = Mathf.InverseLerp(initialPoint.w, finalPoint.w, w);
             return Vector3.LerpUnclamped(
@@ -36,7 +62,7 @@ namespace v2
 
         public override string ToString()
         {
-            return initialPoint.ToString() + finalPoint.ToString();
+            return string.Join("", subpoints.Select((point, idx) => point.ToString()));
         }
     }
 
@@ -94,7 +120,7 @@ namespace v2
         /**
          * File Formatting:
          * Each line in the file defines either a Point, Line, or Face
-         * To create a point, the format is: "<P Name>:(<x1>,<y1>,<z1>,<w1>)(<x2>,<y2>,<z2>,<w2>)
+         * To create a point, the format is: "<P Name>:(<x1>,<y1>,<z1>,<w1>)(<x2>,<y2>,<z2>,<w2>) <- can have arbitrary number of subpoints
          *      Note: <P Name> cannot start with 'l' or 'f'
          * To create a line, the format is: "l:<P1 Name>-<P2 Name>"
          *      Note: <P1 Name> and <P2 Name> must already be defined
@@ -102,7 +128,7 @@ namespace v2
          *      Note: The first format creates a triangle face and the second creates a square face
          *      Note: <P1 Name> and <P2 Name> must already be defined
         */
-        public InterpolationBasedShape( string fileName)
+        public InterpolationBasedShape(string fileName)
         {
 
             // Static file name (for now)
@@ -137,23 +163,21 @@ namespace v2
                 {
                     string[] terms = fileLine.Split(':', '(', ')');
                     string pName = terms[0];
-                    string[] p1Terms = terms[2].Split(',');
-                    string[] p2Terms = terms[4].Split(',');
+                    List<Vector4> subpoints = new();
 
-                    //Convert p1 & p2 to vector4
-                    Vector4 p1 = new Vector4();
-                    Vector4 p2 = new Vector4();
-                    p1[0] = int.Parse(p1Terms[0]);
-                    p1[1] = int.Parse(p1Terms[1]);
-                    p1[2] = int.Parse(p1Terms[2]);
-                    p1[3] = int.Parse(p1Terms[3]);
+                    for (int i=2; i < terms.Length; i+=2)
+                    {
+                        string[] pTerms = terms[i].Split(',');
 
-                    p2[0] = int.Parse(p2Terms[0]);
-                    p2[1] = int.Parse(p2Terms[1]);
-                    p2[2] = int.Parse(p2Terms[2]);
-                    p2[3] = int.Parse(p2Terms[3]);
+                        subpoints.Add(new Vector4(
+                            int.Parse(pTerms[0]),
+                            int.Parse(pTerms[1]),
+                            int.Parse(pTerms[2]),
+                            int.Parse(pTerms[3])
+                            ));
+                    }
 
-                    Point4D p4d = new Point4D(p1, p2);
+                    Point4D p4d = new Point4D(subpoints);
 
                     points.Add(pName, p4d);
                 }
