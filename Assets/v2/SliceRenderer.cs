@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace v2
 {
@@ -40,8 +41,11 @@ namespace v2
         // helper function which transforms point and then interpolates it
         Vector3 getPoint(Point4D point, float w)
         {
-            var initialPoint =  t4d.Transform( point.initialPoint);
-            var finalPoint = t4d.Transform( point.finalPoint);
+            Debug.Assert(t4d is not null);
+            Debug.Assert(point is not null);
+            Debug.Assert(point.subpoints is not null);
+            var initialPoint = t4d.Transform(point.subpoints.Min);
+            var finalPoint = t4d.Transform(point.subpoints.Min);
             var percent = Mathf.InverseLerp(initialPoint.w, finalPoint.w, w);
             return Vector3.LerpUnclamped(
                 initialPoint.XYZ(),
