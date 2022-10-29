@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace v2
 {
@@ -15,11 +14,6 @@ namespace v2
         Geometry3D slice = new();
 
         public InterpolationBasedShape shape;
-
-        private void Awake()
-        {
-            //EditorApplication
-        }
 
         // Start is called before the first frame update
         void Start()

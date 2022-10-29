@@ -7,4 +7,9 @@ public static class Util
     {
         return new(v.x, v.y, v.z);
     }
+
+    public static Vector4 withW(this Vector3 v, float w)
+    {
+        return new(v.x, v.y, v.z, w);
+    }
 }

@@ -35,7 +35,7 @@ namespace v2
 
             // point does not exist at this w
             // TODO: figure out the convention here Royi
-            if ( transformedPoints.Count() == 0 || w > right.w || right == transformedPoints.First())
+            if ( transformedPoints.Count() == 0 || w > right.w || right == transformedPoints.FirstOrDefault())
             {
                 return new Vector3();
             }
@@ -58,6 +58,12 @@ namespace v2
                 initialPoint.XYZ(),
                 finalPoint.XYZ(),
                 percent);
+        }
+
+
+        public void addSubPoint(Vector4 pt)
+        {
+            subpoints.Add(pt);
         }
 
         public override string ToString()
