@@ -15,6 +15,18 @@ namespace v2
 
         public InterpolationBasedShape shape;
 
+        //
+        // BEGIN editor variables/methods
+        //
+
+        // TODO: decide acceptable w range here
+        [Range(-10.0f, 10.0f)]
+        public float previewW = 0;
+
+        // 
+        // END editor variables/methods
+        //
+
         // Start is called before the first frame update
         void Start()
         {
@@ -28,12 +40,18 @@ namespace v2
             if (shape == null) return;
 
             slice.Clear();
-            calculateSlice(Camera4D.main.t4d.position.w);
+            if (Application.IsPlaying(gameObject))
+            {
+                calculateSlice(Camera4D.main.t4d.position.w);
+            } else
+            {
+                calculateSlice(previewW);
+            }
             render3d.SetGeometry(slice);
         }
 
         // helper function which transforms point and then interpolates it
-        Vector3 getPoint(Point4D point, float w)
+        Vector3 getPoint(InterpolationPoint4D point, float w)
         {
             var initialPoint = t4d.Transform(point.subpoints.FirstOrDefault());
             var finalPoint = t4d.Transform(point.subpoints.LastOrDefault());
@@ -52,19 +70,19 @@ namespace v2
         {
             // lines
             // Debug.Log("Lines");
-            foreach (Line4D line in shape.lines4D)
+            foreach (Line<InterpolationPoint4D> line in shape.lines4D)
             { // iterate over every line 
 
                 // Find point location given w
                 // for each line, get each point from their start and end location and w
-                Vector3 p1 = line.p1.getPoint(w, t4d);
-                Vector3 p2 = line.p2.getPoint(w, t4d);
+                Vector3 p1 = line.p1.GetPoint(w, t4d);
+                Vector3 p2 = line.p2.GetPoint(w, t4d);
                 slice.line(p1, p2); // draw line
             }
 
             // faces
             // Debug.Log("Faces");
-            foreach (Face4D face in shape.faces4D)
+            foreach (Face<InterpolationPoint4D> face in shape.faces4D)
             { // face is an array of faces
               // Limit to drawing triangles and squares
 
@@ -72,7 +90,7 @@ namespace v2
                 //  1. Select = for each point x apply getPoint(x, w)
                 //  3. Pass all calculated points to drawPolygon
                 var slicedPoints = face.points
-                    .Select(x => x.getPoint(w, t4d))
+                    .Select(x => x.GetPoint(w, t4d))
                     .ToArray();
                 slice.fillPolygon(slicedPoints);
             }
