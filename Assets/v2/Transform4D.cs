@@ -7,8 +7,11 @@ using UnityEngine;
 /// </summary>
 public class Transform4D : MonoBehaviour
 {
+    public const int ROTATION_DOF = 6;
+
     public Vector4 position;
-    public Vector3 rotation = new Vector3(1.0f, 3.75f, -0.5f); // 3 coordinates representing the rotation on a 3-sphere in RADIANS [x=ξ1, y=η, z=ξ2] (see Hopf Coordinates)
+    [HideInInspector]
+    public float[] rotation = new float[ROTATION_DOF];
     public Vector4 scale = Vector4.one;
 
     /// <summary>
@@ -22,10 +25,14 @@ public class Transform4D : MonoBehaviour
         return Rotate( v, rotation );
     }
 
-    // TODO: Does not account for rotation
     public Vector4 InverseTransform(Vector4 point)
     {
-        return InverseScale( (point - position), scale);
+        var unscaled = InverseScale( (point - position), scale );
+        float[] negativeRotation = new float[rotation.Length];
+        for ( int i = 0; i < rotation.Length; i++ ) {
+            negativeRotation[i] = -rotation[i];
+        }
+        return Rotate( unscaled, negativeRotation );
     }
 
     private Vector4 InverseScale(Vector4 v, Vector4 divisors)
@@ -39,12 +46,41 @@ public class Transform4D : MonoBehaviour
         return Vector4.Scale(v, componentInverse);
     }
 
-    private Vector4 Rotate(Vector4 v, Vector3 hopf) {
-        return new Vector4( // https://en.wikipedia.org/wiki/Rotations_in_4-dimensional_Euclidean_space
-            Mathf.Cos( hopf.z ) * Mathf.Cos( hopf.y ) * v.x, // x' = Cos(ξ2) * Cos(η) * x
-            Mathf.Sin( hopf.z ) * Mathf.Cos( hopf.y ) * v.y, // y' = Sin(ξ2) * Cos(η) * y
-            Mathf.Sin( hopf.x ) * Mathf.Sin( hopf.y ) * v.z, // z' = Sin(ξ1) * Sin(η) * z
-            Mathf.Cos( hopf.x ) * Mathf.Sin( hopf.y ) * v.w // w' = Cos(ξ1) * Sin(η) * w
-        );
+    /// <summary>
+    /// Rotates given point around 6 planes of rotation in 4d
+    /// </summary>
+    /// <param name="v"> The point for which a rotated version is returned </param>
+    /// <param name="allRotations"> An array of 6 floats representing rotation around each plane </param>
+    /// <returns> The rotated vector </returns>
+    private Vector4 Rotate(Vector4 v, float[] allRotations) {
+        int axisCount = 0;
+        Vector4 r = v;
+        for ( int i = 0; i < 3; ++i )
+        {
+            for ( int j = i + 1; j < 4; ++j )
+            {
+                r = Rotate(r, i, j, allRotations[ axisCount ] );
+                axisCount++;
+            }
+        }
+        return r;
+    }
+    /// <summary>
+    /// Rotates the given point around theta radians around the defined plane
+    /// </summary>
+    /// <param name="v"> The point for which a rotated version is returned </param>
+    /// <param name="axis1"> The first axis of the plane of rotation </param>
+    /// <param name="axis2"> The second axis of the plane of rotation </param>
+    /// <param name="theta"> The angle of rotation in radians </param>
+    /// <returns> The rotated vector </returns>
+    public Vector4 Rotate(Vector4 v, int axis1, int axis2, float theta)
+    {
+        Matrix4x4 matrix = Matrix4x4.identity;
+        matrix[axis1, axis1] = Mathf.Cos(theta);
+        matrix[axis1, axis2] = -Mathf.Sin(theta);
+        matrix[axis2, axis1] = Mathf.Sin(theta);
+        matrix[axis2, axis2] = Mathf.Cos(theta);
+
+        return matrix * v;
     }
 }

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6262987207706134008}
   - component: {fileID: 6262987207706134015}
   m_Layer: 0
-  m_Name: wedge
+  m_Name: hypercube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4494be6a27bd62d4fbf98ddf87fb6afe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filePath: Assets/Models/inclinedPlaneModel.s4dge
+  filePath: Assets/Models/hypercube.s4dge
 --- !u!114 &6262987207706134009
 MonoBehaviour:
   m_ObjectHideFlags: 0

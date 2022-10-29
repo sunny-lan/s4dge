@@ -35,7 +35,7 @@ namespace v2
 
             // point does not exist at this w
             // TODO: figure out the convention here Royi
-            if (w > right.w || right == transformedPoints.First())
+            if ( transformedPoints.Count() == 0 || w > right.w || right == transformedPoints.First())
             {
                 return new Vector3();
             }
