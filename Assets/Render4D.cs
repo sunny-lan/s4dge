@@ -52,6 +52,8 @@ public class Render4D : MonoBehaviour
         shapesList.Add(new FiveCell(this));
         shapesList.Add(new InclinedPlane(this));
         shapesList.Add(new Shape4DSlice(this, "Assets/Models/inclinedPlaneModel.s4dge"));
+        shapesList.Add(new Shape4DSlice(this, "Assets/Models/hypercube.s4dge"));
+
         shape = shapesList[3]; // Set which shape to render
         
         ResetMesh();
@@ -150,11 +152,12 @@ public class Render4D : MonoBehaviour
     {
         triangles.Clear();
         vertices.Clear();
+        ResetMesh(); // Can I add this here? Fixes the crash upon shapes going out of bounds
 
         Camera.main.transform.forward = project(cameraTransform(Vector4.zero), screenPlane) - Camera.main.transform.position;
 
         // shape.drawLines();
-        shape.drawLines(shape.w);
+        //shape.drawLines(shape.w);
         // shape.fillFaces();
 
 
@@ -230,6 +233,8 @@ public class Render4D : MonoBehaviour
         {
             CheckAxialRotationInputs();
         }
+
+        shape.drawLines(shape.w);
 
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
