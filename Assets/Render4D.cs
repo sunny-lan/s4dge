@@ -52,7 +52,8 @@ public class Render4D : MonoBehaviour
         shapesList.Add(new FiveCell(this));
         shapesList.Add(new InclinedPlane(this));
         shapesList.Add(new Shape4DSlice(this, "Assets/Models/inclinedPlaneModel.s4dge"));
-        shape = shapesList[3]; // Set which shape to render
+        shapesList.Add(new Shape4DSlice(this, "Assets/Models/hypercube.s4dge"));
+        shape = shapesList[4]; // Set which shape to render
         
         ResetMesh();
     }
