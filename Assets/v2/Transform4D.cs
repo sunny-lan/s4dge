@@ -83,4 +83,14 @@ public class Transform4D : MonoBehaviour
 
         return matrix * v;
     }
+
+    /// <summary>
+    /// Applies the 3D part of this transform to a normal Unity transform.
+    /// This is used as an optimization, by offloading 3D transforms to the engine instead
+    /// </summary>
+    /// <param name="t3d"></param>
+    public void ApplyTo(Transform t3d)
+    {
+        //TODO
+    }
 }

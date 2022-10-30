@@ -38,9 +38,9 @@ namespace v2
         /// </summary>
         /// <param name="w"></param>
         /// <returns></returns>
-        public Vector3 GetPoint(float w, Transform4D t4d)
+        public Vector3 GetPoint(float w, Func<Vector4, Vector4> transform)
         {
-            SortedSet<Vector4> transformedPoints = new(subpoints.Select(x => t4d.Transform(x)).ToList(), 
+            SortedSet<Vector4> transformedPoints = new(subpoints.Select(transform).ToList(), 
                 Comparer<Vector4>.Create((x, y) => x.w.CompareTo(y.w))); // sort by increasing w
 
             Vector4 right = transformedPoints.FirstOrDefault(x => x.w > w);

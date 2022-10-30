@@ -75,8 +75,9 @@ namespace v2
 
                 // Find point location given w
                 // for each line, get each point from their start and end location and w
-                Vector3 p1 = line.p1.GetPoint(w, t4d);
-                Vector3 p2 = line.p2.GetPoint(w, t4d);
+                // and make sure to apply the transform
+                Vector3 p1 = line.p1.GetPoint(w, t4d.Transform);
+                Vector3 p2 = line.p2.GetPoint(w, t4d.Transform);
                 slice.line(p1, p2); // draw line
             }
 
@@ -90,7 +91,7 @@ namespace v2
                 //  1. Select = for each point x apply getPoint(x, w)
                 //  3. Pass all calculated points to drawPolygon
                 var slicedPoints = face.points
-                    .Select(x => x.GetPoint(w, t4d))
+                    .Select(x => x.GetPoint(w, t4d.Transform))
                     .ToArray();
                 slice.fillPolygon(slicedPoints);
             }
