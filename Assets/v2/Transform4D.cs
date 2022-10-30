@@ -2,6 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+enum Rot4D
+{
+    xy = 0,           
+    xz,           
+    xw,           
+    yz,           
+    yw,           
+    zw           
+}
+
 /// <summary>
 /// Represents a translation/rotation/scaling in 4D
 /// </summary>
@@ -21,18 +31,21 @@ public class Transform4D : MonoBehaviour
     /// <returns></returns>
     public Vector4 Transform(Vector4 point)
     {
-        Vector4 v = Vector4.Scale(scale, point) + position;
-        return Rotate( v, rotation );
+        Vector4 v = Vector4.Scale(scale, point);
+        return Rotate( v, rotation) + position;
     }
 
     public Vector4 InverseTransform(Vector4 point)
     {
-        var unscaled = InverseScale( (point - position), scale );
+        point -= position;
         float[] negativeRotation = new float[rotation.Length];
-        for ( int i = 0; i < rotation.Length; i++ ) {
+        for (int i = 0; i < rotation.Length; i++)
+        {
             negativeRotation[i] = -rotation[i];
         }
-        return Rotate( unscaled, negativeRotation );
+        point = Rotate(point, negativeRotation);
+        point = InverseScale( (point), scale );
+        return point;
     }
 
     private Vector4 InverseScale(Vector4 v, Vector4 divisors)

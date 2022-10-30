@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace v2
 {
-    [ExecuteAlways]
     public class SliceRenderer : MonoBehaviour
     {
         Transform4D t4d;
