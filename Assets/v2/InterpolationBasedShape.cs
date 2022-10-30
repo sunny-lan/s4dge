@@ -120,6 +120,7 @@ namespace v2
         public List<Line<InterpolationPoint4D>> lines4D = new List<Line<InterpolationPoint4D>>() { };
         public List<Face<InterpolationPoint4D>> faces4D = new List<Face<InterpolationPoint4D>>() { };
         public Dictionary<string, InterpolationPoint4D> points = new Dictionary<string, InterpolationPoint4D>() { };
+        HashSet<float> sliceW = new();
 
 
         //public class Shape4DSlice(Render4D r4) : base(r4) {}
@@ -176,12 +177,15 @@ namespace v2
                     {
                         string[] pTerms = terms[i].Split(',');
 
-                        subpoints.Add(new Vector4(
+                        Vector4 pt = new Vector4(
                             int.Parse(pTerms[0]),
                             int.Parse(pTerms[1]),
                             int.Parse(pTerms[2]),
                             int.Parse(pTerms[3])
-                            ));
+                            );
+
+                        subpoints.Add(pt);
+                        sliceW.Add(pt.w);
                     }
 
                     InterpolationPoint4D p4d = new InterpolationPoint4D(subpoints);
@@ -221,23 +225,47 @@ namespace v2
             }
         }
 
-        // requires: each point in the slice is added to the interpolation point with the same name
-        public void addSlice(float w, Dictionary<string, Vector3> slice)
+        /// <summary>
+        /// adds a 3D slice to the shape at a specified w coordinate
+        /// </summary>
+        /// <param name="w"></param>
+        /// <param name="slice"></param>
+        /// <returns>false if a slice already exists at point w (new slice won't be added), true otherwise</returns>
+        public bool AddSlice(float w, Dictionary<string, Vector3> slice)
         {
+            if (sliceW.Contains(w))
+            {
+                return false;
+            }
+
+            sliceW.Add(w);
             foreach((string name, Vector3 point) in slice)
             {
                 points[name].AddSubpoint(point.withW(w));
             }
+
+            return true;
         }
 
-        // removes all points in slice with specified w coordinate
-        // does nothing if no slice has the specified w coordinate
-        public void removeSlice(float w)
+        /// <summary>
+        /// removes all points in slice with specified w coordinate
+        /// does nothing if no slice has the specified w coordinate
+        /// </summary>
+        /// <param name="w"></param>
+        /// <returns>true if the slice was removed</returns>
+        public bool RemoveSlice(float w)
         {
+            if (!sliceW.Contains(w))
+            {
+                return false;
+            }
+
+            sliceW.Remove(w);
             foreach((_, InterpolationPoint4D pt) in points)
             {
                 pt.RemoveSubpoint(w);
             }
+            return true;
         }
     } // class InterpolationBasedShape
 
