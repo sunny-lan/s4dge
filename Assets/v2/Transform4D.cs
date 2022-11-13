@@ -21,18 +21,20 @@ public class Transform4D : MonoBehaviour
     /// <returns></returns>
     public Vector4 Transform(Vector4 point)
     {
+        // TODO: Consider applying rotations before position/scale so that objects rotate locally rather than globally
         Vector4 v = Vector4.Scale(scale, point) + position;
         return Rotate( v, rotation );
     }
 
     public Vector4 InverseTransform(Vector4 point)
     {
-        var unscaled = InverseScale( (point - position), scale );
         float[] negativeRotation = new float[rotation.Length];
         for ( int i = 0; i < rotation.Length; i++ ) {
             negativeRotation[i] = -rotation[i];
         }
-        return Rotate( unscaled, negativeRotation );
+        var removeRotation = Rotate( point, negativeRotation );
+        var removePosition = removeRotation - position;
+        return InverseScale( removePosition, scale );
     }
 
     private Vector4 InverseScale(Vector4 v, Vector4 divisors)

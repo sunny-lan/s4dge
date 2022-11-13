@@ -53,10 +53,15 @@ namespace v2
 
             //check if in box
             p -= corner;
-            return 
-                p.x>=0 && p.y>=0 && p.z>=0 && p.w>=0 
+            bool colliding = p.x>=0 && p.y>=0 && p.z>=0 && p.w>=0 
                 && 
                 p.x<=size.x && p.y<=size.y && p.z<=size.z && p.w<=size.w; 
+            
+            if ( colliding ) {
+                Log.Print("Collision detected at: " + p.x + " " + p.y + " " + p.z + " " + p.w, Log.collisions ); 
+            }
+            return colliding;
+                
         }
 
         //TODO performance
