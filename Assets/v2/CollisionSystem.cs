@@ -9,10 +9,21 @@ namespace v2
     /// </summary>
     public class CollisionSystem :MonoBehaviour
     {
-        public static CollisionSystem Instance { get; private set; }
+        private static CollisionSystem _instance; // keep the actual instance private
+        public static CollisionSystem Instance { get { // find the script instance in the scene if the private instance is null
+            if ( _instance == null ) {
+                _instance = FindObjectOfType(typeof(CollisionSystem)) as CollisionSystem;
+            }
+            return _instance;
+        } }
 
         //TODO support things other than box colliders
         private List<BoxCollider4D> colliders = new List<BoxCollider4D>();
+
+        private void Awake()
+        {
+            _instance ??= this; // assign this instance to the static variable if this Awake() occurs before any get call
+        }
 
         public void Add(BoxCollider4D boxCollider)
         {
@@ -22,11 +33,6 @@ namespace v2
         public void Remove(BoxCollider4D boxCollider4D)
         {
             colliders.Remove(boxCollider4D);
-        }
-
-        private void Awake()
-        {
-            Instance ??= this;
         }
 
         private void Update()
@@ -41,7 +47,7 @@ namespace v2
                     if (Physics.GetIgnoreLayerCollision(a.gameObject.layer, b.gameObject.layer))
                         continue;
 
-                    if (a.DoesCollide(b))
+                    if (a.DoesCollide(b) || b.DoesCollide(a)) // need to check if points of a are in b OR points of b are in a
                     {
                         a.TriggerCollision(b);
                         b.TriggerCollision(a);
