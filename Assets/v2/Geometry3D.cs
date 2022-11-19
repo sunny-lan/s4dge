@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -7,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class Geometry3D
 {
-    public readonly List<Vector3> vertices = new();
+    public readonly List<PointInfo> vertices = new();
     public readonly List<int> triangles = new();
     public readonly List<(Vector3,Vector3)> lines = new();
 
@@ -22,10 +23,11 @@ public class Geometry3D
     /// Draws polygon out of triangles
     /// </summary>
     /// <param name="polygon">The polygon to draw</param>
-    public void fillPolygon(params Vector3[] polygon)
+    public void fillPolygon(params PointInfo[] polygon)
     {
         int tmp = vertices.Count;
         this.vertices.AddRange(polygon);
+        
 
         for (int i = 1; i + 1 < polygon.Length; i++)
         {

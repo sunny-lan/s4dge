@@ -46,6 +46,8 @@ namespace v2
             {
                 calculateSlice(previewW);
             }
+
+            render3d.meshRenderer.material.SetVector("_4d_cam_pos", Camera4D.main.t4d.position);
             render3d.SetGeometry(slice);
         }
 
@@ -90,7 +92,16 @@ namespace v2
                 //  1. Select = for each point x apply getPoint(x, w)
                 //  3. Pass all calculated points to drawPolygon
                 var slicedPoints = face.points
-                    .Select(x => x.GetPoint(w, t4d.Transform))
+                    .Select(x =>
+                    {
+                        Vector3 slicedPoint = x.GetPoint(w, t4d.Transform);
+                        return new PointInfo()
+                        {
+                            position = slicedPoint,
+                            w = w,
+                            uv = new () //TODO
+                        };
+                    })
                     .ToArray();
                 slice.fillPolygon(slicedPoints);
             }
