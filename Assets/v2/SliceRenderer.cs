@@ -43,7 +43,7 @@ namespace v2
             slice.Clear();
             if (Application.IsPlaying(gameObject))
             {
-                for (float dlt = -1; dlt < 1; dlt += 0.05f)
+                for (float dlt = -1; dlt <= 1; dlt += 0.1f)
                 {
                     calculateSlice(Camera4D.main.t4d.position.w + dlt);
                 }
