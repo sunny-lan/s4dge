@@ -38,25 +38,27 @@ namespace v2
         /// </summary>
         /// <param name="w"></param>
         /// <returns></returns>
-        public Vector3 GetPoint(float w, Func<Vector4, Vector4> transform)
+        public (Vector3, bool ended) GetPoint(float w, Func<Vector4, Vector4> transform)
         {
-            SortedSet<Vector4> transformedPoints = new(subpoints.Select(transform).ToList(), 
-                Comparer<Vector4>.Create((x, y) => x.w.CompareTo(y.w))); // sort by increasing w
+            var transformedPoints = subpoints.Select(transform).ToArray();
+            Array.Sort(transformedPoints, (x, y) => x.w.CompareTo(y.w)); // sort by increasing w
 
             // if w is out of range, return the closest endpoint
-            if (w <= transformedPoints.First().w)
+            if (w <= transformedPoints[0].w)
             {
-                return transformedPoints.First().XYZ();
+                return (transformedPoints.First().XYZ(), true);
             }
-            if (w >= transformedPoints.Last().w)
+            else if (w >= transformedPoints[transformedPoints.Length-1].w)
             {
-                return transformedPoints.Last().XYZ();
+                return (transformedPoints.Last().XYZ(), true);
             }
+            else
+            {
+                Vector4 right = transformedPoints.First(x => x.w > w);
 
-            Vector4 right = transformedPoints.First(x => x.w > w);
-
-            Vector4 left = transformedPoints.LastOrDefault(x => x.w <= w);
-            return InterpolatePoint(w, left, right);
+                Vector4 left = transformedPoints.LastOrDefault(x => x.w <= w);
+                return (InterpolatePoint(w, left, right), false);
+            }
         }
 
         /// <summary>

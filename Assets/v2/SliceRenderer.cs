@@ -36,6 +36,8 @@ namespace v2
 
         static int cameraPosShaderID = Shader.PropertyToID("_4D_Camera_Pos");
 
+        public float previewWidth = 1;
+
         void Update()
         {
             if (shape == null) return;
@@ -45,7 +47,7 @@ namespace v2
             {
                 // display one slice every 0.1 units from -1 to 1
                 // TODO discussion on how visuals should look
-                for (float dlt = -1; dlt <= 1; dlt += 0.1f)
+                for (float dlt = -previewWidth; dlt <= previewWidth; dlt += 0.1f)
                 {
                     drawSliceAt(Camera4D.main.t4d.position.w + dlt);
                 }
@@ -62,8 +64,28 @@ namespace v2
         // Iterates over all lines
         // Draws points between them
         // Draws all lines
+        Dictionary<InterpolationPoint4D, PointInfo> tmp_interpolatedValue = new(); 
         void drawSliceAt(float w)
         {
+            // interpolate all points and store in dictionary
+            int invalidPoints = 0;
+            foreach(var point in shape.points.Values)
+            {
+                var (interpolated, invalid) = point.GetPoint(w, t4d.Transform);
+                if (invalid) invalidPoints++;
+                tmp_interpolatedValue[point] = new PointInfo()
+                {
+                    position = interpolated,
+                    w = w, // w coordinate of sliced point (equals slice).
+                           // This is used by shader to determine opacity/color
+                    uv = new() //texture mapping TODO 
+                };
+            }
+
+            // if all points out of range, don't draw
+            if (invalidPoints == shape.points.Count)
+                return;
+
             // lines
             // Debug.Log("Lines");
             foreach (Line<InterpolationPoint4D> line in shape.lines4D)
@@ -72,8 +94,8 @@ namespace v2
                 // Find point location given w
                 // for each line, get each point from their start and end location and w
                 // and make sure to apply the transform
-                Vector3 p1 = line.p1.GetPoint(w, t4d.Transform);
-                Vector3 p2 = line.p2.GetPoint(w, t4d.Transform);
+                Vector3 p1 = tmp_interpolatedValue[line.p1].position;
+                Vector3 p2 = tmp_interpolatedValue[line.p2].position;
                 slice.line(p1, p2); // draw line
             }
 
@@ -87,17 +109,7 @@ namespace v2
                 //  1. Select = for each point x apply getPoint(x, w)
                 //  3. Pass all calculated points to drawPolygon
                 var slicedPoints = face.points
-                    .Select(x =>
-                    {
-                        Vector3 slicedPoint = x.GetPoint(w, t4d.Transform);
-                        return new PointInfo()
-                        {
-                            position = slicedPoint,
-                            w = w, // w coordinate of sliced point (equals slice).
-                                   // This is used by shader to determine opacity/color
-                            uv = new () //texture mapping TODO 
-                        };
-                    })
+                    .Select(x => tmp_interpolatedValue[x])
                     .ToArray();
                 slice.fillPolygon(slicedPoints);
             }

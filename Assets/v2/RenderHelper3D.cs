@@ -32,11 +32,21 @@ public class RenderHelper3D : MonoBehaviour
     public void SetGeometry(Geometry3D geometry)
     {
         this.geometry = geometry;
+
+        // if no vertices, don't show anything
+        if (geometry.vertices.Count == 0)
+        {
+            meshRenderer.enabled = false;
+            return;
+        }
+        else
+        {
+            meshRenderer.enabled = true;
+        }
+
         mesh.vertices = geometry.vertices.Select(x => x.position).ToArray();
         mesh.uv = geometry.vertices.Select(x => x.uv).ToArray();
-        // use uv8.x to store w
-        mesh.SetUVs(1, geometry.vertices.Select(x => new Vector2(x.w, x.w)).ToArray());
-
+        mesh.SetUVs(1, geometry.vertices.Select(x => new Vector2(x.w, x.w)).ToArray()); // use uv8.x to store w
         mesh.triangles = geometry.triangles.ToArray();
     }
 }
