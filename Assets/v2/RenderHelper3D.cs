@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -34,7 +35,7 @@ public class RenderHelper3D : MonoBehaviour
         mesh.vertices = geometry.vertices.Select(x => x.position).ToArray();
         mesh.uv = geometry.vertices.Select(x => x.uv).ToArray();
         // use uv8.x to store w
-        mesh.uv8 = geometry.vertices.Select(x => new Vector2(x.w, 0)).ToArray();
+        mesh.SetUVs(1, geometry.vertices.Select(x => new Vector2(x.w, x.w)).ToArray());
 
         mesh.triangles = geometry.triangles.ToArray();
     }

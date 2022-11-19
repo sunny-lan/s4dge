@@ -34,6 +34,8 @@ namespace v2
             
         }
 
+        static int cameraPosShaderID = Shader.PropertyToID("_4D_Camera_Pos");
+
         void Update()
         {
             if (shape == null) return;
@@ -41,13 +43,16 @@ namespace v2
             slice.Clear();
             if (Application.IsPlaying(gameObject))
             {
-                calculateSlice(Camera4D.main.t4d.position.w);
+                for (float dlt = -1; dlt < 1; dlt += 0.05f)
+                {
+                    calculateSlice(Camera4D.main.t4d.position.w + dlt);
+                }
             } else
             {
                 calculateSlice(previewW);
             }
 
-            render3d.meshRenderer.material.SetVector("_4d_cam_pos", Camera4D.main.t4d.position);
+            Shader.SetGlobalVector(cameraPosShaderID, Camera4D.main.t4d.position);
             render3d.SetGeometry(slice);
         }
 
