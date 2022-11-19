@@ -43,14 +43,17 @@ namespace v2
             SortedSet<Vector4> transformedPoints = new(subpoints.Select(transform).ToList(), 
                 Comparer<Vector4>.Create((x, y) => x.w.CompareTo(y.w))); // sort by increasing w
 
-            Vector4 right = transformedPoints.FirstOrDefault(x => x.w > w);
-
-            // point does not exist at this w
-            // TODO: figure out the convention here Royi
-            if ( transformedPoints.Count() == 0 || w > right.w || right == transformedPoints.FirstOrDefault())
+            // if w is out of range, return the closest endpoint
+            if (w <= transformedPoints.First().w)
             {
-                return new Vector3();
+                return transformedPoints.First().XYZ();
             }
+            if (w >= transformedPoints.Last().w)
+            {
+                return transformedPoints.Last().XYZ();
+            }
+
+            Vector4 right = transformedPoints.First(x => x.w > w);
 
             Vector4 left = transformedPoints.LastOrDefault(x => x.w <= w);
             return InterpolatePoint(w, left, right);
