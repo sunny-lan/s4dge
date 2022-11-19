@@ -43,36 +43,26 @@ namespace v2
             slice.Clear();
             if (Application.IsPlaying(gameObject))
             {
+                // display one slice every 0.1 units from -1 to 1
+                // TODO discussion on how visuals should look
                 for (float dlt = -1; dlt <= 1; dlt += 0.1f)
                 {
-                    calculateSlice(Camera4D.main.t4d.position.w + dlt);
+                    drawSliceAt(Camera4D.main.t4d.position.w + dlt);
                 }
             } else
             {
-                calculateSlice(previewW);
+                drawSliceAt(previewW);
             }
 
+            // pass camera position to shader
             Shader.SetGlobalVector(cameraPosShaderID, Camera4D.main.t4d.position);
             render3d.SetGeometry(slice);
-        }
-
-        // helper function which transforms point and then interpolates it
-        Vector3 getPoint(InterpolationPoint4D point, float w)
-        {
-            var initialPoint = t4d.Transform(point.subpoints.FirstOrDefault());
-            var finalPoint = t4d.Transform(point.subpoints.LastOrDefault());
-            var percent = Mathf.InverseLerp(initialPoint.w, finalPoint.w, w);
-            return Vector3.LerpUnclamped(
-                initialPoint.XYZ(),
-                finalPoint.XYZ(),
-                percent);
         }
 
         // Iterates over all lines
         // Draws points between them
         // Draws all lines
-        // Also draws faces??? TODO:// Ask someone about this
-        void calculateSlice(float w)
+        void drawSliceAt(float w)
         {
             // lines
             // Debug.Log("Lines");
@@ -103,8 +93,9 @@ namespace v2
                         return new PointInfo()
                         {
                             position = slicedPoint,
-                            w = w,
-                            uv = new () //TODO
+                            w = w, // w coordinate of sliced point (equals slice).
+                                   // This is used by shader to determine opacity/color
+                            uv = new () //texture mapping TODO 
                         };
                     })
                     .ToArray();
