@@ -65,7 +65,10 @@ namespace v2
                 }
                 else if (fileLine[0] == 't') //texture mapping
                 {
-                    string[] terms = fileLine.Split(':', ',', '(', ')');
+                    string[] terms = fileLine.Split(
+                        new char[] { ':', '(', ')' }, 
+                        options: System.StringSplitOptions.RemoveEmptyEntries
+                    );
                     Debug.Assert(terms.Length >= 3);
 
                     InterpolationPoint4D point = points[terms[1]];
@@ -76,9 +79,10 @@ namespace v2
                         if (i + 2 < terms.Length)
                         {
                             string[] pTerms = terms[i + 2].Split(',');
+                            //Debug.Log(terms[i+2]);
                             lastTerm = uv = new(
-                                int.Parse(pTerms[0]),
-                                int.Parse(pTerms[1])
+                                float.Parse(pTerms[0]),
+                                float.Parse(pTerms[1])
                             );
                         }
 
@@ -99,10 +103,10 @@ namespace v2
                         string[] pTerms = terms[i].Split(',');
 
                         Vector4 position = new Vector4(
-                            int.Parse(pTerms[0]),
-                            int.Parse(pTerms[1]),
-                            int.Parse(pTerms[2]),
-                            int.Parse(pTerms[3])
+                            float.Parse(pTerms[0]),
+                            float.Parse(pTerms[1]),
+                            float.Parse(pTerms[2]),
+                            float.Parse(pTerms[3])
                         );
 
                         subpoints.Add(new PointInfo()
