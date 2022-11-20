@@ -64,6 +64,7 @@ namespace v2
         // Iterates over all lines
         // Draws points between them
         // Draws all lines
+        // TODO improve performance by not duplicating shared vertices between faces
         Dictionary<InterpolationPoint4D, PointInfo> tmp_interpolatedValue = new(); 
         void drawSliceAt(float w)
         {
@@ -73,13 +74,7 @@ namespace v2
             {
                 var (interpolated, invalid) = point.GetPoint(w, t4d.Transform);
                 if (invalid) invalidPoints++;
-                tmp_interpolatedValue[point] = new PointInfo()
-                {
-                    position = interpolated,
-                    w = w, // w coordinate of sliced point (equals slice).
-                           // This is used by shader to determine opacity/color
-                    uv = new() //texture mapping TODO 
-                };
+                tmp_interpolatedValue[point] = interpolated;
             }
 
             // if all points out of range, don't draw

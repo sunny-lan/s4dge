@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;  
+using System.IO;
 using UnityEngine;
 using System;
 using System.Text;
@@ -9,20 +9,58 @@ using System.Text;
 // TODO: 1) Add rendering of squares
 namespace v2
 {
+    /// <summary>
+    /// Stores all info for a single subpoint
+    /// </summary>
+    [Serializable]
+    public struct PointInfo
+    {
+        public Vector4 position4D;
+
+        /// <summary>
+        /// Texture mapping of the point
+        /// </summary>
+        public Vector2 uv;
+
+        // for easier access to w/3d position
+        public Vector3 position { get => position4D.XYZ(); set => position4D = value.withW(w); }
+        public float w { get => position4D.w; set => position4D = position.withW(value); }
+
+        // Interpolates between two subpoints given w
+        // (Interpolates every field linearly)
+        public static PointInfo Interpolate(float w, PointInfo initialPoint, PointInfo finalPoint)
+        {
+            var percent = Mathf.InverseLerp(initialPoint.w, finalPoint.w, w);
+            return new()
+            {
+                position4D = Vector4.Lerp(initialPoint.position4D, finalPoint.position4D, percent),
+                uv = Vector2.Lerp(initialPoint.uv, finalPoint.uv, percent),
+            };
+        }
+    }
+
+    /// <summary>
+    /// Represents a 4D point by a series of interpolated 3D points
+    /// </summary>
     [Serializable]
     public class InterpolationPoint4D
     {
-        public List<Vector4> subpoints; // sort by increasing w
+        public List<PointInfo> subpoints;
 
         // There shouldn't be multiple points with the same w coordinate
-        public InterpolationPoint4D(List<Vector4> points)
+        public InterpolationPoint4D(List<PointInfo> points)
         {
             subpoints = points;
         }
 
         public void AddSubpoint(Vector4 subpoint)
         {
-            subpoints.Add(subpoint);
+            //TODO add editor support for PointInfo
+            subpoints.Add(new PointInfo()
+            {
+                position = subpoint.XYZ(),
+                w = subpoint.w,
+            });
         }
 
         // TODO: may need optimizing Royi
@@ -36,45 +74,36 @@ namespace v2
         /// Then gets the value of this point in 3D at w=w
         /// TODO: may need optimizing Royi
         /// </summary>
-        /// <param name="w"></param>
+        /// <param name="w">Where to slice at</param>
+        /// <param name="transform">Transformation to apply</param>
         /// <returns></returns>
-        public (Vector3, bool ended) GetPoint(float w, Func<Vector4, Vector4> transform)
+        public (PointInfo, bool ended) GetPoint(float w, Func<Vector4, Vector4> transform)
         {
-            var transformedPoints = subpoints.Select(transform).ToArray();
+            
+            var transformedPoints = subpoints.Select(point =>
+            {
+                point.position4D = transform(point.position4D);
+                return point;
+            }).ToArray();
+
             Array.Sort(transformedPoints, (x, y) => x.w.CompareTo(y.w)); // sort by increasing w
 
             // if w is out of range, return the closest endpoint
             if (w <= transformedPoints[0].w)
             {
-                return (transformedPoints.First().XYZ(), true);
+                return (transformedPoints.First(), true);
             }
-            else if (w >= transformedPoints[transformedPoints.Length-1].w)
+            else if (w >= transformedPoints[transformedPoints.Length - 1].w)
             {
-                return (transformedPoints.Last().XYZ(), true);
+                return (transformedPoints.Last(), true);
             }
             else
             {
-                Vector4 right = transformedPoints.First(x => x.w > w);
+                PointInfo right = transformedPoints.First(x => x.w > w);
 
-                Vector4 left = transformedPoints.LastOrDefault(x => x.w <= w);
-                return (InterpolatePoint(w, left, right), false);
+                PointInfo left = transformedPoints.LastOrDefault(x => x.w <= w);
+                return (PointInfo.Interpolate(w, left, right), false);
             }
-        }
-
-        /// <summary>
-        /// Interpolates this point given w.
-        /// </summary>
-        /// <param name="w"></param>
-        /// <param name="initialPoint"></param>
-        /// <param name="finalPoint"></param>
-        /// <returns></returns>
-        private Vector3 InterpolatePoint(float w, Vector4 initialPoint, Vector4 finalPoint)
-        {
-            var percent = Mathf.InverseLerp(initialPoint.w, finalPoint.w, w);
-            return Vector3.LerpUnclamped(
-                initialPoint.XYZ(),
-                finalPoint.XYZ(),
-                percent);
         }
 
         public override string ToString()
@@ -122,113 +151,11 @@ namespace v2
     [CreateAssetMenu]
     public class InterpolationBasedShape : ScriptableObject
     {
-        public List<Line<InterpolationPoint4D>> lines4D = new List<Line<InterpolationPoint4D>>() { };
-        public List<Face<InterpolationPoint4D>> faces4D = new List<Face<InterpolationPoint4D>>() { };
-        public Dictionary<string, InterpolationPoint4D> points = new Dictionary<string, InterpolationPoint4D>() { };
-        HashSet<float> sliceW = new();
-
-
-        //public class Shape4DSlice(Render4D r4) : base(r4) {}
-
-        /**
-         * File Formatting:
-         * Each line in the file defines either a Point, Line, or Face
-         * To create a point, the format is: "<P Name>:(<x1>,<y1>,<z1>,<w1>)(<x2>,<y2>,<z2>,<w2>) <- can have arbitrary number of subpoints
-         *      Note: <P Name> cannot start with 'l' or 'f'
-         * To create a line, the format is: "l:<P1 Name>-<P2 Name>"
-         *      Note: <P1 Name> and <P2 Name> must already be defined
-         * To create a face, the format is: "f:<P1 Name>-<P2 Name>-<P3 Name>" or "f:<P1 Name>-<P2 Name>-<P3 Name>-<P4 Name>"
-         *      Note: The first format creates a triangle face and the second creates a square face
-         *      Note: <P1 Name> and <P2 Name> must already be defined
-        */
-        public InterpolationBasedShape(string fileName)
-        {
-
-            // Static file name (for now)
-            string[] fileLines = File.ReadAllLines(fileName);
-
-            foreach (string fileLine in fileLines)
-            {
-                if (fileLine[0] == 'l')
-                { // check that it is line
-                    string[] terms = fileLine.Split(':', '-');
-                    string lineP1 = terms[1];
-                    string lineP2 = terms[2];
-
-                    Line<InterpolationPoint4D> line = new Line<InterpolationPoint4D>(points[lineP1], points[lineP2]); // get rereference to points and then create lines
-
-                    lines4D.Add(line);
-
-                }
-                else if (fileLine[0] == 'f')
-                {
-                    string[] terms = fileLine.Split(':', '-');
-
-                    List<InterpolationPoint4D> facePoints = new List<InterpolationPoint4D>(); // optimization maybe possible lol
-                    foreach (string term in terms.Skip(1).ToArray())
-                    { // Adds points to the face
-                        facePoints.Add(points[term]);
-                    }
-
-                    faces4D.Add(new Face<InterpolationPoint4D>(facePoints));
-                }
-                else
-                {
-                    string[] terms = fileLine.Split(':', '(', ')');
-                    string pName = terms[0];
-                    List<Vector4> subpoints = new();
-
-                    for (int i=2; i < terms.Length; i+=2)
-                    {
-                        string[] pTerms = terms[i].Split(',');
-
-                        Vector4 pt = new Vector4(
-                            int.Parse(pTerms[0]),
-                            int.Parse(pTerms[1]),
-                            int.Parse(pTerms[2]),
-                            int.Parse(pTerms[3])
-                            );
-
-                        subpoints.Add(pt);
-                        sliceW.Add(pt.w);
-                    }
-
-                    InterpolationPoint4D p4d = new InterpolationPoint4D(subpoints);
-
-                    points.Add(pName, p4d);
-                }
-            }
-        } // InterpolationBasedShape()
-
-
-        // Lines and points // TODO: Remove Boon
-        //protected List<InterpolationPoint4D> points4D = new List<InterpolationPoint4D>(){};
-        //protected List<InterpolationPoint4D> lines4D = new List<InterpolationPoint4D>(){};
-
-        // writes shape information to file in shape4D file format
-        public void ToFile(string fileName)
-        {
-            using (StreamWriter sw = File.CreateText(fileName))
-            {
-                foreach (KeyValuePair<string, InterpolationPoint4D> point in points)
-                {
-                    sw.WriteLine(string.Format("{0}:{1}",
-                        point.Key, 
-                        point.Value
-                        ));
-                }
-
-                foreach(Line<InterpolationPoint4D> line in lines4D)
-                {
-                    sw.WriteLine(string.Format("l:{1}", line));
-                }
-
-                foreach(Face<InterpolationPoint4D> face in faces4D)
-                {
-                    sw.WriteLine(string.Format("f:{1}", face));
-                }
-            }
-        }
+        // Lines and points 
+        public List<Line<InterpolationPoint4D>> lines4D = new();
+        public List<Face<InterpolationPoint4D>> faces4D = new();
+        public Dictionary<string, InterpolationPoint4D> points = new();
+        internal HashSet<float> sliceW = new();
 
         /// <summary>
         /// adds a 3D slice to the shape at a specified w coordinate
@@ -244,7 +171,7 @@ namespace v2
             }
 
             sliceW.Add(w);
-            foreach((string name, Vector3 point) in slice)
+            foreach ((string name, Vector3 point) in slice)
             {
                 points[name].AddSubpoint(point.withW(w));
             }
@@ -266,7 +193,7 @@ namespace v2
             }
 
             sliceW.Remove(w);
-            foreach((_, InterpolationPoint4D pt) in points)
+            foreach ((_, InterpolationPoint4D pt) in points)
             {
                 pt.RemoveSubpoint(w);
             }
