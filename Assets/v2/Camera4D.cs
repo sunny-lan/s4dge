@@ -40,4 +40,17 @@ public class Camera4D : MonoBehaviour
         if (main == null)
             main = this;
     }
+
+    static int cameraPosShaderID = Shader.PropertyToID("_4D_Camera_Pos");
+    private void Update()
+    {
+        if (this != Camera4D.main) return;
+
+        // pass camera position to shader
+        Shader.SetGlobalVector(cameraPosShaderID, t4d.position);
+
+        // sync 3D camera to 4d camera position
+        // TODO somehow sync rotation?
+        Camera.main.transform.position = t4d.position;
+    }
 }

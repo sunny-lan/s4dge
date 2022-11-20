@@ -25,6 +25,10 @@ namespace v2
          * To create a face, the format is: "f:<P1 Name>-<P2 Name>-<P3 Name>" or "f:<P1 Name>-<P2 Name>-<P3 Name>-<P4 Name>"
          *      Note: The first format creates a triangle face and the second creates a square face
          *      Note: <P1 Name> and <P2 Name> must already be defined
+         * To add a texture mapping, the format is "t:<Point name>, (<uv[0].x>, <uv[0].y>), ..."
+         *      Where uv[] is the array of uv coordinates, which should be
+         *      the same length as the number of subpoints
+         *      If the length of uv[] is 1, the same uv value will be used for all subpoints
         */
         public static InterpolationBasedShape LoadS4DGE(string fileName)
         {
@@ -62,17 +66,26 @@ namespace v2
                 else if (fileLine[0] == 't') //texture mapping
                 {
                     string[] terms = fileLine.Split(':', ',', '(', ')');
-                    InterpolationPoint4D point = points[terms[1]];
-                    for (int i = 2; i < terms.Length; i++)
-                    {
-                        string[] pTerms = terms[i].Split(',');
+                    Debug.Assert(terms.Length >= 3);
 
-                        PointInfo pointInfo = point.subpoints[i - 2];
-                        pointInfo.uv = new(
-                            int.Parse(pTerms[0]),
-                            int.Parse(pTerms[1])
-                        );
-                        point.subpoints[i - 2] = pointInfo;
+                    InterpolationPoint4D point = points[terms[1]];
+                    Vector2 lastTerm = default;
+                    for (int i = 0; i < point.subpoints.Count; i++)
+                    {
+                        Vector2 uv = lastTerm;
+                        if (i + 2 < terms.Length)
+                        {
+                            string[] pTerms = terms[i + 2].Split(',');
+                            lastTerm = uv = new(
+                                int.Parse(pTerms[0]),
+                                int.Parse(pTerms[1])
+                            );
+                        }
+
+                        // update mapping
+                        PointInfo pointInfo = point.subpoints[i];
+                        pointInfo.uv = uv;
+                        point.subpoints[i] = pointInfo;
                     }
                 }
                 else //point declaration

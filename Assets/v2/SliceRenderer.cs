@@ -34,9 +34,9 @@ namespace v2
             
         }
 
-        static int cameraPosShaderID = Shader.PropertyToID("_4D_Camera_Pos");
-
+        // TODO this should be determined by camera. This is just here for debugging purpose
         public float previewWidth = 1;
+        public bool showWhenOutOfRange = true;
 
         void Update()
         {
@@ -55,9 +55,6 @@ namespace v2
             {
                 drawSliceAt(previewW);
             }
-
-            // pass camera position to shader
-            Shader.SetGlobalVector(cameraPosShaderID, Camera4D.main.t4d.position);
             render3d.SetGeometry(slice);
         }
 
@@ -77,9 +74,12 @@ namespace v2
                 tmp_interpolatedValue[point] = interpolated;
             }
 
-            // if all points out of range, don't draw
-            if (invalidPoints == shape.points.Count)
-                return;
+            if (!showWhenOutOfRange)
+            {
+                // if all points out of range, don't draw
+                if (invalidPoints == shape.points.Count)
+                    return;
+            }
 
             // lines
             // Debug.Log("Lines");
