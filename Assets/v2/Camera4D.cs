@@ -1,9 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [ExecuteAlways]
+[RequireComponent(typeof(Transform4D))]
+[RequireComponent(typeof(Camera))]
 public class Camera4D : MonoBehaviour
 {
     /// <summary>
@@ -32,25 +37,53 @@ public class Camera4D : MonoBehaviour
     /// </summary>
     public Transform4D t4d { get; private set; }
 
+    public Camera camera3D { get; private set; }
+    
+    private void Awake()
+    {
+        t4d = GetComponent<Transform4D>();
+        camera3D = GetComponent<Camera>();
+        cameraMapping[camera3D] = this;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        t4d = GetComponent<Transform4D>();
-
         if (main == null)
             main = this;
     }
 
-    static int cameraPosShaderID = Shader.PropertyToID("_4D_Camera_Pos");
     private void Update()
     {
-        if (this != Camera4D.main) return;
-
-        // pass camera position to shader
-        Shader.SetGlobalVector(cameraPosShaderID, t4d.position);
-
         // sync 3D camera to 4d camera position
         // TODO somehow sync rotation?
-        Camera.main.transform.position = t4d.position;
+        camera3D.transform.position = t4d.position;
     }
+
+    //
+    // Here, we wire Unity camera rendering events to our own Camera4D events
+    // So that we can use them in our own renderers
+    //
+
+    private static Dictionary<Camera, Camera4D> cameraMapping = new();
+    public static event Action<ScriptableRenderContext, Camera4D> onBeginCameraRendering;
+
+
+    private void OnDestroy()
+    {
+        cameraMapping.Remove(camera3D);
+    }
+
+    static Camera4D()
+    {
+        RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
+    }
+
+    private static void OnBeginCameraRendering(ScriptableRenderContext ctx, Camera cam)
+    {
+        if (cameraMapping.TryGetValue(cam, out var cam4D))
+            if (cam4D.enabled)
+                    onBeginCameraRendering?.Invoke(ctx, cam4D);
+    }
+
 }

@@ -1,18 +1,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 namespace v2
 {
+    [ExecuteAlways]
     public class S4DGELoader : MonoBehaviour
     {
         public string filePath = "Assets/Models/inclinedPlaneModel.s4dge";
         // Start is called before the first frame update
-        void Start()
+        void Awake()
         {
-            GetComponent<SliceRenderer>().shape = LoadS4DGE(filePath);
+            //TODO
+            GetComponent<IShape4DRenderer>().Shape = LoadS4DGE(filePath);
         }
+
+        // TODO add auto normalization such that all points have the same start and end w.
 
 
         /**
@@ -32,6 +37,7 @@ namespace v2
         */
         public static InterpolationBasedShape LoadS4DGE(string fileName)
         {
+            //
             var shape = ScriptableObject.CreateInstance<InterpolationBasedShape>();
             var points = shape.points;
             var lines4D = shape.lines4D;

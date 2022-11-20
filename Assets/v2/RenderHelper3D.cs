@@ -28,7 +28,7 @@ namespace v2
             if (geometry == null) return;
             foreach (var (a, b) in geometry.lines)
             {
-                Debug.DrawLine(a, b);
+                Debug.DrawLine(geometry.vertices[ a],geometry.vertices[ b]);
             }
         }
         public void SetGeometry(Geometry3D geometry)
@@ -46,10 +46,7 @@ namespace v2
                 meshRenderer.enabled = true;
             }
 
-            mesh.vertices = geometry.vertices.Select(x => x.position).ToArray();
-            mesh.uv = geometry.vertices.Select(x => x.uv).ToArray();
-            mesh.SetUVs(1, geometry.vertices.Select(x => new Vector2(x.w, x.w)).ToArray()); // use uv8.x to store w
-            mesh.triangles = geometry.triangles.ToArray();
+            geometry.ApplyToMesh(mesh);
         }
     }
 }

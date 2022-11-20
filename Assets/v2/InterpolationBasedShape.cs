@@ -154,6 +154,7 @@ namespace v2
         // Lines and points 
         public List<Line<InterpolationPoint4D>> lines4D = new();
         public List<Face<InterpolationPoint4D>> faces4D = new();
+        [SerializeField]
         public Dictionary<string, InterpolationPoint4D> points = new();
         internal HashSet<float> sliceW = new();
 

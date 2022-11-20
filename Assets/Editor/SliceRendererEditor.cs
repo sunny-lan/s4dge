@@ -52,7 +52,7 @@ namespace v2
             if (slice != null)
             {
                 // if slice already exists at specified w, warn user and do nothing
-                if (!(sameWWarning = !((SliceRenderer)target).shape.AddSlice(modifySliceW, slice))) {
+                if (!(sameWWarning = !((SliceRenderer)target).Shape.AddSlice(modifySliceW, slice))) {
                     //((SliceRenderer)target).Update();
                 }
             }
@@ -82,7 +82,7 @@ namespace v2
             // Button to remove slice from the specified w-coordinate
             if (EditorGUILayout.LinkButton("Remove slice"))
             {
-                removeWNotExist = !((SliceRenderer)target).shape.RemoveSlice(modifySliceW);
+                removeWNotExist = !((SliceRenderer)target).Shape.RemoveSlice(modifySliceW);
             }
 
             if (removeWNotExist)
