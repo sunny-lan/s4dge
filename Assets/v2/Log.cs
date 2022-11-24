@@ -11,6 +11,7 @@ public static class Log {
 
     // List all new tags here so that they can be enabled / disabled when testing
     public static LogTag collisions = new LogTag( false ); // EX: set this to true to enable all collision related prints
+    public static LogTag meshRendering = new LogTag( true );
 
     /// <summary>
     /// Prints the given message if the associated log tag is enabled
