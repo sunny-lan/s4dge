@@ -28,6 +28,7 @@ public class SceneView4DController :MonoBehaviour
             w = GUILayout.HorizontalSlider(w, -10, 20);
             Handles.EndGUI();
             sceneView4DCam.t4d.position = sceneview.camera.transform.position.withW(w);
+            //TODO handle rotation
         }
         
     }

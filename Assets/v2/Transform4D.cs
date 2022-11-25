@@ -9,7 +9,7 @@ enum Rot4D
     xw,           
     yz,           
     yw,           
-    zw           
+    zw       
 }
 
 /// <summary>
@@ -23,6 +23,30 @@ public class Transform4D : MonoBehaviour
     [HideInInspector]
     public float[] rotation = new float[ROTATION_DOF];
     public Vector4 scale = Vector4.one;
+
+    /// <summary>
+    /// Access the 3D part of rotation
+    /// </summary>
+    public Vector3 eulerAngles3D
+    {
+        get => new(
+            rotation[(int)Rot4D.yz], 
+            rotation[(int)Rot4D.xz], 
+            rotation[(int)Rot4D.xy]
+        );
+        set
+        {
+            rotation[(int)Rot4D.yz] = value.x;
+            rotation[(int)Rot4D.xz] = value.y;
+            rotation[(int)Rot4D.xy] = value.z;
+        }
+    }
+
+    // TODO idk if these are valid when rotation in 4D is non zero
+    public Vector4 forward => Rotate(Vector3.forward, rotation);
+    public Vector4 left => Rotate(Vector3.left, rotation);
+    public Vector4 right => Rotate(Vector3.right, rotation);
+    public Vector4 back => Rotate(Vector3.back, rotation);
 
     /// <summary>
     /// applies transform to point
