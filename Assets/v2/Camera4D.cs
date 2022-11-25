@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 
 [ExecuteAlways]
 [RequireComponent(typeof(Transform4D))]
-[RequireComponent(typeof(Camera))]
+[RequireComponent(typeof(Camera))] //DO NOT MOVE THE 3D CAMERA
 public class Camera4D : MonoBehaviour
 {
     /// <summary>
@@ -51,13 +51,6 @@ public class Camera4D : MonoBehaviour
     {
         if (main == null)
             main = this;
-    }
-
-    private void Update()
-    {
-        // sync 3D camera to 4d camera position
-        // TODO somehow sync rotation?
-        camera3D.transform.position = t4d.position;
     }
 
     //

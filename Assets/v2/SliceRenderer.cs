@@ -67,9 +67,9 @@ namespace v2
             {
                 // display one slice every 0.1 units from -1 to 1
                 // TODO discussion on how visuals should look
-                for (float dlt = -previewWidth; dlt <= previewWidth; dlt += 0.1f)
+                for (float slicePos = -previewWidth; slicePos <= previewWidth; slicePos += 0.1f)
                 {
-                    drawSliceAt(cam.t4d.position.w + dlt);
+                    drawSliceAt(slicePos, cam);
                 }
             }
             //else
@@ -79,7 +79,7 @@ namespace v2
 
             slice.ApplyToMesh(mesh);
             MaterialPropertyBlock blk = new();
-            blk.SetVector(cameraPosShaderID, cam.t4d.position); //pass in camera position to shader
+            blk.SetVector(cameraPosShaderID, Vector4.zero); //pass in camera position to shader (zero for now cause we are in camera local coordinates)
             Graphics.DrawMesh(
                 mesh: mesh, 
                 matrix: Matrix4x4.identity, 
@@ -100,16 +100,20 @@ namespace v2
         // Draws points between them
         // Draws all lines
         Dictionary<InterpolationPoint4D, int> tmp_interpolatedValue = new(); 
-        void drawSliceAt(float w)
+        void drawSliceAt(float w, Camera4D cam)
         {
             // interpolate all points and store in dictionary
             int invalidPoints = 0;
             foreach(var point in shape.points.Values)
             {
-                var (interpolated, invalid) = point.GetPoint(w, t4d.Transform);
-                if (invalid) invalidPoints++;
+                // apply transform of object to point first
+                // then apply camera world-to-local transform to that
+                var (interpolated, invalid) = point.GetPoint(w, p=>cam.t4d.InverseTransform(t4d.Transform(p)));
                 int index = slice.AddPoint(interpolated);
                 tmp_interpolatedValue[point] = index;
+
+                // we count invalid points -> if all invalid, don't show
+                if (invalid) invalidPoints++;
             }
 
             if (!showWhenOutOfRange)
