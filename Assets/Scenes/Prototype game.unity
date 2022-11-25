@@ -350,12 +350,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  position: {x: 0, y: 0, z: 0, w: 0}
+  position: {x: -0.69675255, y: 0, z: 0, w: 0}
   rotation:
   - 0
   - 0
   - 0
-  - 0
+  - -0
   - 0
   - 0
   scale: {x: 1, y: 1, z: 1, w: 1}
@@ -404,8 +404,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 663f1bf2c7685f74881fce6e087c783e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lookSpeed: 1
-  moveSpeed: 4
+  useAcceleration: 0
+  acceleration: 2
+  friction: 0.5
+  lookSpeed: 3
+  maxMovementSpd: 10
   minLookDownAngle: -1
   maxLookUpAngle: 1
 --- !u!1001 &2117589223

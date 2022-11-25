@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
         Walking
     }
 
+    public bool useAcceleration = false;
     public float acceleration = 1f, friction = 0.1f;
 
     public float lookSpeed = 1f;
@@ -28,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
 
     Vector2 lookRotation; //x=side to side rotation, y=up down rotation
     Vector4 velocity;
+    float wSlideStart;
 
     void Update()
     {
@@ -52,9 +54,25 @@ public class PlayerMovement : MonoBehaviour
             0
         );
 
+        // w-slide
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            wSlideStart = lookRotation.x;
+        }
 
+        if (Input.GetKey(KeyCode.C))
+        {
+            // when the user presses c, they rotate in w as well
+            var currentWAngle = lookRotation.x - wSlideStart;
+            t4d.rotation[(int)Rot4D.xw] = currentWAngle;
+        }
+        else
+        {
+            // reset xw rotation to 0 again
+            t4d.rotation[(int)Rot4D.xw] = 0;
+        }
 
-        // Movement: assume z rotation is 0
+        // wasd movement
         Vector4 deltaVelocity = Vector4.zero;
         if (Input.GetKey(KeyCode.W))
         {
@@ -72,18 +90,18 @@ public class PlayerMovement : MonoBehaviour
         {
             deltaVelocity = t4d.right;
         }
+        deltaVelocity.y = 0; // no y movement
 
-        velocity += deltaVelocity * acceleration * Time.deltaTime;
-        velocity -= velocity.normalized * friction * Time.deltaTime;
-        velocity = velocity.LimitLength(maxMovementSpd);
-        t4d.position += velocity * Time.deltaTime;
-
-
-
-        // w-slide
-        if (Input.GetKey(KeyCode.C))
+        if (useAcceleration)
         {
-
+            velocity += deltaVelocity * acceleration * Time.deltaTime;
+            velocity -= velocity.normalized * friction * Time.deltaTime;
+            velocity = velocity.LimitLength(maxMovementSpd);
         }
+        else
+        {
+            velocity = deltaVelocity * maxMovementSpd;
+        }
+        t4d.position += velocity * Time.deltaTime;
     }
 }

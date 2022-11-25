@@ -27,49 +27,49 @@ namespace v2
         public float[] rotation = new float[ROTATION_DOF];
         public Vector4 scale = Vector4.one;
 
-    /// <summary>
-    /// Access the 3D part of rotation as euler angles (radians)    /// </summary>
-    public Vector3 eulerAngles3D
-    {
-        get => new(
-            rotation[(int)Rot4D.yz], 
-            rotation[(int)Rot4D.xz], 
-            rotation[(int)Rot4D.xy]
-        );
-        set
+        /// <summary>
+        /// Access the 3D part of rotation as euler angles (radians)        /// </summary>
+        public Vector3 eulerAngles3D
         {
-            rotation[(int)Rot4D.yz] = value.x;
-            rotation[(int)Rot4D.xz] = value.y;
-            rotation[(int)Rot4D.xy] = value.z;
+            get => new(
+                rotation[(int)Rot4D.yz], 
+                rotation[(int)Rot4D.xz], 
+                rotation[(int)Rot4D.xy]
+            );
+            set
+            {
+                rotation[(int)Rot4D.yz] = value.x;
+                rotation[(int)Rot4D.xz] = value.y;
+                rotation[(int)Rot4D.xy] = value.z;
+            }
+        }        public Quaternion rotation3D
+        {
+            get => Quaternion.Euler(180*eulerAngles3D/Mathf.PI);
+            set => eulerAngles3D = Mathf.PI * value.eulerAngles/180;
         }
-    }    public Quaternion rotation3D
-    {
-        get => Quaternion.Euler(180*eulerAngles3D/Mathf.PI);
-        set => eulerAngles3D = Mathf.PI * value.eulerAngles/180;
-    }
 
-    public Vector3 position3D
-    {
-        get => position.XYZ();
-        set => position = value.withW(position.w);
-    }
+        public Vector3 position3D
+        {
+            get => position.XYZ();
+            set => position = value.withW(position.w);
+        }
 
-    // TODO idk if these are valid when rotation in 4D is non zero
-    public Vector4 forward => Rotate(Vector3.forward, rotation);
-    public Vector4 left => Rotate(Vector3.left, rotation);
-    public Vector4 right => Rotate(Vector3.right, rotation);
-    public Vector4 back => Rotate(Vector3.back, rotation);
+        // TODO idk if these are valid when rotation in 4D is non zero
+        public Vector4 forward => Rotate(Vector3.forward, rotation);
+        public Vector4 left => Rotate(Vector3.left, rotation);
+        public Vector4 right => Rotate(Vector3.right, rotation);
+        public Vector4 back => Rotate(Vector3.back, rotation);
 
-    /// <summary>
-    /// applies transform to point
-    /// </summary>
-    /// <param name="point"></param>
-    /// <returns></returns>
-    public Vector4 Transform(Vector4 point)
-    {
-        Vector4 v = Vector4.Scale(scale, point);
-        return Rotate( v, rotation) + position;
-    }
+        /// <summary>
+        /// applies transform to point
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public Vector4 Transform(Vector4 point)
+        {
+            Vector4 v = Vector4.Scale(scale, point);
+            return Rotate( v, rotation) + position;
+        }
 
         public Ray4D Transform(Ray4D ray)
         {
