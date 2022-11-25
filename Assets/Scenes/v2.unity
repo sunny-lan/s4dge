@@ -661,7 +661,7 @@ GameObject:
   - component: {fileID: 800577310}
   - component: {fileID: 800577309}
   m_Layer: 0
-  m_Name: Donut
+  m_Name: CatModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -679,11 +679,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a56de84c57b6de44a12db5b06a25ded, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: Mossberg Shotgun
+  fileName: Cat
   material: {fileID: 2100000, guid: a40bb0b7fced82b40893d7dbd2bde6de, type: 2}
   previewW: 0
-  previewWidth: 1
-  showWhenOutOfRange: 1
 --- !u!114 &800577310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -696,15 +694,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  position: {x: 0, y: 0, z: 0, w: 0}
+  position: {x: 2.53, y: 3, z: 2.98, w: 0}
   rotation:
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  scale: {x: 1, y: 1, z: 1, w: 1}
+  - 1.57
+  - 1.38
+  - 1.88
+  - 1.99
+  - 1.2
+  - 2.04
+  scale: {x: 2.44, y: 2.59, z: 2.83, w: 2.71}
 --- !u!4 &800577311
 Transform:
   m_ObjectHideFlags: 0
