@@ -26,13 +26,14 @@ public class SceneView4DController :MonoBehaviour
         }
         else
         {
-            Handles.BeginGUI();
-            w = GUILayout.HorizontalSlider(w, -10, 20);
-            Handles.EndGUI();
+            sceneView4DCam.t4d.scale = Vector4.one;
             sceneView4DCam.t4d.position = sceneview.camera.transform.position.withW(w);
-            //TODO handle rotation
         }
-        
+
+        Handles.BeginGUI();
+        w = GUILayout.HorizontalSlider(w, -10, 20);
+        Handles.EndGUI();
+
     }
 
 }

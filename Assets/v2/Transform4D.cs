@@ -28,8 +28,7 @@ namespace v2
         public Vector4 scale = Vector4.one;
 
     /// <summary>
-    /// Access the 3D part of rotation
-    /// </summary>
+    /// Access the 3D part of rotation as euler angles (radians)    /// </summary>
     public Vector3 eulerAngles3D
     {
         get => new(
@@ -43,6 +42,16 @@ namespace v2
             rotation[(int)Rot4D.xz] = value.y;
             rotation[(int)Rot4D.xy] = value.z;
         }
+    }    public Quaternion rotation3D
+    {
+        get => Quaternion.Euler(180*eulerAngles3D/Mathf.PI);
+        set => eulerAngles3D = Mathf.PI * value.eulerAngles/180;
+    }
+
+    public Vector3 position3D
+    {
+        get => position.XYZ();
+        set => position = value.withW(position.w);
     }
 
     // TODO idk if these are valid when rotation in 4D is non zero
