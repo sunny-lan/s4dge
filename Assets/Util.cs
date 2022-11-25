@@ -12,4 +12,13 @@ public static class Util
     {
         return new(v.x, v.y, v.z, w);
     }
+
+    public static Vector4 LimitLength(this Vector4 v, float maxLen)
+    {
+        float length = v.magnitude;
+        if (length > maxLen)
+            return v * maxLen / length;
+        else
+            return v;
+    }
 }

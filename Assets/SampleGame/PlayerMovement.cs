@@ -3,8 +3,15 @@ using v2;
 
 public class PlayerMovement : MonoBehaviour
 {
+    enum State
+    {
+        Walking
+    }
+
+    public float acceleration = 1f, friction = 0.1f;
+
     public float lookSpeed = 1f;
-    public float moveSpeed = 1f;
+    public float maxMovementSpd = 1f;
 
     /// <summary>
     /// In radians
@@ -17,30 +24,13 @@ public class PlayerMovement : MonoBehaviour
         t4d = GetComponent<Transform4D>();
     }
 
+    State state = State.Walking;
+
     Vector2 lookRotation; //x=side to side rotation, y=up down rotation
+    Vector4 velocity;
 
     void Update()
     {
-        // Implement movement: assume z rotation is 0
-        Vector4 deltaPosition = Vector4.zero;
-        if (Input.GetKey(KeyCode.W))
-        {
-            deltaPosition = t4d.forward;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            deltaPosition = t4d.back;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            deltaPosition = t4d.left;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            deltaPosition = t4d.right;
-        }
-        t4d.position += deltaPosition * moveSpeed * Time.deltaTime;
-
         // Camera look
         Vector2 deltaMouse = new(
             Input.GetAxis("Mouse X"),
@@ -61,5 +51,39 @@ public class PlayerMovement : MonoBehaviour
             lookRotation.x,
             0
         );
+
+
+
+        // Movement: assume z rotation is 0
+        Vector4 deltaVelocity = Vector4.zero;
+        if (Input.GetKey(KeyCode.W))
+        {
+            deltaVelocity = t4d.forward;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            deltaVelocity = t4d.back;
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            deltaVelocity = t4d.left;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            deltaVelocity = t4d.right;
+        }
+
+        velocity += deltaVelocity * acceleration * Time.deltaTime;
+        velocity -= velocity.normalized * friction * Time.deltaTime;
+        velocity = velocity.LimitLength(maxMovementSpd);
+        t4d.position += velocity * Time.deltaTime;
+
+
+
+        // w-slide
+        if (Input.GetKey(KeyCode.C))
+        {
+
+        }
     }
 }
