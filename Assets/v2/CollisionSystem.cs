@@ -1,9 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace v2
 {
+    public struct Ray4D
+    {
+        public Vector4 src, direction;
+
+        public struct Intersection : IComparable<Intersection>
+        {
+            public float delta;
+            public Vector4 point;
+
+            public int CompareTo(Intersection o)
+            {
+                return delta.CompareTo(o.delta);
+            }
+        }
+
+        // solve for intersection of ray with plane 'component=val'
+        // e.g. x=2
+        // returns delta in (intersect pt) = src + delta * direction, as well as the point
+        public Intersection? intersectPlane(int component, float val)
+        {
+            float delta = (val - src[component]) / direction[component];
+            if (delta < 0)
+            {
+                // if delta is negative, there is no intersection
+                // (the ray has to cast backwards to reach the point)
+                return null;
+            }
+            return new Intersection { delta=delta, point=getPoint(delta) };
+        }
+
+        public Vector4 getPoint(float delta)
+        {
+            return src + direction * delta;
+        }
+    }
+
     /// <summary>
     /// Manages collisions. One of this must be added to the scene for collisions to work.
     /// </summary>
@@ -33,6 +70,12 @@ namespace v2
         public void Remove(BoxCollider4D boxCollider4D)
         {
             colliders.Remove(boxCollider4D);
+        }
+
+        public IEnumerable<Ray4D.Intersection?> Raycast(Ray4D ray)
+        {
+            IEnumerable<Ray4D.Intersection?> intersects = colliders.Select(collider => collider.RayIntersect(ray));
+            return intersects;
         }
 
         private void Update()

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace v2
 {
@@ -45,6 +46,17 @@ namespace v2
         private void OnDisable()
         {
             CollisionSystem.Instance.Remove(this);
+        }
+
+        public Ray4D.Intersection? RayIntersect(Ray4D ray)
+        {
+            // transform to local coordinates
+            ray = t4d.Transform(ray);
+            ray.src -= corner;
+
+            // faces : x = 0, x = size.x, ..., w = 0, w = size.x
+            Ray4D.Intersection? firstIntersect = Enumerable.Range(0, 4).Select(face => ray.intersectPlane(face, 0)).Min();
+            return firstIntersect;
         }
 
         public bool ContainsPoint(Vector4 p)
