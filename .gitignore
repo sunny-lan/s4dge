@@ -7,3 +7,4 @@ obj
 .vsconfig
 Assembly-CSharp.csproj
 crust.sln
+Assembly-CSharp-Editor.csproj
