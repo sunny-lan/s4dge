@@ -679,9 +679,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a56de84c57b6de44a12db5b06a25ded, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: Cat
-  material: {fileID: 2100000, guid: a40bb0b7fced82b40893d7dbd2bde6de, type: 2}
+  fileName: Dragon 2.5_fbx
+  fallBackMaterial: {fileID: 2100000, guid: a40bb0b7fced82b40893d7dbd2bde6de, type: 2}
   previewW: 0
+  showWhenOutOfRange: 1
 --- !u!114 &800577310
 MonoBehaviour:
   m_ObjectHideFlags: 0
