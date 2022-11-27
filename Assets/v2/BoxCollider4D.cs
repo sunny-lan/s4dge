@@ -51,7 +51,7 @@ namespace v2
         public Ray4D.Intersection? RayIntersect(Ray4D ray)
         {
             // transform to local coordinates
-            ray = t4d.Transform(ray);
+            ray = t4d.ApplyLocalTransform(ray);
             ray.src -= corner;
 
             // faces : x = 0, x = size.x, ..., w = 0, w = size.x
@@ -61,7 +61,7 @@ namespace v2
 
         public bool ContainsPoint(Vector4 p)
         {
-            p = t4d.InverseTransform(p); //transform to local coordinates
+            p = t4d.InverseLocalTransform(p); //transform to local coordinates
 
             //check if in box
             p -= corner;
@@ -88,7 +88,7 @@ namespace v2
                     (i >> 2) & 1,
                     (i >> 3) & 1
                 ));
-                yield return t4d.Transform(corner + offset);
+                yield return t4d.ApplyLocalTransform(corner + offset);
             }
         }
 

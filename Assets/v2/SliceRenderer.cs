@@ -96,33 +96,22 @@ namespace v2
         public bool showWhenOutOfRange = true;
 
 
+        // temp dictionary that maps points to their vertex index
+        // for use in drawSliceAt
+        Dictionary<InterpolationPoint4D, int> tmp_interpolatedValue = new();
+        
         // Iterates over all lines
         // Draws points between them
         // Draws all lines
-        Dictionary<InterpolationPoint4D, int> tmp_interpolatedValue = new(); 
         void drawSliceAt(float w, Camera4D cam)
         {
-            Vector4 transformPoint(Vector4 p)
-            {
-                // apply all transforms of parents (TODO performance)
-                var currentT4D = t4d;
-                do
-                {
-                    p = currentT4D.Transform(p);
-                    currentT4D = currentT4D.parent;
-                } while (currentT4D != null);
-
-                p = cam.t4d.InverseTransform(p); // transform to camera-relative coordinates
-                return p;
-            }
-
             // interpolate all points and store in dictionary
             int invalidPoints = 0;
             foreach(var point in shape.points.Values)
             {
                 // apply transform of object to point first
                 // then apply camera world-to-local transform to that
-                var (interpolated, invalid) = point.GetPoint(w, transformPoint);
+                var (interpolated, invalid) = point.GetPoint(w, p => cam.t4d.WorldToLocal(t4d.LocalToWorld(p)));
                 int index = slice.AddPoint(interpolated);
                 tmp_interpolatedValue[point] = index;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace v2
@@ -24,17 +25,18 @@ namespace v2
     {
         public const int ROTATION_DOF = 6;
 
-        public Vector4 position;
+        public Vector4 localPosition;
         [HideInInspector]
-        public float[] rotation = new float[ROTATION_DOF];
-        public Vector4 scale = Vector4.one;
+        public float[] localRotation = new float[ROTATION_DOF];
+        public Vector4 localScale = Vector4.one;
 
         // caches the Transform4D of the parent for performance 
         Transform4D _parent;
-        public Transform4D parent 
+        public Transform4D parent
         {
             get => _parent;
-            set {
+            set
+            {
                 _parent = value;
                 transform.parent = value?.transform; //parent can be null
             }
@@ -62,69 +64,69 @@ namespace v2
         /// <summary>
         /// Access the 3D part of rotation as euler angles (radians)
         /// </summary>
-        public Vector3 eulerAngles3D
+        public Vector3 localEulerAngles3D
         {
             get => new(
-                rotation[(int)Rot4D.yz], 
-                rotation[(int)Rot4D.xz], 
-                rotation[(int)Rot4D.xy]
+                localRotation[(int)Rot4D.yz],
+                localRotation[(int)Rot4D.xz],
+                localRotation[(int)Rot4D.xy]
             );
             set
             {
-                rotation[(int)Rot4D.yz] = value.x;
-                rotation[(int)Rot4D.xz] = value.y;
-                rotation[(int)Rot4D.xy] = value.z;
+                localRotation[(int)Rot4D.yz] = value.x;
+                localRotation[(int)Rot4D.xz] = value.y;
+                localRotation[(int)Rot4D.xy] = value.z;
             }
         }
 
-        public Quaternion rotation3D
+        public Quaternion localRotation3D
         {
-            get => Quaternion.Euler(180*eulerAngles3D/Mathf.PI);
-            set => eulerAngles3D = Mathf.PI * value.eulerAngles/180;
+            get => Quaternion.Euler(180 * localEulerAngles3D / Mathf.PI);
+            set => localEulerAngles3D = Mathf.PI * value.eulerAngles / 180;
         }
 
-        public Vector3 position3D
+        public Vector3 localPosition3D
         {
-            get => position.XYZ();
-            set => position = value.withW(position.w);
+            get => localPosition.XYZ();
+            set => localPosition = value.withW(localPosition.w);
         }
 
         // TODO idk if these are valid when rotation in 4D is non zero
-        public Vector4 forward => Rotate(Vector3.forward, rotation);
-        public Vector4 left => Rotate(Vector3.left, rotation);
-        public Vector4 right => Rotate(Vector3.right, rotation);
-        public Vector4 back => Rotate(Vector3.back, rotation);
+        public Vector4 forward => Rotate(Vector3.forward, localRotation);
+        public Vector4 left => Rotate(Vector3.left, localRotation);
+        public Vector4 right => Rotate(Vector3.right, localRotation);
+        public Vector4 back => Rotate(Vector3.back, localRotation);
 
         /// <summary>
-        /// applies transform to point
+        /// applies local transform to point
         /// </summary>
         /// <param name="point"></param>
         /// <returns></returns>
-        public Vector4 Transform(Vector4 point)
+        public Vector4 ApplyLocalTransform(Vector4 point)
         {
-            Vector4 v = Vector4.Scale(scale, point);
-            return Rotate( v, rotation) + position;
+            Vector4 v = Vector4.Scale(localScale, point);
+            return Rotate(v, localRotation) + localPosition;
         }
 
-        public Ray4D Transform(Ray4D ray)
+        public Ray4D ApplyLocalTransform(Ray4D ray)
         {
-            return new Ray4D { src = Transform(ray.src), direction = Rotate(ray.direction, rotation) };
+            return new Ray4D { src = ApplyLocalTransform(ray.src), direction = Rotate(ray.direction, localRotation) };
         }
 
-        public Vector4 InverseTransform(Vector4 point)
+        public Vector4 InverseLocalTransform(Vector4 point)
         {
-            point -= position;
-            float[] negativeRotation = new float[rotation.Length];
-            for (int i = 0; i < rotation.Length; i++)
+            point -= localPosition;
+            float[] negativeRotation = new float[localRotation.Length];
+            for (int i = 0; i < localRotation.Length; i++)
             {
-                negativeRotation[i] = -rotation[i];
+                negativeRotation[i] = -localRotation[i];
             }
             point = Rotate(point, negativeRotation);
-            point = InverseScale((point), scale);
+            point = InverseLocalScale((point), localScale);
             return point;
         }
 
-        private Vector4 InverseScale(Vector4 v, Vector4 divisors)
+        private Vector4 InverseLocalScale(Vector4 v, Vector4 divisors)
         {
             Vector4 componentInverse = Vector4.one;
             for (int i = 0; i < 4; i++)
@@ -172,6 +174,49 @@ namespace v2
             matrix[axis2, axis2] = Mathf.Cos(theta);
 
             return matrix * v;
+        }
+
+        /// <summary>
+        /// Transforms a point from local coordinates to global coordinates
+        /// </summary>
+        public Vector4 LocalToWorld(Vector4 p)
+        {
+            // apply all transforms of parents (TODO performance)
+            var currentT4D = this;
+            do
+            {
+                p = currentT4D.ApplyLocalTransform(p);
+                currentT4D = currentT4D.parent;
+            } while (currentT4D != null);
+            return p;
+        }
+
+        // temp list for use in WorldToLocal
+        static List<Transform4D> tmp_transformations = new();
+
+        /// <summary>
+        /// Transforms a point from global coordinates to local coordinates
+        /// </summary>
+        public Vector4 WorldToLocal(Vector4 p)
+        {
+            Debug.Assert(tmp_transformations.Count == 0);
+
+            // get all parent transforms and store in temp list
+            var currentT4D = this;
+            do
+            {
+                tmp_transformations.Add(currentT4D);
+                currentT4D = currentT4D.parent;
+            } while (currentT4D != null);
+
+            // apply all transforms of parents in reverse order (TODO performance)
+            for (int i = tmp_transformations.Count - 1; i >= 0; i--)
+            {
+                p = tmp_transformations[i].InverseLocalTransform(p);
+            }
+
+            tmp_transformations.Clear();
+            return p;
         }
     }
 

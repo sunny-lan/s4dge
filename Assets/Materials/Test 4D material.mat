@@ -101,7 +101,7 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _Distance_range: 3
+    - _Distance_range: 1
     - _Dropoff_rate: 0.5
     - _DstBlend: 0
     - _GlossMapScale: 1

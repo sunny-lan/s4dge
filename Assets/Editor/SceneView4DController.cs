@@ -26,8 +26,8 @@ public class SceneView4DController :MonoBehaviour
         }
         else
         {
-            sceneView4DCam.t4d.scale = Vector4.one;
-            sceneView4DCam.t4d.position = new Vector4(0, 0, 0, w);
+            sceneView4DCam.t4d.localScale = Vector4.one;
+            sceneView4DCam.t4d.localPosition = new Vector4(0, 0, 0, w);
         }
 
         Handles.BeginGUI();

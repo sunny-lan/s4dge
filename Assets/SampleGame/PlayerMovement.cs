@@ -48,7 +48,7 @@ public class PlayerMovement : MonoBehaviour
             Mathf.Clamp( lookRotation.y, minLookDownAngle, maxLookUpAngle)
         );
 
-        t4d.eulerAngles3D = new(
+        t4d.localEulerAngles3D = new(
             lookRotation.y,
             lookRotation.x,
             0
@@ -64,12 +64,12 @@ public class PlayerMovement : MonoBehaviour
         {
             // when the user presses c, they rotate in w as well
             var currentWAngle = lookRotation.x - wSlideStart;
-            t4d.rotation[(int)Rot4D.xw] = currentWAngle;
+            t4d.localRotation[(int)Rot4D.xw] = currentWAngle;
         }
         else
         {
             // reset xw rotation to 0 again
-            t4d.rotation[(int)Rot4D.xw] = 0;
+            t4d.localRotation[(int)Rot4D.xw] = 0;
         }
 
         // wasd movement
@@ -102,6 +102,6 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity = deltaVelocity * maxMovementSpd;
         }
-        t4d.position += velocity * Time.deltaTime;
+        t4d.localPosition += velocity * Time.deltaTime;
     }
 }
