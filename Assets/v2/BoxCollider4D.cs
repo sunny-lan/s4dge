@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UIElements;
 
 namespace v2
 {
@@ -48,14 +49,53 @@ namespace v2
             CollisionSystem.Instance.Remove(this);
         }
 
+        public static Ray4D.Intersection? Min(Ray4D.Intersection? a, Ray4D.Intersection? b)
+        {
+            if (a == null) return b;
+            if (b == null) return a;
+            if (a is Ray4D.Intersection aa && b is Ray4D.Intersection bb)
+            {
+                return aa.CompareTo(bb) < 0 ? aa : bb;
+            } else
+            {
+                // dead code
+                return null;
+            }
+        }
+
         public Ray4D.Intersection? RayIntersect(Ray4D ray)
         {
+            Debug.Log("src: " + ray.src.ToString() + " dir: " + ray.direction.ToString());
             // transform to local coordinates
-            ray = t4d.ApplyLocalTransform(ray); //TODO change this to WorldToLocal
+            ray = t4d.WorldToLocal(ray);
             ray.src -= corner;
 
+            Debug.Log("trans src: " + ray.src.ToString() + " trans dir: " + ray.direction.ToString());
+
             // faces : x = 0, x = size.x, ..., w = 0, w = size.x
-            Ray4D.Intersection? firstIntersect = Enumerable.Range(0, 4).Select(face => ray.intersectPlane(face, 0)).Min();
+            Ray4D.Intersection? firstIntersect = null;
+            for (int face = 0; face < 4; ++face)
+            {
+                firstIntersect = Min(firstIntersect, ray.intersectPlane(face, 0, size));
+                firstIntersect = Min(firstIntersect, ray.intersectPlane(face, size[face], size));
+            }
+
+            foreach (var curIntersect in Enumerable.
+                Range(0, 4).
+                Select(face => ray.intersectPlane(face, 0, size)))
+            {
+                if (curIntersect is Ray4D.Intersection isct) {
+                    Debug.Log("dlt: " + isct.delta + " pt: " + isct.point);
+                }
+            }
+
+            // transform back to world coordinates
+            if (firstIntersect is Ray4D.Intersection intersect)
+            {
+                intersect.point = t4d.LocalToWorld(intersect.point + corner);
+                firstIntersect = intersect;
+            }
+
             return firstIntersect;
         }
 

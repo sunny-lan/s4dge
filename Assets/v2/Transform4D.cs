@@ -91,11 +91,15 @@ namespace v2
             set => localPosition = value.withW(localPosition.w);
         }
 
+        public Vector4 LocalDirectionToWorld(Vector4 direction) => LocalToWorld(direction) - LocalToWorld(Vector4.zero);
+
         // TODO idk if these are valid when rotation in 4D is non zero
-        public Vector4 forward => Rotate(Vector3.forward, localRotation);
-        public Vector4 left => Rotate(Vector3.left, localRotation);
-        public Vector4 right => Rotate(Vector3.right, localRotation);
-        public Vector4 back => Rotate(Vector3.back, localRotation);
+        public Vector4 forward => LocalDirectionToWorld(Vector3.forward);
+        public Vector4 left => LocalDirectionToWorld(Vector3.left);
+        public Vector4 right => LocalDirectionToWorld(Vector3.right);
+        public Vector4 back => LocalDirectionToWorld(Vector3.back);
+
+        public Vector4 position => LocalToWorld(Vector4.zero);
 
         /// <summary>
         /// applies local transform to point
@@ -111,6 +115,16 @@ namespace v2
         public Ray4D ApplyLocalTransform(Ray4D ray)
         {
             return new Ray4D { src = ApplyLocalTransform(ray.src), direction = Rotate(ray.direction, localRotation) };
+        }
+
+        public Ray4D WorldToLocal(Ray4D ray)
+        {
+            var src = WorldToLocal(ray.src);
+            return new()
+            {
+                src = src,
+                direction = WorldToLocal(ray.src + ray.direction) - src,
+            };
         }
 
         public Vector4 InverseLocalTransform(Vector4 point)
@@ -162,7 +176,7 @@ namespace v2
             {
                 for (int j = i + 1; j < 4; ++j)
                 {
-                    total = RotationMatrix( i, j, allRotations[axisCount]) * total;
+                    total = total * RotationMatrix( i, j, allRotations[axisCount]);
                     axisCount++;
                 }
             }

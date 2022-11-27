@@ -70,7 +70,7 @@ MonoBehaviour:
   useAcceleration: 0
   acceleration: 2
   friction: 0.5
-  lookSpeed: 3
+  lookSpeed: 10
   maxMovementSpd: 10
   minLookDownAngle: -1
   maxLookUpAngle: 1
@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 0, z: 0, w: 0}
+  localPosition: {x: 0, y: 1, z: 0, w: 0}
   localRotation:
   - 0
   - 0

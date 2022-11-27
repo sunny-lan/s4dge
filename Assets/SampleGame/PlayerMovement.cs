@@ -8,21 +8,25 @@ public class PlayerMovement : MonoBehaviour
         Walking
     }
 
+    public bool useRotation = false;
     public bool useAcceleration = false;
     public float acceleration = 1f, friction = 0.1f;
 
-    public float lookSpeed = 1f;
+    public float lookSpeed = 0.05f;
     public float maxMovementSpd = 1f;
 
     /// <summary>
     /// In radians
     /// </summary>
-    public float minLookDownAngle = -1f, maxLookUpAngle = 1f; 
+    public float minLookDownAngle = -1f, maxLookUpAngle = 1f;
 
+    Camera4D camera;
     Transform4D t4d;
     void Start()
     {
         t4d = GetComponent<Transform4D>();
+
+        camera = GetComponentInChildren<Camera4D>();
     }
 
     State state = State.Walking;
@@ -30,6 +34,21 @@ public class PlayerMovement : MonoBehaviour
     Vector2 lookRotation; //x=side to side rotation, y=up down rotation
     Vector4 velocity;
     float wSlideStart;
+
+    // shoot a grapple from the player position towards where they are looking
+    void Grapple(Vector4 position, Vector4 look)
+    {
+        var collidePoints = CollisionSystem.Instance.Raycast(new Ray4D { src = position, direction = look }, Physics.AllLayers);
+        foreach (Ray4D.Intersection? intersect in collidePoints)
+        {
+            if (intersect is Ray4D.Intersection name) {
+                Debug.Log(name.point);
+            } else
+            {
+                Debug.Log("null");
+            }
+        }
+    }
 
     void Update()
     {
@@ -39,7 +58,7 @@ public class PlayerMovement : MonoBehaviour
             Input.GetAxis("Mouse Y")
         );
 
-        Vector2 deltaLook = -deltaMouse * lookSpeed * Time.deltaTime;
+        Vector2 deltaLook = -deltaMouse * lookSpeed;
         lookRotation += deltaLook;
 
         // limit rotation to valid stuff
@@ -48,11 +67,14 @@ public class PlayerMovement : MonoBehaviour
             Mathf.Clamp( lookRotation.y, minLookDownAngle, maxLookUpAngle)
         );
 
-        t4d.localEulerAngles3D = new(
-            lookRotation.y,
-            lookRotation.x,
-            0
-        );
+        if (!useRotation)
+        {
+            t4d.localEulerAngles3D = new(
+                lookRotation.y,
+                lookRotation.x,
+                0
+            );
+        }
 
         // w-slide
         if (Input.GetKeyDown(KeyCode.C))
@@ -70,6 +92,12 @@ public class PlayerMovement : MonoBehaviour
         {
             // reset xw rotation to 0 again
             t4d.localRotation[(int)Rot4D.xw] = 0;
+        }
+
+        // grapple
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Grapple(camera.t4d.position, camera.t4d.forward);
         }
 
         // wasd movement

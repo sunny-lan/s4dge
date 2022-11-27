@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UnityEngine;
 
 public static class Util
@@ -20,5 +21,12 @@ public static class Util
             return v * maxLen / length;
         else
             return v;
+    }
+
+    public static T Min<T>(T a, T b) where T:IComparable<T>
+    {
+        if (a == null) return b;
+        if (b == null) return a;
+        return a.CompareTo(b) < 0 ? a : b;
     }
 }

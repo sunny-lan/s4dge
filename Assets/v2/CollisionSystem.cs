@@ -23,16 +23,38 @@ namespace v2
         // solve for intersection of ray with plane 'component=val'
         // e.g. x=2
         // returns delta in (intersect pt) = src + delta * direction, as well as the point
-        public Intersection? intersectPlane(int component, float val)
+        public Intersection? intersectPlane(int component, float val, Vector4 boxSize)
         {
+            // ray parallel to plane, so cannot intersect
+            if (direction[component] == 0)
+            {
+                return null;
+            }
+
             float delta = (val - src[component]) / direction[component];
+
+            if (component == 2)
+            {
+                Debug.Log("component: " + component + "=" + val + " boxsize: " + boxSize + " delta: " + delta + " point: " + getPoint(delta));
+            }
+
             if (delta < 0)
             {
                 // if delta is negative, there is no intersection
                 // (the ray has to cast backwards to reach the point)
                 return null;
             }
-            return new Intersection { delta=delta, point=getPoint(delta) };
+            var point = getPoint(delta);
+            if (point.x < 0 || point.x > boxSize.x ||
+                point.y < 0 || point.y > boxSize.y ||
+                point.z < 0 || point.z > boxSize.z ||
+                point.w < 0 || point.w > boxSize.w)
+            {
+                // collision with plane outside of box
+                return null;
+            }
+
+            return new Intersection { delta=delta, point=point };
         }
 
         public Vector4 getPoint(float delta)
@@ -72,9 +94,11 @@ namespace v2
             colliders.Remove(boxCollider4D);
         }
 
-        public IEnumerable<Ray4D.Intersection?> Raycast(Ray4D ray)
+        public IEnumerable<Ray4D.Intersection?> Raycast(Ray4D ray, int layerMask)
         {
-            IEnumerable<Ray4D.Intersection?> intersects = colliders.Select(collider => collider.RayIntersect(ray));
+            IEnumerable<Ray4D.Intersection?> intersects = colliders.
+                Where(collider => (layerMask & (1 << collider.gameObject.layer)) != 0).
+                Select(collider => collider.RayIntersect(ray));
             return intersects;
         }
 
