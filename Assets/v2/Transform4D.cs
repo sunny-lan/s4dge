@@ -105,7 +105,7 @@ namespace v2
         public Vector4 ApplyLocalTransform(Vector4 point)
         {
             Vector4 v = Vector4.Scale(localScale, point);
-            return Rotate(v, localRotation) + localPosition;
+            return RotationMatrix(localRotation)*v + localPosition;
         }
 
         public Ray4D ApplyLocalTransform(Ray4D ray)
@@ -116,12 +116,7 @@ namespace v2
         public Vector4 InverseLocalTransform(Vector4 point)
         {
             point -= localPosition;
-            float[] negativeRotation = new float[localRotation.Length];
-            for (int i = 0; i < localRotation.Length; i++)
-            {
-                negativeRotation[i] = -localRotation[i];
-            }
-            point = Rotate(point, negativeRotation);
+            point = RotationMatrix(localRotation).inverse * point;
             point = InverseLocalScale((point), localScale);
             return point;
         }
@@ -157,6 +152,23 @@ namespace v2
             }
             return r;
         }
+
+
+        private Matrix4x4 RotationMatrix(float[] allRotations)
+        {
+            int axisCount = 0;
+            Matrix4x4 total = Matrix4x4.identity;
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int j = i + 1; j < 4; ++j)
+                {
+                    total = RotationMatrix( i, j, allRotations[axisCount]) * total;
+                    axisCount++;
+                }
+            }
+            return total;
+        }
+
         /// <summary>
         /// Rotates the given point around theta radians around the defined plane
         /// </summary>
@@ -174,6 +186,17 @@ namespace v2
             matrix[axis2, axis2] = Mathf.Cos(theta);
 
             return matrix * v;
+        }
+
+        public Matrix4x4 RotationMatrix( int axis1, int axis2, float theta)
+        {
+            Matrix4x4 matrix = Matrix4x4.identity;
+            matrix[axis1, axis1] = Mathf.Cos(theta);
+            matrix[axis1, axis2] = -Mathf.Sin(theta);
+            matrix[axis2, axis1] = Mathf.Sin(theta);
+            matrix[axis2, axis2] = Mathf.Cos(theta);
+
+            return matrix ;
         }
 
         /// <summary>
