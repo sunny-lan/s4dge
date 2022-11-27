@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 namespace v2
@@ -10,12 +10,29 @@ namespace v2
     public class S4DGELoader : MonoBehaviour
     {
         public string filePath = "Assets/Models/inclinedPlaneModel.s4dge";
-        // Start is called before the first frame update
-        void Awake()
+
+        // reloading the file as workaround for broken shape bug
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded()
         {
-            //TODO
-            GetComponent<IShape4DRenderer>().Shape = LoadS4DGE(filePath);
+            //TODO this is so sus
+            foreach(var obj in FindObjectsOfType<S4DGELoader>())
+            {
+                obj.ReloadFile();
+            }
         }
+
+        internal void ReloadFile()
+        {
+            GetComponent<IShape4DRenderer>().Shape = LoadS4DGE(filePath);
+
+        }
+
+        private void Awake()
+        {
+            ReloadFile();
+        }
+
 
         // TODO add auto normalization such that all points have the same start and end w.
 
