@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace v2
     /// <summary>
     /// Represents a translation/rotation/scaling in 4D
     /// </summary>
+    [ExecuteAlways]
     public class Transform4D : MonoBehaviour
     {
         public const int ROTATION_DOF = 6;
@@ -27,8 +29,39 @@ namespace v2
         public float[] rotation = new float[ROTATION_DOF];
         public Vector4 scale = Vector4.one;
 
+        // caches the Transform4D of the parent for performance 
+        Transform4D _parent;
+        public Transform4D parent 
+        {
+            get => _parent;
+            set {
+                _parent = value;
+                transform.parent = value?.transform; //parent can be null
+            }
+        }
+
+        void calculateParent()
+        {
+            if (transform.parent == null)
+                parent = null;
+            else
+            {
+                parent = transform.parent.GetComponent<Transform4D>();
+                if (parent == null)
+                    throw new NullReferenceException("Parent of Transform4D must also have a Transform4D");
+            }
+        }
+
+        private void OnTransformParentChanged() => calculateParent();
+
+        private void Awake()
+        {
+            calculateParent(); //make sure parent is initialized
+        }
+
         /// <summary>
-        /// Access the 3D part of rotation as euler angles (radians)        /// </summary>
+        /// Access the 3D part of rotation as euler angles (radians)
+        /// </summary>
         public Vector3 eulerAngles3D
         {
             get => new(
@@ -42,7 +75,9 @@ namespace v2
                 rotation[(int)Rot4D.xz] = value.y;
                 rotation[(int)Rot4D.xy] = value.z;
             }
-        }        public Quaternion rotation3D
+        }
+
+        public Quaternion rotation3D
         {
             get => Quaternion.Euler(180*eulerAngles3D/Mathf.PI);
             set => eulerAngles3D = Mathf.PI * value.eulerAngles/180;
@@ -137,16 +172,6 @@ namespace v2
             matrix[axis2, axis2] = Mathf.Cos(theta);
 
             return matrix * v;
-        }
-
-        /// <summary>
-        /// Applies the 3D part of this transform to a normal Unity transform.
-        /// This is used as an optimization, by offloading 3D transforms to the engine instead
-        /// </summary>
-        /// <param name="t3d"></param>
-        public void ApplyTo(Transform t3d)
-        {
-            //TODO
         }
     }
 

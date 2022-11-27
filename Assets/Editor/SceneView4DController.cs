@@ -27,7 +27,7 @@ public class SceneView4DController :MonoBehaviour
         else
         {
             sceneView4DCam.t4d.scale = Vector4.one;
-            sceneView4DCam.t4d.position = sceneview.camera.transform.position.withW(w);
+            sceneView4DCam.t4d.position = new Vector4(0, 0, 0, w);
         }
 
         Handles.BeginGUI();
