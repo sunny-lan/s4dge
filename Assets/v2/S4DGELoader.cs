@@ -6,9 +6,22 @@ using UnityEngine;
 
 namespace v2
 {
+    [ExecuteAlways]
     public class S4DGELoader : MonoBehaviour
     {
         public string filePath;
+
+
+        // reloading the file as workaround for broken shape bug
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded()
+        {
+            //TODO this is so sus
+            foreach (var obj in FindObjectsOfType<S4DGELoader>())
+            {
+                obj.ReloadFile();
+            }
+        }
 
         public void ReloadFile()
         {

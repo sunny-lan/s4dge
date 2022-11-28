@@ -37,6 +37,8 @@ public class Transform4DEditor : Editor
     {
         Transform4D transform4D = target as Transform4D;
 
+        EditorGUI.BeginChangeCheck();
+
         // draw our own handles
         if (Tools.current == Tool.Move)
         {
@@ -60,7 +62,12 @@ public class Transform4DEditor : Editor
                 transform4D.localScale,
                 transform4D.position.XYZ(),
                 transform4D.localRotation3D
-            );
+            ).withW(transform4D.localScale.w);
+        }
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(target, "Changed Transform");
         }
     }
 
