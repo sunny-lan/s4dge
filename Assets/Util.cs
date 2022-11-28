@@ -14,6 +14,11 @@ public static class Util
         return new(v.x, v.y, v.z, w);
     }
 
+    public static float Angle(Vector4 a, Vector4 b)
+    {
+        return (float)Math.Acos(Vector4.Dot(a, b) / Vector4.Magnitude(a) / Vector4.Magnitude(b));
+    }
+
     public static Vector4 LimitLength(this Vector4 v, float maxLen)
     {
         float length = v.magnitude;

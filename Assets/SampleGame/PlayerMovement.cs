@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 using v2;
 
 public class PlayerMovement : MonoBehaviour
@@ -27,6 +31,11 @@ public class PlayerMovement : MonoBehaviour
         t4d = GetComponent<Transform4D>();
 
         camera = GetComponentInChildren<Camera4D>();
+
+        sliceRenderer = GetComponent<SliceRenderer>();
+
+        grappleLine = ScriptableObject.CreateInstance<InterpolationBasedShape>();
+        sliceRenderer.Shape = null;
     }
 
     State state = State.Walking;
@@ -35,19 +44,84 @@ public class PlayerMovement : MonoBehaviour
     Vector4 velocity;
     float wSlideStart;
 
+    Vector4? hookPoint = null;
+    public float grappleVelocity = 5;
+    SliceRenderer sliceRenderer;
+
+    public InterpolationBasedShape grappleLine;
+
     // shoot a grapple from the player position towards where they are looking
     void Grapple(Vector4 position, Vector4 look)
     {
         var collidePoints = CollisionSystem.Instance.Raycast(new Ray4D { src = position, direction = look }, Physics.AllLayers);
-        foreach (Ray4D.Intersection? intersect in collidePoints)
+        var collidePoint = collidePoints.Min();
+        
+        if (collidePoint is Ray4D.Intersection cp)
         {
-            if (intersect is Ray4D.Intersection name) {
-                Debug.Log(name.point);
-            } else
-            {
-                Debug.Log("null");
-            }
+            hookPoint = cp.point;
         }
+    }
+
+    // returns a unit vector that is orthogonal to vec
+    Vector4 GetOrthogonalVector(Vector4 vec)
+    {
+        if (vec.y == 0)
+        {
+            return new Vector4(0, 1, 0, 0);
+        }
+        return new Vector4(1, vec.x / vec.y, 0, 0).normalized;
+    }
+
+    InterpolationPoint4D V4At(Vector4 vec)
+    {
+        return new(new List<PointInfo> {
+                    new PointInfo { position4D = vec.XYZ().withW(int.MinValue) },
+                    new PointInfo { position4D = vec.XYZ().withW(int.MaxValue) }
+                });
+    }
+
+    void DrawGrapple(Vector4 playerPos, Vector4 hp)
+    {
+        //grappleLine = S4DGELoader.LoadS4DGE("Assets/Models/hypercube.s4dge");
+        //sliceRenderer.Shape = grappleLine;
+        //return;
+
+        // draw grapple line as face
+        Vector4 localPlayerPos = new Vector4(0.5f, 1f, 0.5f, 0f);
+        Vector4 localHp = camera.t4d.WorldToLocal(hp);
+        float offset = 0.1f;
+        InterpolationPoint4D start1 = V4At(localPlayerPos);
+        InterpolationPoint4D start2 = V4At(localPlayerPos + new Vector4(offset, 0, 0, 0));
+        InterpolationPoint4D start3 = V4At(localPlayerPos + new Vector4(0, offset, 0, 0));
+        InterpolationPoint4D start4 = V4At(localPlayerPos + new Vector4(offset, offset, 0, 0));
+        InterpolationPoint4D end1 = V4At(localHp);
+        InterpolationPoint4D end2 = V4At(localHp + new Vector4(offset, 0, 0, 0));
+        InterpolationPoint4D end3 = V4At(localHp + new Vector4(0, offset, 0, 0));
+        InterpolationPoint4D end4 = V4At(localHp + new Vector4(offset, offset, 0, 0));
+
+        grappleLine.points = new Dictionary<string, InterpolationPoint4D>
+            {
+                {"start1", start1 },
+                {"start2", start2 },
+                {"start3", start3 },
+                {"start4", start4 },
+                {"end1", end1},
+                {"end2", end2},
+                {"end3", end3},
+                {"end4", end4},
+            };
+
+        grappleLine.lines4D.Clear();
+        grappleLine.faces4D = new List<Face<InterpolationPoint4D>> {
+            new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start1, start2, start4, start3 }),
+            new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { end1, end2, end4, end3 }),
+            new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start1, start2, end2, end1 }),
+            new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start1, start3, end3, end1 }),
+            new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start2, start4, end4, end2 }),
+            new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start3, start4, end4, end3 }),
+        };
+
+        sliceRenderer.Shape = grappleLine;
     }
 
     void Update()
@@ -119,6 +193,27 @@ public class PlayerMovement : MonoBehaviour
             deltaVelocity = t4d.right;
         }
         deltaVelocity.y = 0; // no y movement
+
+        // grapple velocity
+        if (hookPoint is Vector4 hp)
+        {
+            Vector4 playerPos = camera.t4d.position;
+            Vector4 delta = (hp - playerPos);
+            Vector4 dir = delta.normalized;
+
+            // if angle between look, hook is >90 degrees or we reach the dest point, stop grappling
+            if (Util.Angle(camera.t4d.forward, dir) > Mathf.PI / 2 || Vector4.Magnitude(delta) <= 1e-1)
+            {
+                hookPoint = null;
+                sliceRenderer.Shape = null;
+            }
+            else
+            {
+                DrawGrapple(playerPos, hp);
+                // grapple affects player velocity
+                deltaVelocity += (dir * grappleVelocity) * Time.deltaTime;
+            }
+        }
 
         if (useAcceleration)
         {

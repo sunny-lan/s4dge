@@ -33,11 +33,6 @@ namespace v2
 
             float delta = (val - src[component]) / direction[component];
 
-            if (component == 2)
-            {
-                Debug.Log("component: " + component + "=" + val + " boxsize: " + boxSize + " delta: " + delta + " point: " + getPoint(delta));
-            }
-
             if (delta < 0)
             {
                 // if delta is negative, there is no intersection
