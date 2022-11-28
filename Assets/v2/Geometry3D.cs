@@ -46,11 +46,6 @@ namespace v2
                 triangles.Add(polygon[0]);
                 triangles.Add(polygon[i]);
                 triangles.Add(polygon[i+1]);
-
-                //back face
-                triangles.Add(polygon[i + 1]);
-                triangles.Add(polygon[i]);
-                triangles.Add(polygon[0]);
             }
         }
 

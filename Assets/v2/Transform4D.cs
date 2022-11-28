@@ -99,7 +99,11 @@ namespace v2
         public Vector4 right => LocalDirectionToWorld(Vector3.right);
         public Vector4 back => LocalDirectionToWorld(Vector3.back);
 
-        public Vector4 position => LocalToWorld(Vector4.zero);
+        public Vector4 position
+        {
+            get => LocalToWorld(Vector4.zero);
+            set => localPosition += WorldToLocal(value);
+        }
 
         /// <summary>
         /// applies local transform to point

@@ -70,14 +70,18 @@ public class Camera4D : MonoBehaviour
 
     static Camera4D()
     {
-        RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
+        RenderPipelineManager.beginFrameRendering += BeginFrameRendering;
     }
 
-    private static void OnBeginCameraRendering(ScriptableRenderContext ctx, Camera cam)
+    private static void BeginFrameRendering(ScriptableRenderContext ctx, Camera[] cams)
     {
-        if (cameraMapping.TryGetValue(cam, out var cam4D))
-            if (cam4D.enabled)
+        foreach(var cam in cams)
+        {
+            if (cameraMapping.TryGetValue(cam, out var cam4D))
+                if (cam4D.enabled)
                     onBeginCameraRendering?.Invoke(ctx, cam4D);
+        }
     }
+
 
 }

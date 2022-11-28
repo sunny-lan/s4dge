@@ -40,16 +40,26 @@ public class Transform4DEditor : Editor
         // draw our own handles
         if (Tools.current == Tool.Move)
         {
-            transform4D.localPosition3D = Handles.PositionHandle(
-                transform4D.localPosition3D,
+            //TODO add w movement
+            var oldPos = transform4D.position;
+            transform4D.position = Handles.PositionHandle(
+                oldPos,
                 transform4D.localRotation3D
-            );
+            ).withW(oldPos.w);
         }
         else if (Tools.current == Tool.Rotate)
         {
             transform4D.localRotation3D = Handles.RotationHandle(
                 transform4D.localRotation3D,
-                transform4D.localPosition3D
+                transform4D.position
+            );
+        }
+        else if (Tools.current == Tool.Scale)
+        {
+            transform4D.localScale = Handles.ScaleHandle(
+                transform4D.localScale,
+                transform4D.position.XYZ(),
+                transform4D.localRotation3D
             );
         }
     }

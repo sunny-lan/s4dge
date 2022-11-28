@@ -67,10 +67,13 @@ namespace v2
             {
                 // display one slice every 0.1 units from -1 to 1
                 // TODO discussion on how visuals should look
-                for (float slicePos = -previewWidth; slicePos <= previewWidth; slicePos += 0.1f)
-                {
-                    drawSliceAt(slicePos, cam);
-                }
+                if(previewWidth == 0)
+                    drawSliceAt(0, cam);
+                else
+                    for (float slicePos = -previewWidth; slicePos <= previewWidth; slicePos += 0.1f)
+                    {
+                        drawSliceAt(slicePos, cam);
+                    }
             }
             //else
             //{
@@ -78,6 +81,10 @@ namespace v2
             //}
 
             slice.ApplyToMesh(mesh);
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+
             MaterialPropertyBlock blk = new();
             blk.SetVector(cameraPosShaderID, Vector4.zero); //pass in camera position to shader (zero for now cause we are in camera local coordinates)
             Graphics.DrawMesh(
