@@ -72,27 +72,27 @@ namespace v2
         } }
 
         //TODO support things other than box colliders
-        private List<BoxCollider4D> colliders = new List<BoxCollider4D>();
+        private List<Collider4D> colliders = new();
 
         private void Awake()
         {
             _instance ??= this; // assign this instance to the static variable if this Awake() occurs before any get call
         }
 
-        public void Add(BoxCollider4D boxCollider)
+        public void Add(Collider4D collider)
         {
-            colliders.Add(boxCollider);
+            colliders.Add(collider);
         }
 
-        public void Remove(BoxCollider4D boxCollider4D)
+        public void Remove(Collider4D collider)
         {
-            colliders.Remove(boxCollider4D);
+            colliders.Remove(collider);
         }
 
         public IEnumerable<Ray4D.Intersection?> Raycast(Ray4D ray, int layerMask)
         {
             IEnumerable<Ray4D.Intersection?> intersects = colliders.
-                Where(collider => (layerMask & (1 << collider.gameObject.layer)) != 0).
+                Where(collider => (layerMask & (1 << collider.Layer)) != 0).
                 Select(collider => collider.RayIntersect(ray));
             return intersects;
         }
@@ -109,7 +109,7 @@ namespace v2
                 {
                     var a = colliders[i];
                     var b = colliders[j];
-                    if (Physics.GetIgnoreLayerCollision(a.gameObject.layer, b.gameObject.layer))
+                    if (Physics.GetIgnoreLayerCollision(a.Layer, b.Layer))
                         continue;
 
                     if (a.DoesCollide(b) || b.DoesCollide(a)) // need to check if points of a are in b OR points of b are in a

@@ -11,31 +11,14 @@ namespace v2
     /// Represents hypercube collision area
     /// </summary>
     [RequireComponent(typeof(Transform4D))]
-    public class BoxCollider4D:MonoBehaviour
+    public class BoxCollider4D:Collider4D
     {
+
         public Vector4 corner;
         public Vector4 size;
 
         Transform4D _t4d;
         public Transform4D t4d => _t4d ?? (_t4d = GetComponent<Transform4D>()); //TODO sus
-
-        /// <summary>
-        /// This event is triggered every frame, for every object 
-        /// that is colliding with
-        /// </summary>
-        public event Action<BoxCollider4D> OnCollisionStay;
-
-        public bool IsCollidingThisFrame { get; internal set; }
-
-        /// <summary>
-        /// Called by CollisionSystem to trigger the event.
-        /// Should NOT be called by anyone else
-        /// </summary>
-        /// <param name="other"></param>
-        internal void TriggerCollision(BoxCollider4D other)
-        {
-            OnCollisionStay?.Invoke(other);
-        }
 
         private void OnEnable()
         {
@@ -47,87 +30,33 @@ namespace v2
             CollisionSystem.Instance.Remove(this);
         }
 
-        public static Ray4D.Intersection? Min(Ray4D.Intersection? a, Ray4D.Intersection? b)
+        public Box GetBox()
         {
-            if (a == null) return b;
-            if (b == null) return a;
-            if (a is Ray4D.Intersection aa && b is Ray4D.Intersection bb)
+            return new Box
             {
-                return aa.CompareTo(bb) < 0 ? aa : bb;
-            } else
-            {
-                // dead code
-                return null;
-            }
+                corner = corner,
+                size = size,
+                t4d = t4d
+            };
         }
 
-        public Ray4D.Intersection? RayIntersect(Ray4D ray)
+        public override Ray4D.Intersection? RayIntersect(Ray4D ray)
         {
-            // transform to local coordinates
-            ray = t4d.WorldToLocal(ray);
-            ray.src -= corner;
-
-            // faces : x = 0, x = size.x, ..., w = 0, w = size.x
-            Ray4D.Intersection? firstIntersect = null;
-            for (int face = 0; face < 4; ++face)
-            {
-                firstIntersect = Min(firstIntersect, ray.intersectPlane(face, 0, size));
-                firstIntersect = Min(firstIntersect, ray.intersectPlane(face, size[face], size));
-            }
-
-            // transform back to world coordinates
-            if (firstIntersect is Ray4D.Intersection intersect)
-            {
-                intersect.point = t4d.LocalToWorld(intersect.point + corner);
-                firstIntersect = intersect;
-            }
-
-            return firstIntersect;
+            return BoxCollider4DChecker.RayIntersect(GetBox(), ray);
         }
 
-        public bool ContainsPoint(Vector4 p)
+        public override bool ContainsPoint(Vector4 p)
         {
-            p = t4d.WorldToLocal(p); //transform to local coordinates
-
-            //check if in box
-            p -= corner;
-            bool colliding = p.x>=0 && p.y>=0 && p.z>=0 && p.w>=0 
-                && 
-                p.x<=size.x && p.y<=size.y && p.z<=size.z && p.w<=size.w; 
-            
-            if ( colliding ) {
-                Log.Print("Collision detected at: " + p.x + " " + p.y + " " + p.z + " " + p.w, Log.collisions ); 
-            }
-            return colliding;
-                
+            return BoxCollider4DChecker.ContainsPoint(GetBox(), p); 
         }
 
-        //TODO performance
-        public IEnumerable<Vector4> GetCorners()
+        public override bool DoesCollide(Collider4D o)
         {
-            for(int i = 0; i < (1<<4); i++)
-            {
-                Vector4 offset = size;
-                offset.Scale(new Vector4(
-                    (i >> 0) & 1,
-                    (i >> 1) & 1,
-                    (i >> 2) & 1,
-                    (i >> 3) & 1
-                ));
-                yield return t4d.LocalToWorld(corner + offset);
-            }
-        }
+            if (o is BoxCollider4D b) return BoxCollider4DChecker.DoesCollide(GetBox(), b.GetBox());
+            else if (o is InterpolationBoxCollider bx) return bx.DoesCollide(this);
 
-        public bool DoesCollide(BoxCollider4D b)
-        {
-            foreach(var corner in b.GetCorners())
-            {
-                if (ContainsPoint(corner))
-                {
-                    return true;
-                }
-            }
-            return false;
+            // dead code
+            throw new NotImplementedException();
         }
     }
 }

@@ -54,28 +54,28 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnCollisionDetected(BoxCollider4D obj)
+    private void OnCollisionDetected(Collider4D obj)
     {
-        velocity = Vector4.zero;
+        //velocity = Vector4.zero;
 
-        //find collision normal
-        var localPos = obj.t4d.WorldToLocal(t4d.position);
-        Vector4 normal = Vector4.zero;
-        var boxCenter = obj.size / 2 + obj.corner;
-        var collisionVector = localPos - boxCenter;
-        for(int axis=0;axis<4;axis++)
-        {
-            //TODO sus
-            if (Math.Abs(collisionVector[axis])*1.1f > obj.size[axis] /2)
-            {
-                normal[axis] = collisionVector[axis];
-            }   
-        }
+        ////find collision normal
+        //var localPos = obj.t4d.WorldToLocal(t4d.position);
+        //Vector4 normal = Vector4.zero;
+        //var boxCenter = obj.size / 2 + obj.corner;
+        //var collisionVector = localPos - boxCenter;
+        //for(int axis=0;axis<4;axis++)
+        //{
+        //    //TODO sus
+        //    if (Math.Abs(collisionVector[axis])*1.1f > obj.size[axis] /2)
+        //    {
+        //        normal[axis] = collisionVector[axis];
+        //    }   
+        //}
 
 
-        normal = obj.t4d.LocalDirectionToWorld(normal); //translate normal to world direction
-        Debug.Log(normal);
-        t4d.position += normal.normalized*Time.deltaTime; // push back out
+        //normal = obj.t4d.LocalDirectionToWorld(normal); //translate normal to world direction
+        //Debug.Log(normal);
+        //t4d.position += normal.normalized*Time.deltaTime; // push back out
     }
 
     // unsubscribe all events when disabled
@@ -98,33 +98,27 @@ public class PlayerMovement : MonoBehaviour
     SliceRenderer sliceRenderer;
 
     public InterpolationBasedShape grappleLine;
+    public float grappleMinW = -3, grappleMaxW = 3;
+    public float grappleDltW = 0.5f;
 
-    // shoot a grapple from the player position towards where they are looking
+    // shoot multiple grapples (from different w) from the player position towards where they are looking
     void Grapple(Vector4 position, Vector4 look)
     {
-        var collidePoints = CollisionSystem.Instance.Raycast(new Ray4D { src = position, direction = look }, Physics.AllLayers);
+        List<Ray4D.Intersection?> collidePoints = new();
+        for (float grappleW = -grappleMinW; grappleW <= grappleMaxW; grappleW += grappleDltW) {
+            collidePoints.Concat(CollisionSystem.Instance.Raycast(new Ray4D { src = position.XYZ().withW(position.w + grappleW), direction = look }, Physics.AllLayers));
+        }
         var collidePoint = collidePoints.Min();
         
-        if (collidePoint is Ray4D.Intersection cp)
+        if (collidePoint is Ray4D.Intersection collidePointNotNull)
         {
-            hookPoint = cp.point;
-            Debug.Log(hookPoint);
-        }   
-    }
-
-    // returns a unit vector that is orthogonal to vec
-    Vector4 GetOrthogonalVector(Vector4 vec)
-    {
-        if (vec.y == 0)
-        {
-            return new Vector4(0, 1, 0, 0);
+            hookPoint = collidePointNotNull.point;
         }
-        return new Vector4(1, vec.x / vec.y, 0, 0).normalized;
     }
 
-    InterpolationPoint4D V4At(Vector4 vec)
+    InterpolationPoint4D V4At(string name, Vector4 vec)
     {
-        return new(new List<PointInfo> {
+        return new(name, new List<PointInfo> {
                     new PointInfo { position4D = vec.XYZ().withW(int.MinValue) },
                     new PointInfo { position4D = vec.XYZ().withW(int.MaxValue) }
                 });
@@ -140,14 +134,14 @@ public class PlayerMovement : MonoBehaviour
         Vector4 localPlayerPos = new Vector4(0.5f, 1f, 0.5f, 0f);
         Vector4 localHp = camera.t4d.WorldToLocal(hp);
         float offset = 0.1f;
-        InterpolationPoint4D start1 = V4At(localPlayerPos);
-        InterpolationPoint4D start2 = V4At(localPlayerPos + new Vector4(offset, 0, 0, 0));
-        InterpolationPoint4D start3 = V4At(localPlayerPos + new Vector4(0, offset, 0, 0));
-        InterpolationPoint4D start4 = V4At(localPlayerPos + new Vector4(offset, offset, 0, 0));
-        InterpolationPoint4D end1 = V4At(localHp);
-        InterpolationPoint4D end2 = V4At(localHp + new Vector4(offset, 0, 0, 0));
-        InterpolationPoint4D end3 = V4At(localHp + new Vector4(0, offset, 0, 0));
-        InterpolationPoint4D end4 = V4At(localHp + new Vector4(offset, offset, 0, 0));
+        InterpolationPoint4D start1 = V4At("start1", localPlayerPos);
+        InterpolationPoint4D start2 = V4At("start2", localPlayerPos + new Vector4(offset, 0, 0, 0));
+        InterpolationPoint4D start3 = V4At("start3", localPlayerPos + new Vector4(0, offset, 0, 0));
+        InterpolationPoint4D start4 = V4At("start4", localPlayerPos + new Vector4(offset, offset, 0, 0));
+        InterpolationPoint4D end1 = V4At("end1", localHp);
+        InterpolationPoint4D end2 = V4At("end2", localHp + new Vector4(offset, 0, 0, 0));
+        InterpolationPoint4D end3 = V4At("end3", localHp + new Vector4(0, offset, 0, 0));
+        InterpolationPoint4D end4 = V4At("end4", localHp + new Vector4(offset, offset, 0, 0));
 
         grappleLine.points = new Dictionary<string, InterpolationPoint4D>
             {

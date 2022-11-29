@@ -141,7 +141,7 @@ namespace v2
                         shape.sliceW.Add(position.w);
                     }
 
-                    InterpolationPoint4D p4d = new InterpolationPoint4D(subpoints);
+                    InterpolationPoint4D p4d = new InterpolationPoint4D(pName, subpoints);
 
                     points.Add(pName, p4d);
                 }
@@ -168,18 +168,18 @@ namespace v2
                 {
                     sw.WriteLine(string.Format("{0}:{1}",
                         point.Key,
-                        point.Value
+                        point.Value.PointToString()
                         ));
                 }
 
                 foreach (Line<InterpolationPoint4D> line in lines4D)
                 {
-                    sw.WriteLine(string.Format("l:{1}", line));
+                    sw.WriteLine(string.Format("l:{0}", line));
                 }
 
                 foreach (Face<InterpolationPoint4D> face in faces4D)
                 {
-                    sw.WriteLine(string.Format("f:{1}", face));
+                    sw.WriteLine(string.Format("f:{0}", face));
                 }
             }
         }
