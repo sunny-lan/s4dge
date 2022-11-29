@@ -85,22 +85,3 @@ public class Transform4DEditor : Editor
         Tools.hidden = false;
     }
 }
-
-[CustomEditor(typeof(BoxCollider4D))]
-public class BoxCollider4DEditor : Editor
-{
-    void OnSceneGUI()
-    {
-        var sceneView = SceneView4DController.currentlyDrawingSceneView;
-        if (sceneView == null) return;
-
-        if(target is BoxCollider4D b4d)
-        {
-            float minW = b4d.corner.w, maxW = b4d.corner.w + b4d.size.w;
-
-            float curW = sceneView.t4d.localPosition.w;
-            if (curW >= minW && curW <= maxW)
-                Handles.DrawWireCube(b4d.corner + b4d.size/2, b4d.size);
-        }
-    }
-}

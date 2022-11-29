@@ -100,7 +100,10 @@ namespace v2
         private void Update()
         {
             //TODO performance
-            for(int i = 0; i < colliders.Count; i++)
+            for (int i = 0; i < colliders.Count; i++)
+                colliders[i].IsCollidingThisFrame = false;
+
+            for (int i = 0; i < colliders.Count; i++)
             {
                 for(int j = 0; j < i; j++)
                 {
@@ -111,11 +114,27 @@ namespace v2
 
                     if (a.DoesCollide(b) || b.DoesCollide(a)) // need to check if points of a are in b OR points of b are in a
                     {
+                        a.IsCollidingThisFrame = b.IsCollidingThisFrame = true;
                         a.TriggerCollision(b);
                         b.TriggerCollision(a);
                     }
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Info about a single point of contact during a collision
+    /// </summary>
+    public struct ContactPoint4D
+    {
+        public Vector4 point;
+        public Vector4 normal;
+    }
+
+    public class Collision4D
+    {
+        public BoxCollider4D collider;
+        public List<ContactPoint4D> contacts;
     }
 }

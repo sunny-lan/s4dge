@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
@@ -38,6 +39,48 @@ public class PlayerMovement : MonoBehaviour
         sliceRenderer.Shape = null;
     }
 
+    // listen to all collision events in children and self
+    private void OnEnable()
+    {
+        foreach(BoxCollider4D boxCollider in GetComponentsInChildren<BoxCollider4D>())
+        {
+            boxCollider.OnCollisionStay += OnCollisionDetected;
+        }
+    }
+
+    private void OnCollisionDetected(BoxCollider4D obj)
+    {
+        velocity = Vector4.zero;
+
+        //find collision normal
+        var localPos = obj.t4d.WorldToLocal(t4d.position);
+        Vector4 normal = Vector4.zero;
+        float maxDist = -1;
+        var boxCenter = obj.size / 2 + obj.corner;
+        var collisionVector = localPos - boxCenter;
+        for(int axis=0;axis<4;axis++)
+        {
+            if (collisionVector[axis] > maxDist)
+            {
+                maxDist = collisionVector[axis];
+                normal = Vector4.zero;
+                normal[axis] = maxDist;
+            }   
+        }
+
+        normal = obj.t4d.LocalDirectionToWorld(normal); //translate normal to world direction
+        t4d.position += normal.normalized*Time.deltaTime; // push back out
+    }
+
+    // unsubscribe all events when disabled
+    private void OnDisable()
+    {
+        foreach (BoxCollider4D boxCollider in GetComponentsInChildren<BoxCollider4D>())
+        {
+            boxCollider.OnCollisionStay -= OnCollisionDetected;
+        }
+    }
+
     State state = State.Walking;
 
     Vector2 lookRotation; //x=side to side rotation, y=up down rotation
@@ -59,7 +102,8 @@ public class PlayerMovement : MonoBehaviour
         if (collidePoint is Ray4D.Intersection cp)
         {
             hookPoint = cp.point;
-        }
+            Debug.Log(hookPoint);
+        }   
     }
 
     // returns a unit vector that is orthogonal to vec

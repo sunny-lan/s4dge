@@ -16,13 +16,16 @@ namespace v2
         public Vector4 corner;
         public Vector4 size;
 
-        private Transform4D t4d;
+        Transform4D _t4d;
+        public Transform4D t4d => _t4d ?? (_t4d = GetComponent<Transform4D>()); //TODO sus
 
         /// <summary>
         /// This event is triggered every frame, for every object 
         /// that is colliding with
         /// </summary>
         public event Action<BoxCollider4D> OnCollisionStay;
+
+        public bool IsCollidingThisFrame { get; internal set; }
 
         /// <summary>
         /// Called by CollisionSystem to trigger the event.
@@ -32,11 +35,6 @@ namespace v2
         internal void TriggerCollision(BoxCollider4D other)
         {
             OnCollisionStay?.Invoke(other);
-        }
-
-        private void Awake()
-        {
-            t4d = GetComponent<Transform4D>();
         }
 
         private void OnEnable()

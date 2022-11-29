@@ -43,8 +43,6 @@ public class SceneView4DController : MonoBehaviour
         Handles.BeginGUI();
         w = GUILayout.HorizontalSlider(w, -10, 20);
         Handles.EndGUI();
-
-        currentlyDrawingSceneView = null;
     }
 
     public static void OnSceneGUI(SceneView sceneview)

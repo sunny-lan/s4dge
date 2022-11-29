@@ -34,4 +34,11 @@ public static class Util
         if (b == null) return a;
         return a.CompareTo(b) < 0 ? a : b;
     }
+
+    public static void Swap<T>(ref T a, ref T b)
+    {
+        T tmp = a;
+        a = b;
+        b = tmp;
+    }
 }

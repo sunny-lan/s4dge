@@ -221,7 +221,7 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: a40bb0b7fced82b40893d7dbd2bde6de, type: 2}
   previewW: 0
   previewWidth: 0
-  showWhenOutOfRange: 0
+  showWhenOutOfRange: 1
 --- !u!1 &774748414
 GameObject:
   m_ObjectHideFlags: 0
@@ -298,7 +298,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134012, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: previewWidth
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134012, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: showWhenOutOfRange
@@ -567,6 +567,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6262987207706134012, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
+      propertyPath: previewWidth
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134013, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -634,7 +638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: grappleVelocity
-      value: 50
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5878538348108483143, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: m_RootOrder
