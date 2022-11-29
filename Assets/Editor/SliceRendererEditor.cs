@@ -5,54 +5,31 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using Unity.VisualScripting;
+using Assets.v2;
 
 namespace v2
 {
     [CustomEditor(typeof(SliceRenderer)), CanEditMultipleObjects]
     public class SliceRendererEditor : Editor
     {
+
         string addSliceFile = "Assets/Models/cube.s3dge";
         float modifySliceW = 0;
         bool sameWWarning = false, removeWNotExist = false;
+        Vector3 addCorner, addScale = new(1, 1, 1);
+        string saveShapeFile = "";
 
-        // reads a 3D slice from the file
-        public Dictionary<string, Vector3> ReadSlice()
-        {
-            if (!File.Exists(addSliceFile))
-            {
-                // log a message and do nothing if the file doesn't exist
-                Debug.Log(string.Format("Could not read slice from file {}: not found", addSliceFile));
-                return null;
-            }
-
-            Dictionary<string, Vector3> points = new();
-
-            string[] fileLines = File.ReadAllLines(addSliceFile);
-
-            foreach (string fileLine in fileLines)
-            {
-                string[] terms = fileLine.Split(':', '(', ')');
-                string pName = terms[0];
-                string[] pTerms = terms[2].Split(',');
-
-                points.Add(pName, new Vector3(
-                    int.Parse(pTerms[0]),
-                    int.Parse(pTerms[1]),
-                    int.Parse(pTerms[2])
-                    ));
-            }
-
-            return points;
-        }
+        
 
         // Do nothing if the slice file fails to be read
-        void AddSliceToTarget()
+        public void AddSliceToTarget()
         {
-            var slice = ReadSlice();
+            var slice = S3DGELoader.LoadSlice(addSliceFile);
             if (slice != null)
             {
                 // if slice already exists at specified w, warn user and do nothing
-                if (!(sameWWarning = !((SliceRenderer)target).Shape.AddSlice(modifySliceW, slice))) {
+                if (!(sameWWarning = !((SliceRenderer)target).Shape.AddSlice(modifySliceW, slice, addScale, addCorner))) {
                     //((SliceRenderer)target).Update();
                 }
             }
@@ -88,6 +65,17 @@ namespace v2
             if (removeWNotExist)
             {
                 EditorGUILayout.HelpBox("Failed to remove slice at requested w coordinate: slice doesn't exit", MessageType.Warning);
+            }
+
+            // fields to modify the 3D slice to be added
+            addCorner = EditorGUILayout.Vector3Field("3D shape corner:", addCorner);
+            addScale = EditorGUILayout.Vector3Field("3D shape scale:", addScale);
+
+            // Button save the 4D shape
+            saveShapeFile = EditorGUILayout.TextField("4D Shape save name:", saveShapeFile);
+            if (EditorGUILayout.LinkButton("Save 4D shape"))
+            {
+                S4DGELoader.SaveS4DGE(((SliceRenderer)target).Shape, saveShapeFile);
             }
 
         }

@@ -37,6 +37,11 @@ namespace v2
                 uv = Vector2.Lerp(initialPoint.uv, finalPoint.uv, percent),
             };
         }
+
+        public override string ToString()
+        {
+            return position4D.ToString();
+        }
     }
 
     /// <summary>
@@ -45,11 +50,13 @@ namespace v2
     [Serializable]
     public class InterpolationPoint4D
     {
+        public string name;
         public List<PointInfo> subpoints;
 
         // There shouldn't be multiple points with the same w coordinate
-        public InterpolationPoint4D(List<PointInfo> points)
+        public InterpolationPoint4D(string _name, List<PointInfo> points)
         {
+            name = _name;
             subpoints = points;
         }
 
@@ -106,9 +113,14 @@ namespace v2
             }
         }
 
-        public override string ToString()
+        public string PointToString()
         {
             return string.Join("", subpoints.Select((point, idx) => point.ToString()));
+        }
+
+        public override string ToString()
+        {
+            return name;
         }
     }
 
@@ -158,13 +170,87 @@ namespace v2
         public Dictionary<string, InterpolationPoint4D> points = new();
         internal HashSet<float> sliceW = new();
 
+        // TODO: maybe optimize
+        public float minW()
+        {
+            return sliceW.Min();
+        }
+
+        public float maxW()
+        {
+            return sliceW.Max();
+        }
+
+        // temp dictionary that maps points to their vertex index
+        // for use in drawSliceAt
+        Dictionary<InterpolationPoint4D, int> tmp_interpolatedValue = new();
+
+        public struct Slice
+        {
+            public List<PointInfo> points;
+            public List<Line<PointInfo>> lines;
+            public List<Face<PointInfo>> faces;
+            public int invalidPoints;
+        }
+
+        // Iterates over all lines
+        // Draws points between them
+        // Draws all lines
+        public Slice GetSliceAt(float w, Func<Vector4, Vector4> transform)
+        {
+            List<Line<PointInfo>> lines = new();
+            List<Face<PointInfo>> faces = new();
+            Dictionary<InterpolationPoint4D, PointInfo> pts = new();
+
+            // interpolate all points and store in dictionary
+            int invalidPoints = 0;
+            foreach (var point in points.Values)
+            {
+                // apply transform of object to point first
+                // then apply camera world-to-local transform to that
+                var (interpolated, invalid) = point.GetPoint(w, transform);
+                pts.Add(point, interpolated);
+
+                // we count invalid points -> if all invalid, don't show
+                if (invalid) invalidPoints++;
+            }
+
+            // lines
+            // Debug.Log("Lines");
+            foreach (Line<InterpolationPoint4D> line in lines4D)
+            { // iterate over every line 
+                lines.Add(new(pts[line.p1], pts[line.p2]));
+            }
+
+            // faces
+            // Debug.Log("Faces");
+            foreach (Face<InterpolationPoint4D> face in faces4D)
+            { // face is an array of faces
+              // Limit to drawing triangles and squares
+
+                // generate calculated points
+                //  1. Select = for each point x apply getPoint(x, w)
+                //  3. Pass all calculated points to drawPolygon
+                faces.Add(new(face.points
+                    .Select(x => pts[x]).ToList()));
+            }
+
+            return new Slice
+            {
+                points = pts.Values.ToList(),
+                lines = lines,
+                faces = faces,
+                invalidPoints = invalidPoints
+            };
+        }
+
         /// <summary>
         /// adds a 3D slice to the shape at a specified w coordinate
         /// </summary>
         /// <param name="w"></param>
         /// <param name="slice"></param>
         /// <returns>false if a slice already exists at point w (new slice won't be added), true otherwise</returns>
-        public bool AddSlice(float w, Dictionary<string, Vector3> slice)
+        public virtual bool AddSlice(float w, Dictionary<string, Vector3> slice, Vector3 scale, Vector3 corner)
         {
             if (sliceW.Contains(w))
             {
@@ -174,7 +260,7 @@ namespace v2
             sliceW.Add(w);
             foreach ((string name, Vector3 point) in slice)
             {
-                points[name].AddSubpoint(point.withW(w));
+                points[name].AddSubpoint((Vector3.Scale(point, scale) + corner).withW(w));
             }
 
             return true;

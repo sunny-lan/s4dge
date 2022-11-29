@@ -113,6 +113,7 @@ namespace v2
         // Draws all lines
         void drawSliceAt(float w, Camera4D cam)
         {
+
             // interpolate all points and store in dictionary
             int invalidPoints = 0;
             foreach(var point in shape.points.Values)
