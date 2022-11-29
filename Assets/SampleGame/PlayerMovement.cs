@@ -16,9 +16,13 @@ public class PlayerMovement : MonoBehaviour
     public bool useRotation = false;
     public bool useAcceleration = false;
     public float acceleration = 1f, friction = 0.1f;
+    public float airAcceleration = 5f;
+    public float gravity = 9.81f;
+    public float jumpSpeed = 20f;
 
     public float lookSpeed = 0.05f;
     public float maxMovementSpd = 1f;
+    public float airFriction = 1f;
 
     /// <summary>
     /// In radians
@@ -29,6 +33,8 @@ public class PlayerMovement : MonoBehaviour
     Transform4D t4d;
     void Start()
     {
+        groundLayerMask = LayerMask.GetMask("Ground"); 
+
         t4d = GetComponent<Transform4D>();
 
         camera = GetComponentInChildren<Camera4D>();
@@ -44,7 +50,7 @@ public class PlayerMovement : MonoBehaviour
     {
         foreach(BoxCollider4D boxCollider in GetComponentsInChildren<BoxCollider4D>())
         {
-            boxCollider.OnCollisionStay += OnCollisionDetected;
+            //boxCollider.OnCollisionStay += OnCollisionDetected;
         }
     }
 
@@ -55,20 +61,20 @@ public class PlayerMovement : MonoBehaviour
         //find collision normal
         var localPos = obj.t4d.WorldToLocal(t4d.position);
         Vector4 normal = Vector4.zero;
-        float maxDist = -1;
         var boxCenter = obj.size / 2 + obj.corner;
         var collisionVector = localPos - boxCenter;
         for(int axis=0;axis<4;axis++)
         {
-            if (collisionVector[axis] > maxDist)
+            //TODO sus
+            if (Math.Abs(collisionVector[axis])*1.1f > obj.size[axis] /2)
             {
-                maxDist = collisionVector[axis];
-                normal = Vector4.zero;
-                normal[axis] = maxDist;
+                normal[axis] = collisionVector[axis];
             }   
         }
 
+
         normal = obj.t4d.LocalDirectionToWorld(normal); //translate normal to world direction
+        Debug.Log(normal);
         t4d.position += normal.normalized*Time.deltaTime; // push back out
     }
 
@@ -168,6 +174,8 @@ public class PlayerMovement : MonoBehaviour
         sliceRenderer.Shape = grappleLine;
     }
 
+    int groundLayerMask;
+
     void Update()
     {
         // Camera look
@@ -236,7 +244,13 @@ public class PlayerMovement : MonoBehaviour
         {
             deltaVelocity = t4d.right;
         }
-        deltaVelocity.y = 0; // no y movement
+
+        //jump
+        Ray4D down = new()
+        {
+            direction = Vector3.down,
+            src = t4d.position,
+        };
 
         // grapple velocity
         if (hookPoint is Vector4 hp)
@@ -259,16 +273,48 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
+        bool grounded = CollisionSystem.Instance.Raycast(down, groundLayerMask).NotNull().Any(x => x?.delta < 1f);
+
         if (useAcceleration)
         {
-            velocity += deltaVelocity * acceleration * Time.deltaTime;
-            velocity -= velocity.normalized * friction * Time.deltaTime;
-            velocity = velocity.LimitLength(maxMovementSpd);
+            if(grounded)
+            {
+                if (velocity.magnitude <= maxMovementSpd)
+                {
+                    velocity += deltaVelocity * acceleration * Time.deltaTime;
+                }
+            }
+            else
+            {
+                velocity += deltaVelocity * airAcceleration * Time.deltaTime;
+            }
         }
         else
         {
             velocity = deltaVelocity * maxMovementSpd;
         }
+
+        // if grounded
+        if (grounded)
+        {
+            if (Input.GetKey(KeyCode.Space))
+            {
+                velocity.y = jumpSpeed;
+            }
+            else
+            {
+                velocity -= velocity.normalized * friction * Time.deltaTime;
+                velocity.y = 0;
+            }
+
+        }
+        else //else gravity
+        {
+            velocity.y -= gravity * Time.deltaTime;
+
+            velocity -= velocity.normalized * airFriction * Time.deltaTime;
+        }
+
         t4d.localPosition += velocity * Time.deltaTime;
     }
 }

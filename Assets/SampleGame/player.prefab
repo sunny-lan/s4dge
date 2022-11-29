@@ -67,13 +67,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 663f1bf2c7685f74881fce6e087c783e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useAcceleration: 0
-  acceleration: 2
-  friction: 0.5
-  lookSpeed: 10
-  maxMovementSpd: 10
+  useRotation: 0
+  useAcceleration: 1
+  acceleration: 50
+  friction: 20
+  airAcceleration: 5
+  gravity: 9.81
+  jumpSpeed: 10
+  lookSpeed: 0.05
+  maxMovementSpd: 30
+  airFriction: 1
   minLookDownAngle: -1
   maxLookUpAngle: 1
+  grappleVelocity: 20
+  grappleLine: {fileID: 0}
 --- !u!1 &5878538348215294275
 GameObject:
   m_ObjectHideFlags: 0
