@@ -96,7 +96,7 @@ namespace v2
                         mesh: m,
                         position: t4d.position,  // implicitly discard w dimension (which is now baked into uvs channel 1)
                         // set the 3d rotation to be the simple rotations around x,y,z ( yz plane, xz plane, xy plane)
-                        rotation: Quaternion.Euler( t4d.rotation[(int)Rot4D.yz] * Mathf.Rad2Deg, t4d.rotation[(int)Rot4D.xz] * Mathf.Rad2Deg, t4d.rotation[(int)Rot4D.xy] * Mathf.Rad2Deg),
+                        rotation: Quaternion.Euler( t4d.localRotation[(int)Rot4D.yz] * Mathf.Rad2Deg, t4d.localRotation[(int)Rot4D.xz] * Mathf.Rad2Deg, t4d.localRotation[(int)Rot4D.xy] * Mathf.Rad2Deg),
                         material: i < materials.Length ? materials[i] : fallBackMaterial, 
                         layer: gameObject.layer, 
                         camera: cam.camera3D,
