@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.UI.GridLayoutGroup;
+using UnityEngine.UIElements;
 
 namespace v2
 {
@@ -50,19 +52,22 @@ namespace v2
             }
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
         public override Ray4D.Intersection? RayIntersect(Ray4D ray)
         {
-            return colliders.Select(collider => BoxCollider4DChecker.RayIntersect(collider, ray)).Min();
+            var localRay = t4d.WorldToLocal(ray);
+            var best = colliders.Select(collider => BoxCollider4DChecker.RayIntersectLocal(collider, localRay)).Min();
+            if (best is Ray4D.Intersection intersect)
+            {
+                intersect.point = t4d.LocalToWorld(intersect.point);
+                intersect.delta = (intersect.point - ray.src).magnitude;
+                return intersect;
+            }
+            return null;
         }
 
         public override bool ContainsPoint(Vector4 p)
         {
+            //TODO performancew
             return colliders.Any(collider => BoxCollider4DChecker.ContainsPoint(collider, p));
         }
 

@@ -809,7 +809,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706133986, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706133987, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: filePath
@@ -1022,6 +1022,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20445fbccc80cab4ab91956955e2eb14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  run: 0
 --- !u!4 &1568936390
 Transform:
   m_ObjectHideFlags: 0
@@ -1332,6 +1333,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
+      propertyPath: useGravity
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: maxSprintSpeed
       value: 20

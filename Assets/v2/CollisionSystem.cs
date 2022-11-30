@@ -68,6 +68,8 @@ namespace v2
     /// </summary>
     public class CollisionSystem :MonoBehaviour
     {
+        public bool run = false;
+
         private static CollisionSystem _instance; // keep the actual instance private
         public static CollisionSystem Instance { get { // find the script instance in the scene if the private instance is null
             if ( _instance == null ) {
@@ -94,19 +96,20 @@ namespace v2
             colliders.Remove(collider);
         }
 
-        public IEnumerable<Ray4D.Intersection?> Raycast(Ray4D ray, int layerMask)
+        public IEnumerable<Ray4D.Intersection> Raycast(Ray4D ray, int layerMask)
         {
-            List<Ray4D.Intersection?> intersects = new();
             foreach(var collider in colliders.
                 Where(collider => (layerMask & (1 << collider.Layer)) != 0))
             {
-                intersects.Add(collider.RayIntersect(ray));
+                if (collider.RayIntersect(ray) is Ray4D.Intersection intersection)
+                    yield return intersection;
             }
-            return intersects;
         }
 
         private void Update()
         {
+            if (!run) return; // TODO
+
             //TODO performance
             for (int i = 0; i < colliders.Count; i++)
                 colliders[i].IsCollidingThisFrame = false;

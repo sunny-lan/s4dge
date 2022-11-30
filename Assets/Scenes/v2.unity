@@ -579,6 +579,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: wedge (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6262987207706133986, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134012, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
       propertyPath: shape
       value: 
@@ -645,6 +649,76 @@ PrefabInstance:
       objectReference: {fileID: 1589482502}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
+--- !u!1 &800577308
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 800577311}
+  - component: {fileID: 800577310}
+  - component: {fileID: 800577309}
+  m_Layer: 0
+  m_Name: CatModel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &800577309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800577308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a56de84c57b6de44a12db5b06a25ded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fileName: Dragon 2.5_fbx
+  fallBackMaterial: {fileID: 2100000, guid: a40bb0b7fced82b40893d7dbd2bde6de, type: 2}
+  previewW: 0
+  showWhenOutOfRange: 1
+--- !u!114 &800577310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800577308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: {x: 2.53, y: 3, z: 2.98, w: 0}
+  rotation:
+  - 1.57
+  - 1.38
+  - 1.88
+  - 1.99
+  - 1.2
+  - 2.04
+  scale: {x: 2.44, y: 2.59, z: 2.83, w: 2.71}
+--- !u!4 &800577311
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800577308}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.157486, y: 0.88708353, z: 0.72116184}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1589482502
 Mesh:
   m_ObjectHideFlags: 0
@@ -1083,6 +1157,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: hypercube
       objectReference: {fileID: 0}
+    - target: {fileID: 6262987207706133986, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6262987207706133987, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
       propertyPath: filePath
       value: Assets/Models/hypercube.s4dge
@@ -1168,6 +1246,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: wedge
       objectReference: {fileID: 0}
+    - target: {fileID: 6262987207706133986, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6262987207706134012, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
+      propertyPath: mesh
+      value: 
+      objectReference: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
     - target: {fileID: 6262987207706134012, guid: 70df568d9278ad740b40da8ab7dcd016, type: 3}
       propertyPath: previewW
       value: -0.88

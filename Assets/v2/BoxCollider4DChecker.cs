@@ -29,14 +29,12 @@ public class BoxCollider4DChecker
         }
     }
 
-    public static Ray4D.Intersection? RayIntersect(Box box, Ray4D ray)
+    // provided for performance (when all boxes use same transform)
+    public static Ray4D.Intersection? RayIntersectLocal(Box box, Ray4D ray)
     {
         var corner = box.corner;
         var size = box.size;
-        var t4d = box.t4d;
 
-        // transform to local coordinates
-        ray = t4d.WorldToLocal(ray);
         ray.src -= corner;
 
         // faces : x = 0, x = size.x, ..., w = 0, w = size.x
@@ -50,11 +48,31 @@ public class BoxCollider4DChecker
         // transform back to world coordinates
         if (firstIntersect is Ray4D.Intersection intersect)
         {
-            intersect.point = t4d.LocalToWorld(intersect.point + corner);
-            firstIntersect = intersect;
+            intersect.point += corner;
+            return intersect;
         }
 
         return firstIntersect;
+    }
+    public static Ray4D.Intersection? RayIntersect(Box box, Ray4D ray)
+    {
+        var corner = box.corner;
+        var size = box.size;
+        var t4d = box.t4d;
+
+        var worldSrc = ray.src;
+
+        // transform to local coordinates
+        ray = t4d.WorldToLocal(ray);
+
+        if (RayIntersectLocal(box, ray) is Ray4D.Intersection intersect)
+        {
+            intersect.point = t4d.LocalToWorld(intersect.point);
+            intersect.delta = (intersect.point - worldSrc).magnitude;
+            return intersect;
+        }
+
+        return null;
     }
 
     public static bool ContainsPoint(Box box, Vector4 p)
