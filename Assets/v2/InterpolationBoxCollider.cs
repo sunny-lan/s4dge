@@ -7,19 +7,16 @@ using UnityEngine;
 namespace v2
 {
     [RequireComponent(typeof(Transform4D))]
-    public class InterpolationBoxCollider : Collider4D
+    public class InterpolationBoxCollider : Collider4D, IShape4DRenderer
     {
         List<Box> colliders = new();
-        InterpolationBasedShape shape;
-        Transform4D t4d;
         public float deltaW = 0.5f;
 
-        // Start is called before the first frame update
-        void Start()
+        public InterpolationBasedShape Shape { get; set; }
+
+        protected override void Start()
         {
             // interpolation collider always attached to interpolation shape
-            shape = gameObject.GetComponent<InterpolationBasedShape>();
-            t4d = gameObject.GetComponent<Transform4D>();
             SetColliders();
         }
 
@@ -36,7 +33,7 @@ namespace v2
                 }
             }
 
-            return new Box { corner = minCorner, size = maxCorner - minCorner, t4d = t4d };
+            return new Box { corner = minCorner, size = (maxCorner - minCorner).XYZ().withW(deltaW), t4d = t4d };
         }
 
         void SetColliders()
@@ -44,10 +41,11 @@ namespace v2
             colliders.Clear();
 
             // get the colliders for the shape
-            for (float w = shape.minW(); w <= shape.maxW(); w += deltaW)
+            for (float w = Shape.minW(); w <= Shape.maxW(); w += deltaW)
             {
-                var slice = shape.GetSliceAt(w, p => p);
+                var slice = Shape.GetSliceAt(w, p => p);
                 Box boundingBox = GetBoundingBox(slice);
+
                 colliders.Add(boundingBox);
             }
         }

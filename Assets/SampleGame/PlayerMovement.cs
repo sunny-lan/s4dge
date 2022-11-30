@@ -94,21 +94,40 @@ public class PlayerMovement : MonoBehaviour
     float wSlideStart;
 
     Vector4? hookPoint = null;
-    public float grapplingVelocity = 5;
+    public float grapplingVelocity = 10;
     SliceRenderer sliceRenderer;
 
     public InterpolationBasedShape grappleLine;
     public float grappleMinW = 0, grappleMaxW = 0;
     public float grappleDltW = 0.5f;
 
+
     // shoot multiple grapples (from different w) from the player position towards where they are looking
     void Grapple(Vector4 position, Vector4 look)
     {
+        look = look.normalized;
         List<Ray4D.Intersection?> collidePoints = new();
-        for (float grappleW = grappleMinW; grappleW <= grappleMaxW; grappleW += grappleDltW) {
-            collidePoints = collidePoints.Concat(CollisionSystem.Instance.Raycast(new Ray4D { src = position.XYZ().withW(position.w + grappleW), direction = look }, Physics.AllLayers)).ToList();
+
+        Ray4D.Intersection? collidePoint = null;
+
+        float mid = (grappleMinW + grappleMaxW) / 2;
+        for (float dlt = 0; dlt <= grappleMaxW - mid; dlt += grappleDltW) {
+            Ray4D.Intersection? GetRayCollide(float grappleW) {
+                return CollisionSystem.Instance.Raycast(new Ray4D { src = position.XYZ().withW(position.w + grappleW), direction = look }, Physics.AllLayers).Min();
+            }
+
+            if (GetRayCollide(mid + dlt) is Ray4D.Intersection pt1)
+            {
+                collidePoint = pt1;
+                break;
+            }
+
+            if (GetRayCollide(mid - dlt) is Ray4D.Intersection pt2)
+            {
+                collidePoint = pt2;
+                break;
+            }
         }
-        var collidePoint = collidePoints.Min();
         
         if (collidePoint is Ray4D.Intersection collidePointNotNull)
         {
@@ -273,7 +292,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if(grounded)
             {
-                if (velocity.magnitude <= maxMovementSpd)
+                if (velocity.magnitude <= maxMovementSpd + grapplingVelocity)
                 {
                     velocity += deltaVelocity * acceleration * Time.deltaTime;
                 }

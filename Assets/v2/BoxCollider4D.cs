@@ -17,19 +17,6 @@ namespace v2
         public Vector4 corner;
         public Vector4 size;
 
-        Transform4D _t4d;
-        public Transform4D t4d => _t4d ?? (_t4d = GetComponent<Transform4D>()); //TODO sus
-
-        private void OnEnable()
-        {
-            CollisionSystem.Instance.Add(this);
-        }
-
-        private void OnDisable()
-        {
-            CollisionSystem.Instance.Remove(this);
-        }
-
         public Box GetBox()
         {
             return new Box

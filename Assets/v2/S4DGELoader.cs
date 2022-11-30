@@ -25,8 +25,7 @@ namespace v2
 
         public void ReloadFile()
         {
-            GetComponent<IShape4DRenderer>().Shape = LoadS4DGE(filePath);
-
+            GetComponents<IShape4DRenderer>().ToList().ForEach(x => x.Shape = LoadS4DGE(filePath));
         }
 
         private void Awake()

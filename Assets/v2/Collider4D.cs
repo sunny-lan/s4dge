@@ -6,12 +6,31 @@ using v2;
 public abstract class Collider4D: MonoBehaviour
 {
 
+
+    Transform4D _t4d;
+    public Transform4D t4d => _t4d ?? (_t4d = GetComponent<Transform4D>()); //TODO sus
+
     public int Layer
     {
         get
         {
             return gameObject.layer;
         }
+    }
+
+    protected virtual void Start()
+    {
+
+    }
+
+    private void OnEnable()
+    {
+        CollisionSystem.Instance.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        CollisionSystem.Instance.Remove(this);
     }
 
     public bool IsCollidingThisFrame { get; internal set; }

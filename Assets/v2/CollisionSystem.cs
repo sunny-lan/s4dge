@@ -54,7 +54,7 @@ namespace v2
                 return null;
             }
 
-            return new Intersection { delta=delta, point=point };
+            return new Intersection { delta=Mathf.Sign(delta) * (point - src).magnitude, point=point };
         }
 
         public Vector4 getPoint(float delta)
