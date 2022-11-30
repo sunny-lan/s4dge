@@ -181,14 +181,24 @@ public class PlayerMovement : MonoBehaviour
 
     public float maxStrafeSpeed = 1f;
     public float maxSprintSpeed = 1f;
-    public float airSpeedModifier = 0.5f;
+
+    public float airAccelModifier = 0.5f; // less movement ability in air
+
+    // different fov depending on speed
     public float normalFov = 60;
     public float sprintFov = 80;
     public float fovSmoothing = 0.1f;
-    public float wSlideFactor = 0.3f;
-    public float standingHeight = 1f, slidingHeight = 0.5f;
-    public float cameraSmooth = 5f;
+
+    public float maxCameraWRot = 0.5f; // max amount camera will turn in w
+    public float wSlideCameraFactor = 0.3f; // amount player rotates in w per radian of normal rotation during w-slide
+    public float wSlideFactor = 1f; // amount player moves in w per radian of normal rotation
+
+    public float standingHeight = 1f, crouchingHeight = 0.5f;
+    public float cameraSmooth = 5f; // speed to move camera by between standing and crouching positions
+
     public float grappleAccelFactor = 0.2f;
+    public float slideFrictionModifier = 0.5f; // less friction when sliding
+    public float slideSpeedBoost = 1.5f; // initial speed boost when sliding
     void Update()
     {
         // Camera look
@@ -206,13 +216,16 @@ public class PlayerMovement : MonoBehaviour
             Mathf.Clamp(lookRotation.y, minLookDownAngle, maxLookUpAngle)
         );
 
-        if (useRotation)
+        if (useRotation) //bool flag to disable look rotation for debugging purposes
         {
+            // player rotates left/right
             t4d.localEulerAngles3D = new(
                 0,
                 lookRotation.x,
                 0
             );
+
+            // camera rotates up/down
             cam4D.t4d.localEulerAngles3D = new(
                 lookRotation.y,
                 0,
@@ -226,12 +239,10 @@ public class PlayerMovement : MonoBehaviour
             wSlideStart = lookRotation.x;
         }
 
-        bool isWSliding = Input.GetKey(KeyCode.C);
-        if (isWSliding)
+        bool isCrouchPressed = Input.GetKey(KeyCode.C);
+        if (isCrouchPressed)
         {
-            // when the user presses c, they rotate in w as well
-            var currentWAngle = lookRotation.x - wSlideStart;
-            t4d.localRotation[(int)Rot4D.xw] = currentWAngle * wSlideFactor;
+            //TODO
         }
         else
         {
@@ -252,9 +263,9 @@ public class PlayerMovement : MonoBehaviour
         bool grounded = CollisionSystem.Instance.Raycast(down, groundLayerMask).NotNull().Any(x => x?.delta < 0.5f);
 
 
-        float cameraHeight = (isWSliding && grounded) switch
+        float cameraHeight = (isCrouchPressed && grounded) switch
         {
-            true => slidingHeight,
+            true => crouchingHeight,
             false => standingHeight,
         };
         cam4D.t4d.localPosition.y = Mathf.Lerp(cam4D.t4d.localPosition.y, cameraHeight, cameraSmooth * Time.deltaTime);
@@ -278,17 +289,31 @@ public class PlayerMovement : MonoBehaviour
             wasdDirection += Vector3.right.withW(0);
         }
 
-        bool isSprinting = grounded && Input.GetKey(KeyCode.LeftShift) && wasdDirection.z > 0;
+        bool isSprintRequested = grounded && Input.GetKey(KeyCode.LeftShift) && wasdDirection.z > 0;
+        bool isActuallySprinting = grounded && velocity.magnitude > maxStrafeSpeed; //sprint continues after key released sometimes
+
+        bool isSliding = isCrouchPressed && isActuallySprinting;
+
+        if (isSliding)
+        {
+            // when the user presses c, they rotate in w as well
+            var currentWAngle = lookRotation.x - wSlideStart;
+            t4d.localRotation[(int)Rot4D.xw] = Mathf.Clamp(
+                currentWAngle * wSlideCameraFactor, -maxCameraWRot, maxCameraWRot);
+            t4d.position += t4d.LocalDirectionToWorld(
+                Vector3.zero.withW(velocity.magnitude * deltaLook.x * wSlideFactor ));
+        }
+
 
         //accel modifier based on whether in air, since strafe slower in air
-        float accel_modifier = grounded ? 1.0f : airSpeedModifier;
+        float accel_modifier = grounded ? 1.0f : airAccelModifier;
 
         bool isAccelerating = false; // true if walking or running
 
         if (wasdDirection.sqrMagnitude > 0)
         {
             // limit z (forward/back) velocity based on whether or not sprinting
-            float maxSpeed = isSprinting switch
+            float maxSpeed = (isSprintRequested) switch
             {
                 true => maxSprintSpeed,
                 false => maxStrafeSpeed
@@ -311,8 +336,12 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if(grounded && !isAccelerating)
+        if (grounded && !isAccelerating)
         {
+            float actualFriction = friction;
+            if (isSliding)
+                actualFriction *= slideFrictionModifier;
+
             velocity = velocity.normalized * (Mathf.Max(0, velocity.magnitude - friction * Time.deltaTime));
         }
 
@@ -341,7 +370,7 @@ public class PlayerMovement : MonoBehaviour
                 DrawGrapple(localGrappleStart: new Vector4(0.5f, 1f, 0.5f, 0f), hp);
                 // grapple affects player velocity
                 var curVel = Vector4.Dot(velocity, dir);
-                velocity += dir * Math.Max(0, ( grapplingVelocity - curVel)* grappleAccelFactor);
+                velocity += dir * Math.Max(0, (grapplingVelocity - curVel) * grappleAccelFactor);
             }
         }
 
@@ -354,7 +383,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                if(velocity.y < 0)
+                if (velocity.y < 0)
                     velocity.y = 0;
             }
         }
@@ -369,7 +398,7 @@ public class PlayerMovement : MonoBehaviour
             normalFov,
             sprintFov,
             Mathf.InverseLerp(maxStrafeSpeed, maxSprintSpeed, velocity.magnitude)
-        ), fovSmoothing* Time.deltaTime);
+        ), fovSmoothing * Time.deltaTime);
 
         t4d.position += t4d.LocalDirectionToWorld(velocity) * Time.deltaTime;
     }

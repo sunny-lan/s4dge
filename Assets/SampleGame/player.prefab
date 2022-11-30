@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5878538348108483143}
   - component: {fileID: 5878538348108483144}
   - component: {fileID: 1546364731500160169}
+  - component: {fileID: 485243453}
   m_Layer: 0
   m_Name: player
   m_TagString: Player
@@ -67,20 +68,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 663f1bf2c7685f74881fce6e087c783e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useRotation: 0
-  useAcceleration: 1
+  useRotation: 1
   acceleration: 50
-  friction: 20
-  airAcceleration: 5
+  friction: 50
   gravity: 9.81
-  jumpSpeed: 10
+  jumpSpeed: 8
   lookSpeed: 0.05
-  maxMovementSpd: 30
-  airFriction: 1
   minLookDownAngle: -1
   maxLookUpAngle: 1
-  grappleVelocity: 20
-  grappleLine: {fileID: 0}
+  grapplingVelocity: 30
+  grappleMinW: -5
+  grappleMaxW: 5
+  grappleDltW: 0.25
+  maxStrafeSpeed: 10
+  maxSprintSpeed: 25
+  airAccelModifier: 0.5
+  normalFov: 60
+  sprintFov: 80
+  fovSmoothing: 0.99
+  maxCameraWRot: 0.15
+  wSlideCameraFactor: 0.1
+  wSlideFactor: 0.2
+  standingHeight: 1
+  crouchingHeight: 0.5
+  cameraSmooth: 5
+  grappleAccelFactor: 0.2
+  slideFrictionModifier: 0.5
+  slideSpeedBoost: 1.5
+--- !u!114 &485243453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5878538348108483145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf1e6b9efc40dce459d6fd0dd4e22c29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: a40bb0b7fced82b40893d7dbd2bde6de, type: 2}
+  previewW: 0
+  previewWidth: 0
+  showWhenOutOfRange: 0
 --- !u!1 &5878538348215294275
 GameObject:
   m_ObjectHideFlags: 0

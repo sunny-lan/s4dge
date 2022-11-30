@@ -240,27 +240,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
---- !u!1 &485243448 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5878538348108483145, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-  m_PrefabInstance: {fileID: 5878538347263729567}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &485243453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 485243448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf1e6b9efc40dce459d6fd0dd4e22c29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: a40bb0b7fced82b40893d7dbd2bde6de, type: 2}
-  previewW: 0
-  previewWidth: 0
-  showWhenOutOfRange: 0
 --- !u!1 &609749532 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6262987207706133986, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
@@ -421,7 +400,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706133986, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706133987, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: filePath
@@ -869,60 +848,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: gravity
-      value: 9.81
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: friction
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: jumpSpeed
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: grappleDltW
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: grappleLine
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: grappleMaxW
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: grappleMinW
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: useRotation
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: fovSmoothing
-      value: 0.99
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: maxSprintSpeed
-      value: 25
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: maxStrafeSpeed
-      value: 10
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: groundStopSpeed
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: useAcceleration
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: grapplingVelocity
-      value: 30
+      propertyPath: slideFrictionModifier
+      value: 0.001
       objectReference: {fileID: 0}
     - target: {fileID: 5878538348108483143, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: m_RootOrder
@@ -968,29 +903,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: localScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: localScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: localScale.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: localPosition.w
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5878538348108483145, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: m_Name
       value: player
-      objectReference: {fileID: 0}
-    - target: {fileID: 5878538348215294334, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: localPosition.y
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0cd4206998392124eb07486d09de0773, type: 3}
