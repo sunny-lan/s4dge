@@ -90,6 +90,8 @@ public class PlayerMovement : MonoBehaviour
     public float grappleMinW = 0, grappleMaxW = 0;
     public float grappleDltW = 0.5f;
 
+    public bool useGravity = true;
+
 
     // shoot multiple grapples (from different w) from the player position towards where they are looking
     void Grapple(Vector4 position, Vector4 look)
@@ -98,25 +100,27 @@ public class PlayerMovement : MonoBehaviour
         List<Ray4D.Intersection?> collidePoints = new();
 
         Ray4D.Intersection? collidePoint = null;
+        float bestDistance = float.PositiveInfinity;
 
-        float mid = (grappleMinW + grappleMaxW) / 2;
-        for (float dlt = 0; dlt <= grappleMaxW - mid; dlt += grappleDltW)
+        for (float scanW = grappleMinW; scanW <= grappleMaxW; scanW += grappleDltW)
         {
-            Ray4D.Intersection? GetRayCollide(float grappleW)
-            {
-                return CollisionSystem.Instance.Raycast(new Ray4D { src = position.XYZ().withW(position.w + grappleW), direction = look }, Physics.AllLayers).Min();
-            }
 
-            if (GetRayCollide(mid + dlt) is Ray4D.Intersection pt1)
+            IEnumerable<Ray4D.Intersection> collisions = CollisionSystem.Instance.Raycast(new Ray4D
             {
-                collidePoint = pt1;
-                break;
-            }
+                src = position.XYZ().withW(scanW + position.w),
+                direction = look
+            }, Physics.AllLayers);
 
-            if (GetRayCollide(mid - dlt) is Ray4D.Intersection pt2)
+            // find raycasted point closest to source
+            if (collisions.Count() > 0)
             {
-                collidePoint = pt2;
-                break;
+                Ray4D.Intersection minForThis = collisions.Min();
+                float curDist = (minForThis.point - position).magnitude;
+                if (curDist < bestDistance)
+                {
+                    bestDistance = curDist;
+                    collidePoint = minForThis;
+                }
             }
         }
 
@@ -260,8 +264,11 @@ public class PlayerMovement : MonoBehaviour
             src = t4d.position,
         };
 
-        bool grounded = CollisionSystem.Instance.Raycast(down, groundLayerMask).NotNull().Any(x => x?.delta < 0.5f);
-
+        bool grounded = useGravity switch
+        {
+            true => CollisionSystem.Instance.Raycast(down, groundLayerMask).Any(x => x.delta < 0.5f),
+            false => true // if no gravity, always grounded
+        };
 
         float cameraHeight = (isCrouchPressed && grounded) switch
         {
@@ -301,7 +308,7 @@ public class PlayerMovement : MonoBehaviour
             t4d.localRotation[(int)Rot4D.xw] = Mathf.Clamp(
                 currentWAngle * wSlideCameraFactor, -maxCameraWRot, maxCameraWRot);
             t4d.position += t4d.LocalDirectionToWorld(
-                Vector3.zero.withW(velocity.magnitude * deltaLook.x * wSlideFactor ));
+                Vector3.zero.withW(velocity.magnitude * deltaLook.x * wSlideFactor));
         }
 
 
@@ -389,7 +396,8 @@ public class PlayerMovement : MonoBehaviour
         }
         else //else gravity
         {
-            velocity.y -= gravity * Time.deltaTime;
+            if (useGravity)
+                velocity.y -= gravity * Time.deltaTime;
         }
 
 
