@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+using UnityEngine.UIElements;
 
 namespace v2
 {
@@ -9,82 +11,39 @@ namespace v2
     /// Represents hypercube collision area
     /// </summary>
     [RequireComponent(typeof(Transform4D))]
-    public class BoxCollider4D:MonoBehaviour
+    public class BoxCollider4D:Collider4D
     {
+
         public Vector4 corner;
         public Vector4 size;
 
-        private Transform4D t4d;
-
-        /// <summary>
-        /// This event is triggered every frame, for every object 
-        /// that is colliding with
-        /// </summary>
-        public event Action<BoxCollider4D> OnCollisionStay;
-
-        /// <summary>
-        /// Called by CollisionSystem to trigger the event.
-        /// Should NOT be called by anyone else
-        /// </summary>
-        /// <param name="other"></param>
-        internal void TriggerCollision(BoxCollider4D other)
+        public Box GetBox()
         {
-            OnCollisionStay?.Invoke(other);
-        }
-
-        private void Awake()
-        {
-            t4d = GetComponent<Transform4D>();
-        }
-
-        private void OnEnable()
-        {
-            CollisionSystem.Instance.Add(this);
-        }
-
-        private void OnDisable()
-        {
-            CollisionSystem.Instance.Remove(this);
-        }
-
-        public bool ContainsPoint(Vector4 p)
-        {
-            p = t4d.InverseTransform(p); //transform to local coordinates
-
-            //check if in box
-            p -= corner;
-            return 
-                p.x>=0 && p.y>=0 && p.z>=0 && p.w>=0 
-                && 
-                p.x<=size.x && p.y<=size.y && p.z<=size.z && p.w<=size.w; 
-        }
-
-        //TODO performance
-        public IEnumerable<Vector4> GetCorners()
-        {
-            for(int i = 0; i < (1<<4); i++)
+            return new Box
             {
-                Vector4 offset = size;
-                offset.Scale(new Vector4(
-                    (i >> 0) & 1,
-                    (i >> 1) & 1,
-                    (i >> 2) & 1,
-                    (i >> 3) & 1
-                ));
-                yield return t4d.Transform(corner + offset);
-            }
+                corner = corner,
+                size = size,
+                t4d = t4d
+            };
         }
 
-        public bool DoesCollide(BoxCollider4D b)
+        public override Ray4D.Intersection? RayIntersect(Ray4D ray)
         {
-            foreach(var corner in b.GetCorners())
-            {
-                if (ContainsPoint(corner))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return BoxCollider4DChecker.RayIntersect(GetBox(), ray);
+        }
+
+        public override bool ContainsPoint(Vector4 p)
+        {
+            return BoxCollider4DChecker.ContainsPoint(GetBox(), p); 
+        }
+
+        public override bool DoesCollide(Collider4D o)
+        {
+            if (o is BoxCollider4D b) return BoxCollider4DChecker.DoesCollide(GetBox(), b.GetBox());
+            else if (o is InterpolationBoxCollider bx) return bx.DoesCollide(this);
+
+            // dead code
+            throw new NotImplementedException();
         }
     }
 }

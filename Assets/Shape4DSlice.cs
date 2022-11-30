@@ -115,22 +115,22 @@ class Shape4DSlice : Shape4D
             }
         }
 
-        float w = 0.0f;
-        //Debugging
-        if (false) {
-            Debug.Log("Lines");
-            foreach (Line4D line in lines4D) {
-                Debug.Log(line.p1.getPoint(w).position);
-                Debug.Log(line.p2.getPoint(w).position);
-            }
-            Debug.Log("Faces");
-            foreach (Face4D face in faces4D) {
-                Debug.Log(face.points[0].getPoint(w).position);
-                Debug.Log(face.points[1].getPoint(w).position);
-                Debug.Log(face.points[2].getPoint(w).position);
-                Debug.Log(face.points[3].getPoint(w).position);
-            }
-        }
+        //float w = 0.0f;
+        ////Debugging
+        //if (false) {
+        //    Debug.Log("Lines");
+        //    foreach (Line4D line in lines4D) {
+        //        Debug.Log(line.p1.getPoint(w).position);
+        //        Debug.Log(line.p2.getPoint(w).position);
+        //    }
+        //    Debug.Log("Faces");
+        //    foreach (Face4D face in faces4D) {
+        //        Debug.Log(face.points[0].getPoint(w).position);
+        //        Debug.Log(face.points[1].getPoint(w).position);
+        //        Debug.Log(face.points[2].getPoint(w).position);
+        //        Debug.Log(face.points[3].getPoint(w).position);
+        //    }
+        //}
     }
 
 

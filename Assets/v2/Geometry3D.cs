@@ -1,48 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// Helper class to store 3D meshes and modify them
-/// </summary>
-public class Geometry3D
+namespace v2
 {
-    public readonly List<Vector3> vertices = new();
-    public readonly List<int> triangles = new();
-    public readonly List<(Vector3,Vector3)> lines = new();
-
-    public void Clear()
-    {
-        vertices.Clear();
-        triangles.Clear();
-        lines.Clear();
-    }
-
     /// <summary>
-    /// Draws polygon out of triangles
+    /// Helper class to store 3D meshes and modify them
     /// </summary>
-    /// <param name="polygon">The polygon to draw</param>
-    public void fillPolygon(params Vector3[] polygon)
+    public class Geometry3D
     {
-        int tmp = vertices.Count;
-        this.vertices.AddRange(polygon);
 
-        for (int i = 1; i + 1 < polygon.Length; i++)
+        public readonly List<Vector3> vertices = new();
+        public readonly List<Vector2> uv = new();
+        public readonly List<Vector2> uv2 = new();
+        public readonly List<int> triangles = new();
+        public readonly List<(int, int)> lines = new();
+
+        public void Clear()
         {
-            //front face
-            triangles.Add(tmp);
-            triangles.Add(tmp + i);
-            triangles.Add(tmp + (i + 1));
-
-            //back face
-            triangles.Add(tmp + (i + 1));
-            triangles.Add(tmp + i);
-            triangles.Add(tmp);
+            vertices.Clear();
+            uv.Clear();
+            uv2.Clear();
+            triangles.Clear();
+            lines.Clear();
         }
-    }
 
-    public void line(Vector3 p1, Vector3 p2)
-    {
-        lines.Add((p1, p2));
+        public int AddPoint(PointInfo point)
+        {
+            vertices.Add(point.position);
+            uv.Add(point.uv);
+            uv2.Add(new(point.w, 0));
+            return vertices.Count - 1;
+        }
+
+        /// <summary>
+        /// Draws polygon out of triangles
+        /// </summary>
+        /// <param name="polygon">The vertex indices of polygon to draw</param>
+        public void fillPolygon(params int[] polygon)
+        {
+            for (int i = 1; i + 1 < polygon.Length; i++)
+            {
+                //front face
+                triangles.Add(polygon[0]);
+                triangles.Add(polygon[i]);
+                triangles.Add(polygon[i+1]);
+            }
+        }
+
+        public void line(int p1, int p2)
+        {
+            lines.Add((p1, p2));
+        }
+
+        public void ApplyToMesh(Mesh mesh)
+        {
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uv);
+            mesh.SetUVs(1, uv2); 
+            mesh.SetTriangles(triangles, 0);
+        }
     }
 }

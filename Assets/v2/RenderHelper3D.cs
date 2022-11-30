@@ -1,35 +1,52 @@
+using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// Helper component for mesh rendering
-/// </summary>
-[ExecuteAlways]
-public class RenderHelper3D : MonoBehaviour
+namespace v2
 {
-    Mesh mesh;
-    Geometry3D geometry;
-    private void Awake()
+    /// <summary>
+    /// Helper component for mesh rendering
+    /// </summary>
+    public class RenderHelper3D : MonoBehaviour
     {
-        var renderer = gameObject.GetComponent<MeshRenderer>();
-        var mf = gameObject.GetComponent<MeshFilter>();
-        mesh = new() { vertices = new Vector3[] { }, triangles = new int[0] };
-        mf.mesh = mesh;
-    }
-
-
-    private void Update()
-    {
-        if (geometry == null) return;
-        foreach(var (a,b) in geometry.lines)
+        Mesh mesh;
+        Geometry3D geometry;
+        public MeshRenderer meshRenderer { get; private set; }
+        private void Awake()
         {
-            Debug.DrawLine(a, b);
+            meshRenderer = gameObject.GetComponent<MeshRenderer>();
+            var mf = gameObject.GetComponent<MeshFilter>();
+            mesh = new() { vertices = new Vector3[] { }, triangles = new int[0] };
+            mf.mesh = mesh;
+
         }
-    }
-    public void SetGeometry(Geometry3D geometry)
-    {
-        this.geometry = geometry;
-        mesh.vertices = geometry.vertices.ToArray();
-        mesh.triangles = geometry.triangles.ToArray();
+
+
+        private void Update()
+        {
+            if (geometry == null) return;
+            foreach (var (a, b) in geometry.lines)
+            {
+                Debug.DrawLine(geometry.vertices[ a],geometry.vertices[ b]);
+            }
+        }
+        public void SetGeometry(Geometry3D geometry)
+        {
+            this.geometry = geometry;
+
+            // if no vertices, don't show anything
+            if (geometry.vertices.Count == 0)
+            {
+                meshRenderer.enabled = false;
+                return;
+            }
+            else
+            {
+                meshRenderer.enabled = true;
+            }
+
+            geometry.ApplyToMesh(mesh);
+        }
     }
 }

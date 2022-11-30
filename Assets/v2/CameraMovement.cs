@@ -17,11 +17,11 @@ public class CameraMovement : MonoBehaviour
 
         if (Input.GetKey(KeyCode.LeftBracket))
         {
-            camera4d.t4d.position.w += Time.deltaTime * 2;
+            camera4d.t4d.localPosition.w += Time.deltaTime * 2;
         }
         if (Input.GetKey(KeyCode.RightBracket))
         {
-            camera4d.t4d.position.w -= Time.deltaTime * 2;
+            camera4d.t4d.localPosition.w -= Time.deltaTime * 2;
         }
     }
 }
