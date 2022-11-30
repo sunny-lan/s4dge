@@ -283,7 +283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77beada2ce9097b43843dc20e9c6afa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deltaW: 0.5
+  deltaW: 0.1
 --- !u!1 &774748414
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,19 +745,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134014, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: localScale.w
-      value: 10
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134014, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: localScale.x
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134014, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: localScale.y
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134014, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: localScale.z
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6262987207706134014, guid: 2b05c28d1541e154f94caf18ed5def2f, type: 3}
       propertyPath: localPosition.w
@@ -878,15 +878,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: grappleDltW
-      value: 0.05
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: grappleMaxW
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: grappleMinW
-      value: -10
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: useAcceleration
@@ -939,6 +939,18 @@ PrefabInstance:
     - target: {fileID: 5878538348108483143, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
+      propertyPath: localScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
+      propertyPath: localScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
+      propertyPath: localScale.z
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5878538348108483144, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: localPosition.w
