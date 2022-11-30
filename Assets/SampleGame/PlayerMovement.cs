@@ -8,36 +8,27 @@ using v2;
 
 public class PlayerMovement : MonoBehaviour
 {
-    enum State
-    {
-        Walking
-    }
-
     public bool useRotation = false;
-    public bool useAcceleration = false;
     public float acceleration = 1f, friction = 0.1f;
-    public float airAcceleration = 5f;
     public float gravity = 9.81f;
     public float jumpSpeed = 20f;
 
     public float lookSpeed = 0.05f;
-    public float maxMovementSpd = 1f;
-    public float airFriction = 1f;
 
     /// <summary>
     /// In radians
     /// </summary>
     public float minLookDownAngle = -1f, maxLookUpAngle = 1f;
 
-    Camera4D camera;
+    Camera4D cam4D;
     Transform4D t4d;
     void Start()
     {
-        groundLayerMask = LayerMask.GetMask("Ground"); 
+        groundLayerMask = LayerMask.GetMask("Ground");
 
         t4d = GetComponent<Transform4D>();
 
-        camera = GetComponentInChildren<Camera4D>();
+        cam4D = GetComponentInChildren<Camera4D>();
 
         sliceRenderer = GetComponent<SliceRenderer>();
 
@@ -48,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     // listen to all collision events in children and self
     private void OnEnable()
     {
-        foreach(BoxCollider4D boxCollider in GetComponentsInChildren<BoxCollider4D>())
+        foreach (BoxCollider4D boxCollider in GetComponentsInChildren<BoxCollider4D>())
         {
             //boxCollider.OnCollisionStay += OnCollisionDetected;
         }
@@ -87,17 +78,15 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    State state = State.Walking;
-
     Vector2 lookRotation; //x=side to side rotation, y=up down rotation
-    Vector4 velocity;
+    Vector4 velocity;//local direction vector
     float wSlideStart;
 
     Vector4? hookPoint = null;
     public float grapplingVelocity = 10;
     SliceRenderer sliceRenderer;
 
-    public InterpolationBasedShape grappleLine;
+    InterpolationBasedShape grappleLine;
     public float grappleMinW = 0, grappleMaxW = 0;
     public float grappleDltW = 0.5f;
 
@@ -111,8 +100,10 @@ public class PlayerMovement : MonoBehaviour
         Ray4D.Intersection? collidePoint = null;
 
         float mid = (grappleMinW + grappleMaxW) / 2;
-        for (float dlt = 0; dlt <= grappleMaxW - mid; dlt += grappleDltW) {
-            Ray4D.Intersection? GetRayCollide(float grappleW) {
+        for (float dlt = 0; dlt <= grappleMaxW - mid; dlt += grappleDltW)
+        {
+            Ray4D.Intersection? GetRayCollide(float grappleW)
+            {
                 return CollisionSystem.Instance.Raycast(new Ray4D { src = position.XYZ().withW(position.w + grappleW), direction = look }, Physics.AllLayers).Min();
             }
 
@@ -128,7 +119,7 @@ public class PlayerMovement : MonoBehaviour
                 break;
             }
         }
-        
+
         if (collidePoint is Ray4D.Intersection collidePointNotNull)
         {
             hookPoint = collidePointNotNull.point;
@@ -143,20 +134,19 @@ public class PlayerMovement : MonoBehaviour
                 });
     }
 
-    void DrawGrapple(Vector4 playerPos, Vector4 hp)
+    void DrawGrapple(Vector4 localGrappleStart, Vector4 hp)
     {
         //grappleLine = S4DGELoader.LoadS4DGE("Assets/Models/hypercube.s4dge");
         //sliceRenderer.Shape = grappleLine;
         //return;
 
         // draw grapple line as face
-        Vector4 localPlayerPos = new Vector4(0.5f, 1f, 0.5f, 0f);
-        Vector4 localHp = camera.t4d.WorldToLocal(hp);
+        Vector4 localHp = t4d.WorldToLocal(hp);
         float offset = 0.1f;
-        InterpolationPoint4D start1 = V4At("start1", localPlayerPos);
-        InterpolationPoint4D start2 = V4At("start2", localPlayerPos + new Vector4(offset, 0, 0, 0));
-        InterpolationPoint4D start3 = V4At("start3", localPlayerPos + new Vector4(0, offset, 0, 0));
-        InterpolationPoint4D start4 = V4At("start4", localPlayerPos + new Vector4(offset, offset, 0, 0));
+        InterpolationPoint4D start1 = V4At("start1", localGrappleStart);
+        InterpolationPoint4D start2 = V4At("start2", localGrappleStart + new Vector4(offset, 0, 0, 0));
+        InterpolationPoint4D start3 = V4At("start3", localGrappleStart + new Vector4(0, offset, 0, 0));
+        InterpolationPoint4D start4 = V4At("start4", localGrappleStart + new Vector4(offset, offset, 0, 0));
         InterpolationPoint4D end1 = V4At("end1", localHp);
         InterpolationPoint4D end2 = V4At("end2", localHp + new Vector4(offset, 0, 0, 0));
         InterpolationPoint4D end3 = V4At("end3", localHp + new Vector4(0, offset, 0, 0));
@@ -189,6 +179,16 @@ public class PlayerMovement : MonoBehaviour
 
     int groundLayerMask;
 
+    public float maxStrafeSpeed = 1f;
+    public float maxSprintSpeed = 1f;
+    public float airSpeedModifier = 0.5f;
+    public float normalFov = 60;
+    public float sprintFov = 80;
+    public float fovSmoothing = 0.1f;
+    public float wSlideFactor = 0.3f;
+    public float standingHeight = 1f, slidingHeight = 0.5f;
+    public float cameraSmooth = 5f;
+    public float grappleAccelFactor = 0.2f;
     void Update()
     {
         // Camera look
@@ -202,15 +202,20 @@ public class PlayerMovement : MonoBehaviour
 
         // limit rotation to valid stuff
         lookRotation = new(
-            lookRotation.x%(2*Mathf.PI),
-            Mathf.Clamp( lookRotation.y, minLookDownAngle, maxLookUpAngle)
+            lookRotation.x % (2 * Mathf.PI),
+            Mathf.Clamp(lookRotation.y, minLookDownAngle, maxLookUpAngle)
         );
 
-        if (!useRotation)
+        if (useRotation)
         {
             t4d.localEulerAngles3D = new(
-                lookRotation.y,
+                0,
                 lookRotation.x,
+                0
+            );
+            cam4D.t4d.localEulerAngles3D = new(
+                lookRotation.y,
+                0,
                 0
             );
         }
@@ -221,11 +226,12 @@ public class PlayerMovement : MonoBehaviour
             wSlideStart = lookRotation.x;
         }
 
-        if (Input.GetKey(KeyCode.C))
+        bool isWSliding = Input.GetKey(KeyCode.C);
+        if (isWSliding)
         {
             // when the user presses c, they rotate in w as well
             var currentWAngle = lookRotation.x - wSlideStart;
-            t4d.localRotation[(int)Rot4D.xw] = currentWAngle;
+            t4d.localRotation[(int)Rot4D.xw] = currentWAngle * wSlideFactor;
         }
         else
         {
@@ -233,101 +239,138 @@ public class PlayerMovement : MonoBehaviour
             t4d.localRotation[(int)Rot4D.xw] = 0;
         }
 
-        // grapple
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            Grapple(camera.t4d.position, camera.t4d.forward);
-        }
 
-        // wasd movement
-        Vector4 deltaVelocity = Vector4.zero;
-        if (Input.GetKey(KeyCode.W))
-        {
-            deltaVelocity = t4d.forward;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            deltaVelocity = t4d.back;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            deltaVelocity = t4d.left;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            deltaVelocity = t4d.right;
-        }
 
-        //jump
+
+        //check on ground
         Ray4D down = new()
         {
             direction = Vector3.down,
             src = t4d.position,
         };
 
+        bool grounded = CollisionSystem.Instance.Raycast(down, groundLayerMask).NotNull().Any(x => x?.delta < 0.5f);
+
+
+        float cameraHeight = (isWSliding && grounded) switch
+        {
+            true => slidingHeight,
+            false => standingHeight,
+        };
+        cam4D.t4d.localPosition.y = Mathf.Lerp(cam4D.t4d.localPosition.y, cameraHeight, cameraSmooth * Time.deltaTime);
+
+        // wasd movement
+        Vector4 wasdDirection = Vector4.zero;
+        if (Input.GetKey(KeyCode.W))
+        {
+            wasdDirection += Vector3.forward.withW(0);
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            wasdDirection += Vector3.back.withW(0);
+        }
+        if (Input.GetKey(KeyCode.A))
+        {
+            wasdDirection += Vector3.left.withW(0);
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            wasdDirection += Vector3.right.withW(0);
+        }
+
+        bool isSprinting = grounded && Input.GetKey(KeyCode.LeftShift) && wasdDirection.z > 0;
+
+        //accel modifier based on whether in air, since strafe slower in air
+        float accel_modifier = grounded ? 1.0f : airSpeedModifier;
+
+        bool isAccelerating = false; // true if walking or running
+
+        if (wasdDirection.sqrMagnitude > 0)
+        {
+            // limit z (forward/back) velocity based on whether or not sprinting
+            float maxSpeed = isSprinting switch
+            {
+                true => maxSprintSpeed,
+                false => maxStrafeSpeed
+            };
+
+            // prevent from exceeding limit (do not apply new velocity if exceeds limits)
+            Vector4 accelDirection = t4d.LocalDirectionToWorld(wasdDirection);
+            var nextVelocity = velocity + accel_modifier * acceleration * accelDirection * Time.deltaTime;
+
+            if (
+                nextVelocity.magnitude < velocity.magnitude || //allow deacceleration
+                (
+                    nextVelocity.magnitude < accel_modifier * maxSpeed &&
+                    Mathf.Abs(t4d.WorldDirectionToLocal(nextVelocity).x) < accel_modifier * maxStrafeSpeed
+                )
+            )
+            {
+                velocity = nextVelocity;
+                isAccelerating = true;
+            }
+        }
+
+        if(grounded && !isAccelerating)
+        {
+            velocity = velocity.normalized * (Mathf.Max(0, velocity.magnitude - friction * Time.deltaTime));
+        }
+
+
+        // grapple
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Grapple(cam4D.t4d.position, cam4D.t4d.forward);
+        }
+
         // grapple velocity
         if (hookPoint is Vector4 hp)
         {
-            Vector4 playerPos = camera.t4d.position;
+            Vector4 playerPos = t4d.position;
             Vector4 delta = (hp - playerPos);
             Vector4 dir = delta.normalized;
 
             // if angle between look, hook is >90 degrees or we reach the dest point, stop grappling
-            if (Util.Angle(camera.t4d.forward, dir) > Mathf.PI / 2 || Vector4.Magnitude(delta) <= 1e-1)
+            if (Util.Angle(cam4D.t4d.forward, dir) > Mathf.PI / 2 || Vector4.Magnitude(delta) <= 1e-1)
             {
                 hookPoint = null;
                 sliceRenderer.Shape = null;
             }
             else
             {
-                DrawGrapple(playerPos, hp);
+                DrawGrapple(localGrappleStart: new Vector4(0.5f, 1f, 0.5f, 0f), hp);
                 // grapple affects player velocity
-                deltaVelocity += (dir * grapplingVelocity) * Time.deltaTime;
+                var curVel = Vector4.Dot(velocity, dir);
+                velocity += dir * Math.Max(0, ( grapplingVelocity - curVel)* grappleAccelFactor);
             }
         }
 
-        bool grounded = CollisionSystem.Instance.Raycast(down, groundLayerMask).NotNull().Any(x => x?.delta < 1f);
-
-        if (useAcceleration)
-        {
-            if(grounded)
-            {
-                if (velocity.magnitude <= maxMovementSpd + grapplingVelocity)
-                {
-                    velocity += deltaVelocity * acceleration * Time.deltaTime;
-                }
-            }
-            else
-            {
-                velocity += deltaVelocity * airAcceleration * Time.deltaTime;
-            }
-        }
-        else
-        {
-            velocity = deltaVelocity * maxMovementSpd;
-        }
-
-        // if grounded
+        // gravity calcs
         if (grounded)
         {
-            if (Input.GetKey(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 velocity.y = jumpSpeed;
             }
             else
             {
-                velocity -= velocity.normalized * friction * Time.deltaTime;
-                velocity.y = 0;
+                if(velocity.y < 0)
+                    velocity.y = 0;
             }
-
         }
         else //else gravity
         {
             velocity.y -= gravity * Time.deltaTime;
-
-            velocity -= velocity.normalized * airFriction * Time.deltaTime;
         }
 
-        t4d.localPosition += velocity * Time.deltaTime;
+
+
+        cam4D.camera3D.fieldOfView = Mathf.Lerp(cam4D.camera3D.fieldOfView, Mathf.Lerp(
+            normalFov,
+            sprintFov,
+            Mathf.InverseLerp(maxStrafeSpeed, maxSprintSpeed, velocity.magnitude)
+        ), fovSmoothing* Time.deltaTime);
+
+        t4d.position += t4d.LocalDirectionToWorld(velocity) * Time.deltaTime;
     }
 }

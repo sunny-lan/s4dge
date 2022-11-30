@@ -93,6 +93,8 @@ namespace v2
 
         public Vector4 LocalDirectionToWorld(Vector4 direction) => LocalToWorld(direction) - LocalToWorld(Vector4.zero);
 
+        public Vector4 WorldDirectionToLocal(Vector4 direction) => WorldToLocal(direction) - WorldToLocal(Vector4.zero);
+
         // TODO idk if these are valid when rotation in 4D is non zero
         public Vector4 forward => LocalDirectionToWorld(Vector3.forward);
         public Vector4 left => LocalDirectionToWorld(Vector3.left);
