@@ -63,9 +63,24 @@ namespace v2
             string[] fileLines = File.ReadAllLines(fileName);
             foreach (string fileLine in fileLines)
             {
-                if (fileLine[0] == 'l')
+
+
+                // Remove comments
+                string currentFileLine = fileLine;
+                int index = currentFileLine.IndexOf("#");
+                if (index >= 0){
+                    currentFileLine = currentFileLine.Substring(0, index);
+                }
+                currentFileLine = currentFileLine.Trim(); // Trim leading and ending white space
+
+                if(currentFileLine == ""){
+                    continue;
+                }
+
+
+                if (currentFileLine[0] == 'l')
                 { // check that it is line
-                    string[] terms = fileLine.Split(':', '-');
+                    string[] terms = currentFileLine.Split(':', '-');
                     string lineP1 = terms[1];
                     string lineP2 = terms[2];
 
@@ -74,9 +89,9 @@ namespace v2
                     lines4D.Add(line);
 
                 }
-                else if (fileLine[0] == 'f')
+                else if (currentFileLine[0] == 'f')
                 {
-                    string[] terms = fileLine.Split(':', '-');
+                    string[] terms = currentFileLine.Split(':', '-');
 
                     List<InterpolationPoint4D> facePoints = new List<InterpolationPoint4D>(); // optimization maybe possible lol
                     foreach (string term in terms.Skip(1))
@@ -86,9 +101,9 @@ namespace v2
 
                     faces4D.Add(new Face<InterpolationPoint4D>(facePoints));
                 }
-                else if (fileLine[0] == 't') //texture mapping
+                else if (currentFileLine[0] == 't') //texture mapping
                 {
-                    string[] terms = fileLine.Split(
+                    string[] terms = currentFileLine.Split(
                         new char[] { ':', '(', ')' }, 
                         options: System.StringSplitOptions.RemoveEmptyEntries
                     );
@@ -117,7 +132,7 @@ namespace v2
                 }
                 else //point declaration
                 {
-                    string[] terms = fileLine.Split(':', '(', ')');
+                    string[] terms = currentFileLine.Split(':', '(', ')');
                     string pName = terms[0];
                     List<PointInfo> subpoints = new();
 
