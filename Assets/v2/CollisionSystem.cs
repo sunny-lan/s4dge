@@ -73,7 +73,7 @@ namespace v2
         private static CollisionSystem _instance; // keep the actual instance private
         public static CollisionSystem Instance { get { // find the script instance in the scene if the private instance is null
             if ( _instance == null ) {
-                _instance = FindObjectOfType(typeof(CollisionSystem)) as CollisionSystem;
+                _instance = FindObjectOfType<CollisionSystem>();
             }
             return _instance;
         } }

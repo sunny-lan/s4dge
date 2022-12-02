@@ -13,6 +13,10 @@ public static class Util
     {
         return new(v.x, v.y, v.z, w);
     }
+    public static Vector4 withY(this Vector4 v, float y)
+    {
+        return new(v.x, y, v.z, v.w);
+    }
 
     public static float Angle(Vector4 a, Vector4 b)
     {

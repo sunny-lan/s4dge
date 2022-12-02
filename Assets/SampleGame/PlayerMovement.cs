@@ -203,6 +203,9 @@ public class PlayerMovement : MonoBehaviour
     public float grappleAccelFactor = 0.2f;
     public float slideFrictionModifier = 0.5f; // less friction when sliding
     public float slideSpeedBoost = 1.5f; // initial speed boost when sliding
+
+    public float airFriction = 0.1f;
+
     void Update()
     {
         // Camera look
@@ -264,9 +267,12 @@ public class PlayerMovement : MonoBehaviour
             src = t4d.position,
         };
 
+        var collisions = CollisionSystem.Instance.Raycast(down, groundLayerMask)
+            .Where(x => x.delta < 0.5f);
+        
         bool grounded = useGravity switch
         {
-            true => CollisionSystem.Instance.Raycast(down, groundLayerMask).Any(x => x.delta < 0.5f),
+            true => collisions.Any(),
             false => true // if no gravity, always grounded
         };
 
@@ -343,15 +349,22 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if (grounded && !isAccelerating)
+        float actualFriction = 0;
+        if (grounded)
         {
-            float actualFriction = friction;
-            if (isSliding)
-                actualFriction *= slideFrictionModifier;
-
-            velocity = velocity.normalized * (Mathf.Max(0, velocity.magnitude - friction * Time.deltaTime));
+            if (!isAccelerating) //don't add friction when running
+            {
+                actualFriction = friction;
+                if (isSliding)
+                    actualFriction *= slideFrictionModifier;
+            }
+        }
+        else //air
+        {
+            actualFriction = airFriction;
         }
 
+        velocity = velocity.normalized * (Mathf.Max(0, velocity.magnitude - actualFriction * Time.deltaTime));
 
         // grapple
         if (Input.GetKeyDown(KeyCode.Q))
@@ -392,6 +405,9 @@ public class PlayerMovement : MonoBehaviour
             {
                 if (velocity.y < 0)
                     velocity.y = 0;
+
+                // force position to ground
+                t4d.position = t4d.position.withY(Mathf.Max(collisions.Max().point.y, t4d.position.y)); 
             }
         }
         else //else gravity
