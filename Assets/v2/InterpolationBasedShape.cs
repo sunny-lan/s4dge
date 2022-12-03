@@ -286,6 +286,18 @@ namespace v2
             }
             return true;
         }
+        /// <summary>
+        /// Returns a transformed Slice struct for every w coordinate which is marked as having a slice
+        /// </summary>
+        public List<Slice> GetSlices(Func<Vector4, Vector4> transform)
+        {
+            List<float> ws = sliceW.ToList();
+            List<Slice> slices = new List<Slice>();
+            foreach ( float w in ws ) {
+                slices.Add( GetSliceAt(w, transform));
+            }
+            return slices;
+        }
     } // class InterpolationBasedShape
 
 } // namespace v2

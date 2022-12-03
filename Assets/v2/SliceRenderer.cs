@@ -31,7 +31,7 @@ namespace v2
         // TODO: decide acceptable w range here
         [Range(-10.0f, 10.0f)]
         public float previewW = 0;
-
+        public bool renderWireFrame = false; // whether the lines of the mesh should be used to make a wireframe model (No good for performance)
         // 
         // END editor variables/methods
         //
@@ -97,8 +97,11 @@ namespace v2
                 submeshIndex: 0,
                 properties: blk
             );
+            if ( renderWireFrame )
+            {
+                RenderWireFrame( ctx, cam);
+            }
         }
-
         // TODO this should be determined by camera. This is just here for debugging purpose
         public float previewWidth = 1;
         public bool showWhenOutOfRange = true;
@@ -162,6 +165,62 @@ namespace v2
                     .ToArray();
                 slice.fillPolygon(slicedPoints);
             }
+        }
+        // Iterates over all slices and lines in mesh, and draws wireframe model around 4d mesh
+        void RenderWireFrame( ScriptableRenderContext ctx, Camera4D cam )
+        {
+            // get the transformed 3d slice shapes for all ws which have a slice
+            List<InterpolationBasedShape.Slice> slices = shape.GetSlices( p => cam.t4d.WorldToLocal(t4d.LocalToWorld(p)));
+            List<Vector3> points = new List<Vector3>(); // list of all wire mesh vertices
+            List<int> lineIndices = new List<int>(); // list of indices, every 2 make a line
+            Dictionary<PointInfo, int> nameIndex = new(); // converts point into its index in the points list
+            foreach( InterpolationBasedShape.Slice s in slices )
+            { // iterate over all slices
+                for ( int i = 0; i < s.lines.Count; i++ )
+                { // iterate over all lines in the slice
+                    if ( !nameIndex.ContainsKey(s.lines[i].p1) )
+                    {
+                        nameIndex[ s.lines[i].p1] = points.Count;
+                        points.Add( s.lines[i].p1.position ); // add p1 to the points list and dictionary if not present
+                    }
+                    if ( !nameIndex.ContainsKey(s.lines[i].p2) )
+                    {
+                        nameIndex[ s.lines[i].p2 ] = points.Count;
+                        points.Add( s.lines[i].p2.position ); // add p2 to the points list and dictionary if not present
+                    }
+                    lineIndices.Add( nameIndex[s.lines[i].p1]); // add the indices that foirme this line
+                    lineIndices.Add( nameIndex[s.lines[i].p2]);
+                }
+            }
+
+            List<InterpolationPoint4D> interpolations = shape.points.Values.ToList();
+            foreach ( InterpolationPoint4D p in interpolations )
+            { // for all lines which travel through w
+                points.Add( cam.t4d.WorldToLocal(t4d.LocalToWorld(p.subpoints[0].position)));
+                for ( int i = 1; i < p.subpoints.Count; i++ )
+                { // create a line connecting each subpoint to the last
+                    points.Add( cam.t4d.WorldToLocal(t4d.LocalToWorld(p.subpoints[i].position)));
+                    lineIndices.Add( points.Count - 2 );
+                    lineIndices.Add( points.Count - 1 );
+                }
+            }
+            Mesh wireMesh = new Mesh();
+            // save the vertices and indices in a new mesh
+            wireMesh.vertices = points.ToArray();
+            wireMesh.SetIndices( lineIndices.ToArray(), MeshTopology.Lines, 0 );
+            // draw the mesh without any shadows
+            Graphics.DrawMesh(
+                mesh: wireMesh, 
+                matrix: Matrix4x4.identity, 
+                material: material, 
+                layer: gameObject.layer, 
+                camera: cam.camera3D,
+                submeshIndex: 0,
+                properties: null,
+                castShadows: false,
+                receiveShadows: false,
+                useLightProbes: true
+            );
         }
     }
 
