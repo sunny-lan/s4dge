@@ -472,9 +472,13 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8686405288573575802, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
+      propertyPath: renderWireFrame
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8686405288573575803, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
       propertyPath: localScale.x
-      value: 10
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8686405288573575803, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
       propertyPath: localScale.y
@@ -482,7 +486,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8686405288573575803, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
       propertyPath: localScale.z
-      value: 10
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8686405288573575803, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
       propertyPath: localPosition.x
@@ -540,13 +544,17 @@ PrefabInstance:
       propertyPath: filePath
       value: Assets/Models/Model_D0208022/neptune.obj.s4dge
       objectReference: {fileID: 0}
+    - target: {fileID: 8686405288573575805, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8686405288573575807, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
       propertyPath: m_Name
       value: neptune
       objectReference: {fileID: 0}
     - target: {fileID: 8686405288573575807, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81f042f91638d2e43a663a46575e5bdb, type: 3}

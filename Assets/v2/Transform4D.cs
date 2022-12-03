@@ -174,7 +174,8 @@ namespace v2
             Vector4 componentInverse = Vector4.one;
             for (int i = 0; i < 4; i++)
             {
-                Debug.Assert(divisors[i] != 0, "ERROR: Scale vector with a 0 component attempted division by 0: " + divisors);
+                if(divisors[i] == 0)
+                    Debug.LogWarning("ERROR: Scale vector with a 0 component attempted division by 0: " + divisors);
                 componentInverse[i] = 1.0f / divisors[i];
             }
             return Vector4.Scale(v, componentInverse);
