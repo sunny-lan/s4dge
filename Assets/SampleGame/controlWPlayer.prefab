@@ -53,38 +53,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: friction.w
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: friction.x
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: friction.y
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: friction.z
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: airFriction.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: airAccelModifier
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: grapplingVelocity
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 1546364731500160169, guid: 0cd4206998392124eb07486d09de0773, type: 3}
-      propertyPath: slideFrictionModifier
-      value: 0.2
-      objectReference: {fileID: 0}
     - target: {fileID: 5878538348108483143, guid: 0cd4206998392124eb07486d09de0773, type: 3}
       propertyPath: m_RootOrder
       value: 0

@@ -75,7 +75,7 @@ namespace v2
             saveShapeFile = EditorGUILayout.TextField("4D Shape save name:", saveShapeFile);
             if (EditorGUILayout.LinkButton("Save 4D shape"))
             {
-                S4DGELoader.SaveS4DGE(((SliceRenderer)target).Shape, saveShapeFile);
+                v2.S4DGE.SaveS4DGE(((SliceRenderer)target).Shape, saveShapeFile);
             }
 
         }
