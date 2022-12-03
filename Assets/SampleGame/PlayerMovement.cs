@@ -259,11 +259,10 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //check on ground
-        //* Add collisions for other directions
-
         var groundPosition = cam4D.t4d.position;
         groundPosition.y -=0.5f;
 
+        //* Add collisions for other directions
         var fowardDirection = cam4D.t4d.forward;
         fowardDirection.y = 0;
         Ray4D forwardCast = new(){
@@ -273,10 +272,10 @@ public class PlayerMovement : MonoBehaviour
         var forwardCollisions = CollisionSystem.Instance.Raycast(forwardCast, Physics.AllLayers)
             .Where(x => x.delta < 0.7f);
         
-        var backdirection = cam4D.t4d.back;
-        backdirection.y = 0; 
+        var backDirection = cam4D.t4d.back;
+        backDirection.y = 0; 
         Ray4D backwardCast = new(){
-            direction = backdirection,
+            direction = backDirection,
             src = groundPosition.XYZ().withW(t4d.position.w),
         };
         var backwardCollisions = CollisionSystem.Instance.Raycast(backwardCast, Physics.AllLayers)
@@ -328,19 +327,19 @@ public class PlayerMovement : MonoBehaviour
 
         // wasd movement
         Vector4 wasdDirection = Vector4.zero;
-        if (Input.GetKey(KeyCode.W) && !forwardCollisions.Any())
+        if (Input.GetKey(KeyCode.W))
         {
             wasdDirection += Vector3.forward.withW(0);
         }
-        if (Input.GetKey(KeyCode.S) && !backwardCollisions.Any())
+        if (Input.GetKey(KeyCode.S))
         {
             wasdDirection += Vector3.back.withW(0);
         }
-        if (Input.GetKey(KeyCode.A) && !leftCollisions.Any())
+        if (Input.GetKey(KeyCode.A))
         {
             wasdDirection += Vector3.left.withW(0);
         }
-        if (Input.GetKey(KeyCode.D) && !rightCollisions.Any())
+        if (Input.GetKey(KeyCode.D))
         {
             wasdDirection += Vector3.right.withW(0);
         }
@@ -359,7 +358,6 @@ public class PlayerMovement : MonoBehaviour
             t4d.position += t4d.LocalDirectionToWorld(
                 Vector3.zero.withW(velocity.magnitude * deltaLook.x * wSlideFactor));
         }
-
 
         //accel modifier based on whether in air, since strafe slower in air
         float accel_modifier = grounded ? 1.0f : airAccelModifier;
@@ -469,6 +467,59 @@ public class PlayerMovement : MonoBehaviour
             if (useGravity)
                 velocity.y -= gravity * Time.deltaTime;
         }
+
+        //* Stopping movement if colliding
+        if(forwardCollisions.Any()){
+            var cx = fowardDirection.x;
+            var cz = fowardDirection.z;
+            if(velocity.x * cx > 0){ // If heading in that direction stop
+                velocity.x = 0;
+            }
+            if(velocity.z * cz > 0){ // If heading in that direction stop
+                velocity.z = 0;
+            }
+        }
+        if(backwardCollisions.Any()){
+            var cx = backDirection.x;
+            var cz = backDirection.z;
+            if(velocity.x * cx > 0){ // If heading in that direction stop
+                velocity.x = 0;
+            }
+            if(velocity.z * cz > 0){ // If heading in that direction stop
+                velocity.z = 0;
+            }
+        }
+        if(forwardCollisions.Any()){
+            var cx = fowardDirection.x;
+            var cz = fowardDirection.z;
+            if(velocity.x * cx > 0){ // If heading in that direction stop
+                velocity.x = 0;
+            }
+            if(velocity.z * cz > 0){ // If heading in that direction stop
+                velocity.z = 0;
+            }
+        }
+        if(rightCollisions.Any()){
+            var cx = rightDirection.x;
+            var cz = rightDirection.z;
+            if(velocity.x * cx > 0){ // If heading in that direction stop
+                velocity.x = 0;
+            }
+            if(velocity.z * cz > 0){ // If heading in that direction stop
+                velocity.z = 0;
+            }
+        }
+        if(leftCollisions.Any()){
+            var cx = leftDirection.x;
+            var cz = leftDirection.z;
+            if(velocity.x * cx > 0){ // If heading in that direction stop
+                velocity.x = 0;
+            }
+            if(velocity.z * cz > 0){ // If heading in that direction stop
+                velocity.z = 0;
+            }
+        }
+
 
         cam4D.camera3D.fieldOfView = Mathf.Lerp(cam4D.camera3D.fieldOfView, Mathf.Lerp(
             normalFov,
