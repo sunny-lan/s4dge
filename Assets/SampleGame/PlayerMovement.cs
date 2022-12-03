@@ -258,22 +258,64 @@ public class PlayerMovement : MonoBehaviour
             t4d.localRotation[(int)Rot4D.xw] = 0;
         }
 
-
-
-
         //check on ground
+        //* Add collisions for other directions
+
+        var groundPosition = cam4D.t4d.position;
+        groundPosition.y -=0.5f;
+
+        var fowardDirection = cam4D.t4d.forward;
+        fowardDirection.y = 0;
+        Ray4D forwardCast = new(){
+            direction = fowardDirection,
+            src = groundPosition.XYZ().withW(t4d.position.w),
+        };
+        var forwardCollisions = CollisionSystem.Instance.Raycast(forwardCast, Physics.AllLayers)
+            .Where(x => x.delta < 0.7f);
+        
+        var backdirection = cam4D.t4d.back;
+        backdirection.y = 0; 
+        Ray4D backwardCast = new(){
+            direction = backdirection,
+            src = groundPosition.XYZ().withW(t4d.position.w),
+        };
+        var backwardCollisions = CollisionSystem.Instance.Raycast(backwardCast, Physics.AllLayers)
+            .Where(x => x.delta < 0.7f);
+        var rightDirection = cam4D.t4d.right;
+        rightDirection.y = 0;
+        Ray4D rightCast = new(){
+            direction = rightDirection,
+            src = groundPosition.XYZ().withW(t4d.position.w),
+        };
+        var rightCollisions = CollisionSystem.Instance.Raycast(rightCast, Physics.AllLayers)
+            .Where(x => x.delta < 0.7f);
+        var leftDirection = cam4D.t4d.left;
+        leftDirection.y = 0;
+        Ray4D leftCast = new(){
+            direction = leftDirection,
+            src = groundPosition.XYZ().withW(t4d.position.w),
+        };
+        var leftCollisions = CollisionSystem.Instance.Raycast(leftCast, Physics.AllLayers)
+            .Where(x => x.delta < 0.7f);
+        Ray4D upCast = new(){
+            direction = Vector3.up,
+            src = cam4D.t4d.position,
+        };
+        var upCollisions = CollisionSystem.Instance.Raycast(upCast, Physics.AllLayers)
+            .Where(x => x.delta < 0.3f);
+
         Ray4D down = new()
         {
             direction = Vector3.down,
             src = t4d.position,
         };
 
-        var collisions = CollisionSystem.Instance.Raycast(down, groundLayerMask)
+        var downCollisions = CollisionSystem.Instance.Raycast(down, Physics.AllLayers)
             .Where(x => x.delta < 0.5f);
         
         bool grounded = useGravity switch
         {
-            true => collisions.Any(),
+            true => downCollisions.Any(),
             false => true // if no gravity, always grounded
         };
 
@@ -286,19 +328,19 @@ public class PlayerMovement : MonoBehaviour
 
         // wasd movement
         Vector4 wasdDirection = Vector4.zero;
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) && !forwardCollisions.Any())
         {
             wasdDirection += Vector3.forward.withW(0);
         }
-        if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.S) && !backwardCollisions.Any())
         {
             wasdDirection += Vector3.back.withW(0);
         }
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A) && !leftCollisions.Any())
         {
             wasdDirection += Vector3.left.withW(0);
         }
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D) && !rightCollisions.Any())
         {
             wasdDirection += Vector3.right.withW(0);
         }
@@ -401,6 +443,11 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
+        if(upCollisions.Any() && velocity.y > 0){ // Collide with something above. Can this cause a condition where phase through platform if platform above and below??
+            velocity.y = 0;
+        }
+
+
         // gravity calcs
         if (grounded)
         {
@@ -414,7 +461,7 @@ public class PlayerMovement : MonoBehaviour
                     velocity.y = 0;
 
                 // force position to ground
-                t4d.position = t4d.position.withY(Mathf.Max(collisions.Max().point.y, t4d.position.y)); 
+                t4d.position = t4d.position.withY(Mathf.Max(downCollisions.Max().point.y, t4d.position.y)); 
             }
         }
         else //else gravity
@@ -422,8 +469,6 @@ public class PlayerMovement : MonoBehaviour
             if (useGravity)
                 velocity.y -= gravity * Time.deltaTime;
         }
-
-
 
         cam4D.camera3D.fieldOfView = Mathf.Lerp(cam4D.camera3D.fieldOfView, Mathf.Lerp(
             normalFov,
