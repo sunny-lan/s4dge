@@ -263,6 +263,11 @@ public class PlayerMovement : MonoBehaviour
         groundPosition.y -=0.5f;
 
         //* Add collisions for other directions
+        //TODO: Collision bugs:
+        //1) Moving w on platform super buggy
+        //2) one singular tree is weird, investigate
+        //3) maybe don't use camera direction lol
+        //4) You sort of start crouched
         var fowardDirection = cam4D.t4d.forward;
         fowardDirection.y = 0;
         Ray4D forwardCast = new(){
