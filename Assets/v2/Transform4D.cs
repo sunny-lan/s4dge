@@ -131,7 +131,7 @@ namespace v2
             return new()
             {
                 scaleAndRot = RotationMatrix(localRotation, scaling: localScale),
-                translation = position,
+                translation = localPosition,
             };
         }
 
@@ -220,7 +220,7 @@ namespace v2
             {
                 for (int j = i + 1; j < 4; ++j)
                 {
-                    total = total * RotationMatrix(i, j, allRotations[axisCount]);
+                    total = RotationMatrix(i, j, allRotations[axisCount]) * total;
                     axisCount++;
                 }
             }
@@ -237,13 +237,7 @@ namespace v2
         /// <returns> The rotated vector </returns>
         public Vector4 Rotate(Vector4 v, int axis1, int axis2, float theta)
         {
-            Matrix4x4 matrix = Matrix4x4.identity;
-            matrix[axis1, axis1] = Mathf.Cos(theta);
-            matrix[axis1, axis2] = -Mathf.Sin(theta);
-            matrix[axis2, axis1] = Mathf.Sin(theta);
-            matrix[axis2, axis2] = Mathf.Cos(theta);
-
-            return matrix * v;
+            return RotationMatrix(axis1, axis2, theta) * v;
         }
 
         public static Matrix4x4 RotationMatrix(int axis1, int axis2, float theta)

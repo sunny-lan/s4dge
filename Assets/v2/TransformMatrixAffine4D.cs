@@ -22,12 +22,18 @@ namespace v2
         public static TransformMatrixAffine4D operator *(TransformMatrixAffine4D a, TransformMatrixAffine4D b)
         {
             // working out result 5x5 matrix mult by hand gives this:
-            return new()
+            return new TransformMatrixAffine4D()
             {
                 scaleAndRot = a.scaleAndRot * b.scaleAndRot,
                 translation = a.scaleAndRot * b.translation + a.translation,
             };
         }
+
+        public override string ToString()
+        {
+            return scaleAndRot.ToString() + "\n" + translation.ToString()+"\n";
+        }
+
         public static Vector4 operator *(TransformMatrixAffine4D a, Vector4 b)
         {
             return a.scaleAndRot * b + a.translation;
