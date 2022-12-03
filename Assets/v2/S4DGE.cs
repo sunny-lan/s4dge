@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -142,7 +144,13 @@ namespace v2
             return shape;
         }
 
-        public static IEnumerable<InterpolationBasedShape> MeshToS4DGE(Mesh mesh)
+        /// <summary>
+        /// Convert mesh to a single sliced S4DGE 
+        /// </summary>
+        /// <param name="mesh">The mesh to convert</param>
+        /// <param name="w">The w to place the slice at</param>
+        /// <returns>The list of converted shapes (1 per submesh)</returns>
+        public static IEnumerable<InterpolationBasedShape> MeshToS4DGE(Mesh mesh, float w = 0)
         {
 
             using (var meshDataArray = Mesh.AcquireReadOnlyMeshData(mesh))
@@ -180,10 +188,10 @@ namespace v2
                         //});
                         subpoints.Add(new PointInfo()
                         {
-                            position4D = new Vector4(v.x, v.y, v.z, 0), // put all the vertices at w=0
+                            position4D = new Vector4(v.x, v.y, v.z, w), // put all the vertices at w=0
                             uv = hasUVs ? uvs[index] : Vector2.zero, // get the uv for this vertex
                         });
-                        shape.sliceW.Add(0);
+                        shape.sliceW.Add(w);
                         //shape.sliceW.Add(-1);
 
                         string pName = submeshChar + index.ToString();
@@ -201,7 +209,7 @@ namespace v2
                         MeshTopology.Points => throw new System.NotImplementedException(),
                         _ => throw new System.NotImplementedException(),
                     };
-                    
+
                     // traverse each face in the indices of the mesh
                     Log.Print($"Submesh loading {vertices.Length}, {linesPerFace}, {indices.Length}, {localMesh.subMeshCount}", Log.meshRendering);
                     for (int i = 0; i < indices.Length; i += linesPerFace)
@@ -267,6 +275,77 @@ namespace v2
                     sw.WriteLine(string.Format("f:{0}", face));
                 }
             }
+        }
+
+        public struct MorphOptions
+        {
+        }
+
+        /// <summary>
+        /// Merges two shapes by morphing based on closest 3D endpoints. 
+        /// Expect all points in a to have either lower or higher w than all points in b 
+        /// </summary>
+        /// <param name="a">The first shape to merge</param>
+        /// <param name="b">The second shape to merge</param>
+        /// <returns>A shape morphing from a to b</returns>
+        public static InterpolationBasedShape MorphMerge(InterpolationBasedShape a, InterpolationBasedShape b, MorphOptions options)
+        {
+            // ensure a has less points
+            if (a.points.Count > b.points.Count)
+                Util.Swap(ref a, ref b);
+
+            var result = ScriptableObject.CreateInstance<InterpolationBasedShape>();
+
+            bool aIsLess = a.points.Values.First().subpoints[0].w <= b.points.Values.First().subpoints.Last().w;
+
+            foreach (var (nameA, pointA) in a.points)
+            {
+                var end = aIsLess ? pointA.subpoints.Max() : pointA.subpoints.Min();
+
+                var closestB = b.points.Values.MinBy(bPt =>
+                {
+                    var start = aIsLess ? bPt.subpoints.Min() : bPt.subpoints.Max(); // first w
+                    return (start.position - end.position).magnitude;
+                });
+
+                result.points[nameA] = new(nameA, pointA.subpoints.Concat(closestB.subpoints).ToList());
+            }
+
+            //TODO think about this harder
+            result.faces4D = a.faces4D.ToList();
+            result.lines4D = a.lines4D.ToList();
+
+            return result;
+        }
+
+        /// <summary>
+        /// directly addes the shape as two disjoint pieces into one object
+        /// </summary>
+        public static InterpolationBasedShape AddShapes(IEnumerable<InterpolationBasedShape> shapes)
+        {
+            var result = ScriptableObject.CreateInstance<InterpolationBasedShape>();
+            char prefix = 'A';
+            foreach (var shape in shapes) {
+                result.points.AddRange(shape.points.Select(e => new KeyValuePair<string, InterpolationPoint4D>(
+                    prefix + e.Key,
+                    new(prefix + e.Key, e.Value.subpoints.ToList())
+                )));
+                result.faces4D.AddRange(shape.faces4D.Select(f=> new Face<InterpolationPoint4D>(
+                    f.points.Select(p => result.points[prefix + p.name]).ToList()
+                )));
+                result.lines4D.AddRange(shape.lines4D.Select(l => new Line<InterpolationPoint4D>(
+                    result.points[prefix + l.p1.name],
+                    result.points[prefix + l.p2.name]
+                )));
+                prefix++;
+            }
+            return result;
+        }
+
+        public static void Transform(InterpolationBasedShape shape, Func<PointInfo,PointInfo> transform)
+        {
+            foreach (var point in shape.points.Values)
+                point.subpoints = point.subpoints.Select(transform).ToList();
         }
     }
 }

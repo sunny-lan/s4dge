@@ -13,7 +13,7 @@ namespace v2
     /// Stores all info for a single subpoint
     /// </summary>
     [Serializable]
-    public struct PointInfo
+    public struct PointInfo : IComparable<PointInfo>
     {
         public Vector4 position4D;
 
@@ -38,9 +38,35 @@ namespace v2
             };
         }
 
+        public int CompareTo(PointInfo other) => w.CompareTo(other.w);
+
         public override string ToString()
         {
             return position4D.ToString();
+        }
+
+        //
+        // IDE auto-generated
+        //
+
+        public static bool operator <(PointInfo left, PointInfo right)
+        {
+            return left.CompareTo(right) < 0;
+        }
+
+        public static bool operator >(PointInfo left, PointInfo right)
+        {
+            return left.CompareTo(right) > 0;
+        }
+
+        public static bool operator <=(PointInfo left, PointInfo right)
+        {
+            return left.CompareTo(right) <= 0;
+        }
+
+        public static bool operator >=(PointInfo left, PointInfo right)
+        {
+            return left.CompareTo(right) >= 0;
         }
     }
 
@@ -93,7 +119,7 @@ namespace v2
                 return point;
             }).ToArray();
 
-            Array.Sort(transformedPoints, (x, y) => x.w.CompareTo(y.w)); // sort by increasing w
+            Array.Sort(transformedPoints); // sort by increasing w
 
             // if w is out of range, return the closest endpoint
             if (w <= transformedPoints[0].w)
