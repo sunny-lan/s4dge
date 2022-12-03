@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Profiling;
 
 namespace v2
 {
@@ -98,12 +99,14 @@ namespace v2
 
         public IEnumerable<Ray4D.Intersection> Raycast(Ray4D ray, int layerMask)
         {
+            Profiler.BeginSample("Raycast");
             foreach(var collider in colliders.
                 Where(collider => (layerMask & (1 << collider.Layer)) != 0))
             {
                 if (collider.RayIntersect(ray) is Ray4D.Intersection intersection)
                     yield return intersection;
             }
+            Profiler.EndSample();
         }
 
         private void Update()

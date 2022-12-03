@@ -12,7 +12,7 @@ namespace v2
     public class InterpolationBoxCollider : Collider4D, IShape4DRenderer
     {
         List<Box> colliders = new();
-        public float deltaW = 0.5f;
+        public float numSlices = 10f;
 
         public InterpolationBasedShape Shape { get; set; }
 
@@ -35,7 +35,7 @@ namespace v2
                 }
             }
 
-            return new Box { corner = minCorner, size = (maxCorner - minCorner).XYZ().withW(deltaW), t4d = t4d };
+            return new Box { corner = minCorner, size = (maxCorner - minCorner).XYZ().withW(numSlices), t4d = t4d };
         }
 
         void SetColliders()
@@ -43,7 +43,9 @@ namespace v2
             colliders.Clear();
 
             // get the colliders for the shape
-            for (float w = Shape.minW(); w <= Shape.maxW(); w += deltaW)
+            float minW = Shape.minW();
+            float maxW = Shape.maxW();
+            for (float w = minW; w <= maxW; w += (maxW-minW)/numSlices)
             {
                 var slice = Shape.GetSliceAt(w, p => p);
                 Box boundingBox = GetBoundingBox(slice);

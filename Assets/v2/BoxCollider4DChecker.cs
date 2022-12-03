@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Profiling;
 using v2;
 
 
@@ -32,47 +33,63 @@ public class BoxCollider4DChecker
     // provided for performance (when all boxes use same transform)
     public static Ray4D.Intersection? RayIntersectLocal(Box box, Ray4D ray)
     {
-        var corner = box.corner;
-        var size = box.size;
-
-        ray.src -= corner;
-
-        // faces : x = 0, x = size.x, ..., w = 0, w = size.x
-        Ray4D.Intersection? firstIntersect = null;
-        for (int face = 0; face < 4; ++face)
+        Profiler.BeginSample("RayIntersectLocal(Box box, Ray4D ray)");
+        try
         {
-            firstIntersect = Min(firstIntersect, ray.intersectPlane(face, 0, size));
-            firstIntersect = Min(firstIntersect, ray.intersectPlane(face, size[face], size));
-        }
+            var corner = box.corner;
+            var size = box.size;
 
-        // transform back to world coordinates
-        if (firstIntersect is Ray4D.Intersection intersect)
+            ray.src -= corner;
+
+            // faces : x = 0, x = size.x, ..., w = 0, w = size.x
+            Ray4D.Intersection? firstIntersect = null;
+            for (int face = 0; face < 4; ++face)
+            {
+                firstIntersect = Min(firstIntersect, ray.intersectPlane(face, 0, size));
+                firstIntersect = Min(firstIntersect, ray.intersectPlane(face, size[face], size));
+            }
+
+            // transform back to world coordinates
+            if (firstIntersect is Ray4D.Intersection intersect)
+            {
+                intersect.point += corner;
+                return intersect;
+            }
+
+            return firstIntersect;
+        }
+        finally
         {
-            intersect.point += corner;
-            return intersect;
+            Profiler.EndSample();
         }
-
-        return firstIntersect;
     }
     public static Ray4D.Intersection? RayIntersect(Box box, Ray4D ray)
     {
-        var corner = box.corner;
-        var size = box.size;
-        var t4d = box.t4d;
-
-        var worldSrc = ray.src;
-
-        // transform to local coordinates
-        ray = t4d.WorldToLocal(ray);
-
-        if (RayIntersectLocal(box, ray) is Ray4D.Intersection intersect)
+        Profiler.BeginSample("RayIntersect(Box box, Ray4D ray)");
+        try
         {
-            intersect.point = t4d.LocalToWorld(intersect.point);
-            intersect.delta = (intersect.point - worldSrc).magnitude;
-            return intersect;
-        }
+            var corner = box.corner;
+            var size = box.size;
+            var t4d = box.t4d;
 
-        return null;
+            var worldSrc = ray.src;
+
+            // transform to local coordinates
+            ray = t4d.WorldToLocal(ray);
+
+            if (RayIntersectLocal(box, ray) is Ray4D.Intersection intersect)
+            {
+                intersect.point = t4d.LocalToWorld(intersect.point);
+                intersect.delta = (intersect.point - worldSrc).magnitude;
+                return intersect;
+            }
+
+            return null;
+        }
+        finally
+        {
+            Profiler.EndSample();
+        }
     }
 
     public static bool ContainsPoint(Box box, Vector4 p)

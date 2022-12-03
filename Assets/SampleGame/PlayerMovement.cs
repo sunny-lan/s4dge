@@ -9,7 +9,8 @@ using v2;
 public class PlayerMovement : MonoBehaviour
 {
     public bool useRotation = false;
-    public float acceleration = 1f, friction = 0.1f;
+    public float acceleration = 1f;
+    public Vector4 friction = new Vector4(0.1f, 0.1f, 0.1f, 0.6f);
     public float gravity = 9.81f;
     public float jumpSpeed = 20f;
 
@@ -204,7 +205,7 @@ public class PlayerMovement : MonoBehaviour
     public float slideFrictionModifier = 0.5f; // less friction when sliding
     public float slideSpeedBoost = 1.5f; // initial speed boost when sliding
 
-    public float airFriction = 0.1f;
+    public Vector4 airFriction = new Vector4(0.1f, 0.1f, 0.1f, 0.6f);
 
     void Update()
     {
@@ -349,7 +350,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        float actualFriction = 0;
+        Vector4 actualFriction = Vector4.zero;
         if (grounded)
         {
             if (!isAccelerating) //don't add friction when running
@@ -364,7 +365,13 @@ public class PlayerMovement : MonoBehaviour
             actualFriction = airFriction;
         }
 
-        velocity = velocity.normalized * (Mathf.Max(0, velocity.magnitude - actualFriction * Time.deltaTime));
+        velocity = Vector4.Scale(
+            velocity , 
+            Vector4.Max(
+                Vector4.zero, 
+                Vector4.one - actualFriction * Time.deltaTime
+            )
+        );
 
         // grapple
         if (Input.GetKeyDown(KeyCode.Q))
