@@ -173,18 +173,18 @@ namespace v2
                     {
                         var v = vertices[index];
                         List<PointInfo> subpoints = new();
+                        //subpoints.Add(new PointInfo()
+                        //{
+                        //    position4D = new Vector4(v.x, v.y, v.z, -1), // put all the vertices at w=0
+                        //    uv = hasUVs ? uvs[index] : Vector2.zero, // get the uv for this vertex
+                        //});
                         subpoints.Add(new PointInfo()
                         {
-                            position4D = new Vector4(v.x, v.y, v.z, -1), // put all the vertices at w=0
+                            position4D = new Vector4(v.x, v.y, v.z, 0), // put all the vertices at w=0
                             uv = hasUVs ? uvs[index] : Vector2.zero, // get the uv for this vertex
                         });
-                        subpoints.Add(new PointInfo()
-                        {
-                            position4D = new Vector4(v.x, v.y, v.z, 1), // put all the vertices at w=0
-                            uv = hasUVs ? uvs[index] : Vector2.zero, // get the uv for this vertex
-                        });
-                        shape.sliceW.Add(1);
-                        shape.sliceW.Add(-1);
+                        shape.sliceW.Add(0);
+                        //shape.sliceW.Add(-1);
 
                         string pName = submeshChar + index.ToString();
                         InterpolationPoint4D p4d = new InterpolationPoint4D(pName, subpoints);

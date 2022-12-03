@@ -108,6 +108,34 @@ namespace v2
         }
 
         /// <summary>
+        /// Gets the local to world transform as a matrix. TODO can be optimized
+        /// </summary>
+        public TransformMatrixAffine4D localToWorldMatrix => parent switch
+        {
+            null => localMatrix,
+            Transform4D p => p.localToWorldMatrix * localMatrix
+        };
+
+        /// <summary>
+        /// Gets local transform as a matrix. TODO can be cached
+        /// </summary>
+        public TransformMatrixAffine4D localMatrix => asMatrix();
+
+        public TransformMatrixAffine4D worldToLocalMatrix => localToWorldMatrix.inverse;
+        public TransformMatrixAffine4D inverselocalMatrix => localMatrix.inverse;
+
+
+        // calculate local transform as matrix
+        TransformMatrixAffine4D asMatrix()
+        {
+            return new()
+            {
+                scaleAndRot = RotationMatrix(localRotation, scaling: localScale),
+                translation = position,
+            };
+        }
+
+        /// <summary>
         /// applies local transform to point
         /// </summary>
         /// <param name="point"></param>
@@ -115,7 +143,7 @@ namespace v2
         public Vector4 ApplyLocalTransform(Vector4 point)
         {
             Vector4 v = Vector4.Scale(localScale, point);
-            return RotationMatrix(localRotation)*v + localPosition;
+            return RotationMatrix(localRotation) * v + localPosition;
         }
 
         public Ray4D ApplyLocalTransform(Ray4D ray)
@@ -173,16 +201,25 @@ namespace v2
             return r;
         }
 
-
-        private Matrix4x4 RotationMatrix(float[] allRotations)
+        // can also apply scaling by setting initialScale
+        private static Matrix4x4 RotationMatrix(float[] allRotations, Vector4? scaling = null)
         {
             int axisCount = 0;
-            Matrix4x4 total = Matrix4x4.identity;
+            Matrix4x4 total = scaling switch
+            {
+                null => Matrix4x4.identity,
+                Vector4 scale => new Matrix4x4(
+                    new(scale.x, 0, 0, 0),
+                    new(0, scale.y, 0, 0),
+                    new(0, 0, scale.z, 0),
+                    new(0, 0, 0, scale.w)
+                )
+            };
             for (int i = 0; i < 3; ++i)
             {
                 for (int j = i + 1; j < 4; ++j)
                 {
-                    total = total * RotationMatrix( i, j, allRotations[axisCount]);
+                    total = total * RotationMatrix(i, j, allRotations[axisCount]);
                     axisCount++;
                 }
             }
@@ -208,7 +245,7 @@ namespace v2
             return matrix * v;
         }
 
-        public Matrix4x4 RotationMatrix( int axis1, int axis2, float theta)
+        public static Matrix4x4 RotationMatrix(int axis1, int axis2, float theta)
         {
             Matrix4x4 matrix = Matrix4x4.identity;
             matrix[axis1, axis1] = Mathf.Cos(theta);
@@ -216,7 +253,7 @@ namespace v2
             matrix[axis2, axis1] = Mathf.Sin(theta);
             matrix[axis2, axis2] = Mathf.Cos(theta);
 
-            return matrix ;
+            return matrix;
         }
 
         /// <summary>

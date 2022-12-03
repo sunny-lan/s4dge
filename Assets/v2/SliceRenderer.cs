@@ -116,14 +116,14 @@ namespace v2
         // Draws all lines
         void drawSliceAt(float w, Camera4D cam)
         {
-
+            var transformation = cam.t4d.worldToLocalMatrix * t4d.localToWorldMatrix;
             // interpolate all points and store in dictionary
             int invalidPoints = 0;
             foreach(var point in shape.points.Values)
             {
                 // apply transform of object to point first
                 // then apply camera world-to-local transform to that
-                var (interpolated, invalid) = point.GetPoint(w, p => cam.t4d.WorldToLocal(t4d.LocalToWorld(p)));
+                var (interpolated, invalid) = point.GetPoint(w, p => transformation*p);
                 int index = slice.AddPoint(interpolated);
                 tmp_interpolatedValue[point] = index;
 
