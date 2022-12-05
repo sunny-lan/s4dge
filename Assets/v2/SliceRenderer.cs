@@ -172,6 +172,7 @@ namespace v2
             // get the transformed 3d slice shapes for all ws which have a slice
             List<InterpolationBasedShape.Slice> slices = shape.GetSlices( p => cam.t4d.WorldToLocal(t4d.LocalToWorld(p)));
             List<Vector3> points = new List<Vector3>(); // list of all wire mesh vertices
+            List<Vector2> uvs = new List<Vector2>();
             List<int> lineIndices = new List<int>(); // list of indices, every 2 make a line
             Dictionary<PointInfo, int> nameIndex = new(); // converts point into its index in the points list
             foreach( InterpolationBasedShape.Slice s in slices )
@@ -182,11 +183,13 @@ namespace v2
                     {
                         nameIndex[ s.lines[i].p1] = points.Count;
                         points.Add( s.lines[i].p1.position ); // add p1 to the points list and dictionary if not present
+                        uvs.Add( new Vector2(s.lines[i].p1.position4D.w, 0) );
                     }
                     if ( !nameIndex.ContainsKey(s.lines[i].p2) )
                     {
                         nameIndex[ s.lines[i].p2 ] = points.Count;
                         points.Add( s.lines[i].p2.position ); // add p2 to the points list and dictionary if not present
+                        uvs.Add( new Vector2(s.lines[i].p2.position4D.w, 0) );
                     }
                     lineIndices.Add( nameIndex[s.lines[i].p1]); // add the indices that foirme this line
                     lineIndices.Add( nameIndex[s.lines[i].p2]);
@@ -197,9 +200,11 @@ namespace v2
             foreach ( InterpolationPoint4D p in interpolations )
             { // for all lines which travel through w
                 points.Add( cam.t4d.WorldToLocal(t4d.LocalToWorld(p.subpoints[0].position)));
+                uvs.Add( new Vector2(p.subpoints[0].position4D.w, 0) );
                 for ( int i = 1; i < p.subpoints.Count; i++ )
                 { // create a line connecting each subpoint to the last
                     points.Add( cam.t4d.WorldToLocal(t4d.LocalToWorld(p.subpoints[i].position)));
+                    uvs.Add( new Vector2(p.subpoints[0].position4D.w, 0) );
                     lineIndices.Add( points.Count - 2 );
                     lineIndices.Add( points.Count - 1 );
                 }
@@ -207,8 +212,11 @@ namespace v2
             Mesh wireMesh = new Mesh();
             // save the vertices and indices in a new mesh
             wireMesh.vertices = points.ToArray();
+            wireMesh.uv2 = uvs.ToArray();
             wireMesh.SetIndices( lineIndices.ToArray(), MeshTopology.Lines, 0 );
             // draw the mesh without any shadows
+            MaterialPropertyBlock blk = new();
+            blk.SetVector(cameraPosShaderID, Vector4.zero); //pass in camera position to shader (zero for now cause we are in camera local coordinates)
             Graphics.DrawMesh(
                 mesh: wireMesh, 
                 matrix: Matrix4x4.identity, 
@@ -216,7 +224,7 @@ namespace v2
                 layer: gameObject.layer, 
                 camera: cam.camera3D,
                 submeshIndex: 0,
-                properties: null,
+                properties: blk,
                 castShadows: false,
                 receiveShadows: false,
                 useLightProbes: true
