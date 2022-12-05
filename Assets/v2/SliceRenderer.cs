@@ -166,11 +166,13 @@ namespace v2
                 slice.fillPolygon(slicedPoints);
             }
         }
+
         // Iterates over all slices and lines in mesh, and draws wireframe model around 4d mesh
         void RenderWireFrame( ScriptableRenderContext ctx, Camera4D cam )
         {
             // get the transformed 3d slice shapes for all ws which have a slice
-            List<InterpolationBasedShape.Slice> slices = shape.GetSlices( p => cam.t4d.WorldToLocal(t4d.LocalToWorld(p)));
+            var transformation = cam.t4d.worldToLocalMatrix * t4d.localToWorldMatrix;
+            List<InterpolationBasedShape.Slice> slices = shape.GetSlices(p => transformation * p);
             List<Vector3> points = new List<Vector3>(); // list of all wire mesh vertices
             List<int> lineIndices = new List<int>(); // list of indices, every 2 make a line
             Dictionary<PointInfo, int> nameIndex = new(); // converts point into its index in the points list
@@ -196,18 +198,18 @@ namespace v2
             List<InterpolationPoint4D> interpolations = shape.points.Values.ToList();
             foreach ( InterpolationPoint4D p in interpolations )
             { // for all lines which travel through w
-                points.Add( cam.t4d.WorldToLocal(t4d.LocalToWorld(p.subpoints[0].position)));
+                points.Add( transformation* p.subpoints[0].position);
                 for ( int i = 1; i < p.subpoints.Count; i++ )
                 { // create a line connecting each subpoint to the last
-                    points.Add( cam.t4d.WorldToLocal(t4d.LocalToWorld(p.subpoints[i].position)));
+                    points.Add(transformation * p.subpoints[i].position);
                     lineIndices.Add( points.Count - 2 );
                     lineIndices.Add( points.Count - 1 );
                 }
             }
             Mesh wireMesh = new Mesh();
             // save the vertices and indices in a new mesh
-            wireMesh.vertices = points.ToArray();
-            wireMesh.SetIndices( lineIndices.ToArray(), MeshTopology.Lines, 0 );
+            wireMesh.SetVertices(points);
+            wireMesh.SetIndices( lineIndices, MeshTopology.Lines, 0 );
             // draw the mesh without any shadows
             Graphics.DrawMesh(
                 mesh: wireMesh, 
