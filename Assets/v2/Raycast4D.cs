@@ -41,16 +41,17 @@ public class Raycast4D : MonoBehaviour {
 
 
     Camera4D cam4D;
-    Transform4D t4d;
+    // Transform4D t4d;
     // Start is called before the first frame update
     void Start()
     {
-        cam4D = GetComponentInChildren<Camera4D>();
-        t4d = GetComponent<Transform4D>();
+        cam4D = GetComponent<Camera4D>();
+        // t4d = GetComponent<Transform4D>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("boon testing");
     }
 }
