@@ -588,7 +588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useShaderInSceneView: 1
-  rayTracingShader: {fileID: 0}
+  rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
 --- !u!1 &774748414
 GameObject:
   m_ObjectHideFlags: 0
