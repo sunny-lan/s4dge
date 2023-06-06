@@ -41,7 +41,7 @@ public class SceneView4DController : MonoBehaviour
         
 
         Handles.BeginGUI();
-        w = GUILayout.HorizontalSlider(w, -10, 20);
+//        w = GUILayout.HorizontalSlider(w, -10, 20);
         Handles.EndGUI();
     }
 
