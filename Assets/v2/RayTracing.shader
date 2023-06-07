@@ -251,50 +251,69 @@ Shader "Custom/RayTracing"
 			}
 
 			// --- Ray Tracing Stuff ---
-
 			// Find the first point that the given ray collides with, and return hit info
+			//! More basic version
 			HitInfo CalculateRayCollision(Ray ray)
 			{
 				HitInfo closestHit = (HitInfo)0;
-				// We haven't hit anything yet, so 'closest' hit is infinitely far away
 				closestHit.dst = 1.#INF;
 
-				// Raycast against all spheres and keep info about the closest hit
-				for (int i = 0; i < NumSpheres; i ++)
-				{
+				for (int i = 0; i < NumSpheres; i++) {
 					Sphere sphere = Spheres[i];
 					HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
 
-					if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
-					{
+					if (hitInfo.didHit && hitInfo.dst < closestHit.dst){
 						closestHit = hitInfo;
 						closestHit.material = sphere.material;
 					}
 				}
 
-				// Raycast against all meshes and keep info about the closest hit
-				for (int meshIndex = 0; meshIndex < NumMeshes; meshIndex ++)
-				{
-					MeshInfo meshInfo = AllMeshInfo[meshIndex];
-					if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
-						continue;
-					}
-
-					for (uint i = 0; i < meshInfo.numTriangles; i ++) {
-						int triIndex = meshInfo.firstTriangleIndex + i;
-						Triangle tri = Triangles[triIndex];
-						HitInfo hitInfo = RayTriangle(ray, tri);
-	
-						if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
-						{
-							closestHit = hitInfo;
-							closestHit.material = meshInfo.material;
-						}
-					}
-				}
-
 				return closestHit;
 			}
+
+			//! His version
+			// HitInfo CalculateRayCollision(Ray ray)
+			// {
+			// 	HitInfo closestHit = (HitInfo)0;
+			// 	// We haven't hit anything yet, so 'closest' hit is infinitely far away
+			// 	closestHit.dst = 1.#INF;
+
+			// 	// Raycast against all spheres and keep info about the closest hit
+			// 	for (int i = 0; i < NumSpheres; i ++)
+			// 	{
+			// 		Sphere sphere = Spheres[i];
+			// 		HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
+
+			// 		if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
+			// 		{
+			// 			closestHit = hitInfo;
+			// 			closestHit.material = sphere.material;
+			// 		}
+			// 	}
+
+			// 	// Raycast against all meshes and keep info about the closest hit
+			// 	for (int meshIndex = 0; meshIndex < NumMeshes; meshIndex ++)
+			// 	{
+			// 		MeshInfo meshInfo = AllMeshInfo[meshIndex];
+			// 		if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
+			// 			continue;
+			// 		}
+
+			// 		for (uint i = 0; i < meshInfo.numTriangles; i ++) {
+			// 			int triIndex = meshInfo.firstTriangleIndex + i;
+			// 			Triangle tri = Triangles[triIndex];
+			// 			HitInfo hitInfo = RayTriangle(ray, tri);
+	
+			// 			if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
+			// 			{
+			// 				closestHit = hitInfo;
+			// 				closestHit.material = meshInfo.material;
+			// 			}
+			// 		}
+			// 	}
+
+			// 	return closestHit;
+			// }
 
 
 			float3 Trace(Ray ray, inout uint rngState)
@@ -357,6 +376,8 @@ Shader "Custom/RayTracing"
 			{
 				// return float4(2, 0, 0, 0); // Red
 				// return float4(ray.dir, 0); // Multicolor lol
+				// return RaySphere(ray, 0, 1).didHit; // Singular sphere
+
 
 
 
@@ -367,10 +388,7 @@ Shader "Custom/RayTracing"
 				ray.origin = _WorldSpaceCameraPos;
 				ray.dir = normalize(viewPoint - ray.origin);
 
-				return RaySphere(ray, 0, 1).didHit; // Singular sphere
-
-
-			
+				return CalculateRayCollision(ray).material.colour;
 			}
 
 			ENDCG
