@@ -642,7 +642,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249531646}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.61, z: -11.27}
+  m_LocalPosition: {x: 2.64, y: 4.99, z: -11.27}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -667,7 +667,7 @@ MonoBehaviour:
   defocusStrength: 0
   divergeStrength: 0.5
   focusDistance: 1
-  useShaderInSceneView: 0
+  useShaderInSceneView: 1
   rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
   defaultMat:
     colour: {r: 0.745283, g: 0.46755964, b: 0.46755964, a: 0}
