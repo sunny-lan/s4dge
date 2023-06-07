@@ -355,38 +355,22 @@ Shader "Custom/RayTracing"
 			// Run for every pixel in the display
 			float4 frag (v2f i) : SV_Target
 			{
-                return float4(1, 0,0,0);
-				// Create seed for random number generator
-				uint2 numPixels = _ScreenParams.xy;
-				uint2 pixelCoord = i.uv * numPixels;
-				uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;
-				uint rngState = pixelIndex + Frame * 719393;
+				// return float4(2, 0, 0, 0); // Red
+				// return float4(ray.dir, 0); // Multicolor lol
 
-				// Calculate focus point
-				float3 focusPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
-				float3 focusPoint = mul(CamLocalToWorldMatrix, float4(focusPointLocal, 1));
-				float3 camRight = CamLocalToWorldMatrix._m00_m10_m20;
-				float3 camUp = CamLocalToWorldMatrix._m01_m11_m21;
 
-				// Trace a bunch of rays and average the result
+
+				float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
+				float3 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1));
+
 				Ray ray;
-				float3 totalIncomingLight = 0;
+				ray.origin = _WorldSpaceCameraPos;
+				ray.dir = normalize(viewPoint - ray.origin);
 
-				for (int rayIndex = 0; rayIndex < NumRaysPerPixel; rayIndex ++)
-				{	
-					// Calculate ray origin and direction
-					float2 defocusJitter = RandomPointInCircle(rngState) * DefocusStrength / numPixels.x;
-					ray.origin = _WorldSpaceCameraPos + camRight * defocusJitter.x + camUp * defocusJitter.y;
+				return RaySphere(ray, 0, 1).didHit; // Singular sphere
 
-					float2 jitter = RandomPointInCircle(rngState) * DivergeStrength / numPixels.x;
-					float3 jitteredFocusPoint = focusPoint + camRight * jitter.x + camUp * jitter.y;
-					ray.dir = normalize(jitteredFocusPoint - ray.origin);
-					// Trace
-					totalIncomingLight += Trace(ray, rngState);
-				}
 
-				float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
-				return float4(pixelCol, 1);
+			
 			}
 
 			ENDCG
