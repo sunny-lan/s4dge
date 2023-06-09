@@ -103,6 +103,7 @@ Shader "Custom/RayTracing"
 				float dst;
 				float3 hitPoint;
 				float3 normal;
+				float numHits;
 				RayTracingMaterial material;
 			};
 
@@ -139,6 +140,7 @@ Shader "Custom/RayTracing"
 						hitInfo.didHit = true;
 						hitInfo.dst = dst;
 						hitInfo.hitPoint = ray.origin + ray.dir * dst;
+						hitInfo.numHits = discriminant > 10 ? 2 : 1;
 						hitInfo.normal = normalize(hitInfo.hitPoint - sphereCentre);
 					}
 				}
@@ -262,9 +264,18 @@ Shader "Custom/RayTracing"
 					Sphere sphere = Spheres[i];
 					HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
 
-					if (hitInfo.didHit && hitInfo.dst < closestHit.dst){
-						closestHit = hitInfo;
-						closestHit.material = sphere.material;
+					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
+						
+						if (hitInfo.dst < closestHit.dst)
+						{
+							hitInfo.numHits += closestHit.numHits;
+							closestHit = hitInfo;
+							closestHit.material = sphere.material;
+						}
+						else
+						{
+							closestHit.numHits += hitInfo.numHits;
+						}
 					}
 				}
 
@@ -388,7 +399,19 @@ Shader "Custom/RayTracing"
 				ray.origin = _WorldSpaceCameraPos;
 				ray.dir = normalize(viewPoint - ray.origin);
 
-				return CalculateRayCollision(ray).material.colour;
+				HitInfo collision = CalculateRayCollision(ray);
+
+				if (collision.didHit) 
+				{
+					if (collision.numHits % 2 == 1)
+					{
+						return float4(2,2,2,2); // return white as color for all edges
+					}
+
+					return lerp(float4(0,0,0,0), collision.material.colour, min( collision.numHits / float(10), 1.0));
+				}
+				
+				return collision.material.colour;
 			}
 
 			ENDCG

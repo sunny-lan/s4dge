@@ -33,7 +33,7 @@ public class Raycast4D : MonoBehaviour {
     void OnRenderImage(RenderTexture src, RenderTexture target)
     {
         InitFrame();
-        Debug.Log("onRenderImage");
+
         if (Camera.current.name != "SceneCamera" || useShaderInSceneView) {
             Graphics.Blit(null, target, rayTracingMaterial);
         }
@@ -63,7 +63,7 @@ public class Raycast4D : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("boon testing");
+
     }
 
     void InitFrame()
@@ -88,13 +88,26 @@ public class Raycast4D : MonoBehaviour {
 
     void CreateSpheres()
 	{
-        Debug.Log("creating sphere");
-		Sphere[] spheres = new Sphere[1];
+        Sphere[] spheres = new Sphere[3];
 
         spheres[0] = new Sphere()
         {
             position = new Vector3(0,0,25f),
             radius = 15f,
+            material = defaultMat
+        };
+
+        spheres[1] = new Sphere()
+        {
+            position = new Vector3(0,15f,35f),
+            radius = 25f,
+            material = defaultMat
+        };
+
+        spheres[2] = new Sphere()
+        {
+            position = new Vector3(-20f,15f,0f),
+            radius = 10f,
             material = defaultMat
         };
 
