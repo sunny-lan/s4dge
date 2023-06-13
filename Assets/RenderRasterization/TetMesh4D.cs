@@ -11,7 +11,7 @@ public class TetMesh4D : MonoBehaviour
     public struct VertexData
     {
         public Vector4 position;
-        public Vector3 normal;
+        public Vector4 normal;
     }
 
     public class Tet4D
