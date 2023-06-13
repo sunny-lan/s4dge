@@ -2,31 +2,6 @@ using UnityEngine;
 
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 
-
-// Tetrahedral mesh
-public struct TetMesh4D
-{
-    public Vector4[] points;
-    public Vector4[] normals;
-    public Tet4D[] tetrahedra;
-    public class Tet4D
-    {
-        public int[] tetPoints; // points to indices in Vector4 points array
-
-        public Tet4D(int[] tetPoints)
-        {
-            this.tetPoints = tetPoints;
-        }
-    }
-
-    public TetMesh4D(Vector4[] points, Vector4[] normals, Tet4D[] tets)
-    {
-        this.points = points;
-        this.normals = normals;
-        this.tetrahedra = tets;
-    }
-}
-
 public class MeshGenerator4D
 {
     /*
@@ -35,7 +10,7 @@ public class MeshGenerator4D
      **************************
      */
 
-    public static TetMesh4D GenerateHypersphereMesh(float samplingInterval)
+    public static void GenerateHypersphereMesh(TetMesh4D tetMesh, float samplingInterval)
     {
         // same set of equations generate positions and normals
         Manifold3D sphereGenerator = params3D =>
@@ -52,13 +27,13 @@ public class MeshGenerator4D
             Vector3.zero, Mathf.PI * Vector3.one, samplingInterval
         );
 
-        return GenerateTetMesh(sphereGenerator, sphereGenerator, samplingBounds);
+        GenerateTetMesh(tetMesh, sphereGenerator, sphereGenerator, samplingBounds);
     }
 
-    public static TetMesh4D GenerateTetMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
+    public static void GenerateTetMesh(TetMesh4D tetMesh, Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
     {
         var hexMesh = GenerateHexMesh(positionGenerator, normalGenerator, samplingBounds);
-        return Generate6TetMeshFromHexMesh(hexMesh);
+        Generate6TetMeshFromHexMesh(tetMesh, hexMesh);
     }
 
     /*
@@ -73,11 +48,10 @@ public class MeshGenerator4D
     }
 
     // Generates tetrahedral mesh using 6-tetrahedra algorithm
-    private static TetMesh4D Generate6TetMeshFromHexMesh(HexMesh4D hexMesh)
+    private static void Generate6TetMeshFromHexMesh(TetMesh4D tetMesh, HexMesh4D hexMesh)
     {
         var hexMeshDimension = hexMesh.GetDimension();
-        Vector4[] meshVertices = new Vector4[hexMeshDimension.x * hexMeshDimension.y * hexMeshDimension.z];
-        Vector4[] meshNormals = new Vector4[hexMeshDimension.x * hexMeshDimension.y * hexMeshDimension.z];
+        TetMesh4D.VertexData[] meshVertices = new TetMesh4D.VertexData[hexMeshDimension.x * hexMeshDimension.y * hexMeshDimension.z];
         int numHexahedra = (hexMeshDimension.x - 1) * (hexMeshDimension.y - 1) * (hexMeshDimension.z - 1);
         int tetPerHex = 6;
         TetMesh4D.Tet4D[] tetrahedra = new TetMesh4D.Tet4D[numHexahedra * tetPerHex];
@@ -89,8 +63,8 @@ public class MeshGenerator4D
             {
                 for (int z = 0; z < hexMeshDimension.z; ++z)
                 {
-                    meshVertices[FlattenCoord3D(x, y, z, hexMeshDimension)] = hexMesh.vertices[x, y, z];
-                    meshNormals[FlattenCoord3D(x, y, z, hexMeshDimension)] = hexMesh.normals[x, y, z];
+                    meshVertices[FlattenCoord3D(x, y, z, hexMeshDimension)].position = hexMesh.vertices[x, y, z];
+                    meshVertices[FlattenCoord3D(x, y, z, hexMeshDimension)].normal = hexMesh.normals[x, y, z];
 
                     if (x > 0 && y > 0 && z > 0)
                     {
@@ -150,7 +124,7 @@ public class MeshGenerator4D
             }
         }
 
-        return new TetMesh4D(meshVertices, meshNormals, tetrahedra);
+        tetMesh.UpdateMesh(meshVertices, tetrahedra);
     }
 
     private static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
