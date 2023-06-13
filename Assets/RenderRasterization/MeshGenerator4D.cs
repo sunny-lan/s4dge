@@ -118,7 +118,7 @@ public class MeshGenerator4D
                         });
 
 
-                        tetIdx += 6;
+                        tetIdx += tetPerHex;
                     }
                 }
             }
