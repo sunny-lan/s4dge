@@ -11,6 +11,7 @@ using v2;
 // https://www.youtube.com/watch?v=Qz0KTGYJtUk
 
 [ExecuteAlways, ImageEffectAllowedInSceneView]
+[RequireComponent(typeof(Transform4D))]
 public class Raycast4D : MonoBehaviour {
 
     [Header("Ray Tracing Settings")]
@@ -25,10 +26,16 @@ public class Raycast4D : MonoBehaviour {
 	[SerializeField] Shader rayTracingShader;
 	
     Material rayTracingMaterial;
+    public Transform4D t4d { get; private set; }
     public RayTracingMaterial defaultMat;
 
     // Buffers
     ComputeBuffer sphereBuffer;
+
+    private void Awake()
+    {
+        t4d = GetComponent<Transform4D>();
+    }
 
     void OnRenderImage(RenderTexture src, RenderTexture target)
     {
@@ -47,7 +54,8 @@ public class Raycast4D : MonoBehaviour {
         float planeWidth = planeHeight * cam.aspect;
 
         rayTracingMaterial.SetVector("ViewParams", new Vector3(planeWidth, planeHeight, cam.nearClipPlane));
-        rayTracingMaterial.SetMatrix("CamLocalToWorldMatrix", cam.transform.localToWorldMatrix);
+        rayTracingMaterial.SetMatrix("CamLocalToWorldMatrix", t4d.localToWorldMatrix.scaleAndRot); // Matrix4x4 no longer affine
+        rayTracingMaterial.SetVector("CamTranslation", t4d.localToWorldMatrix.translation); // Extra vector to represent 4d translation
     }
 
 
@@ -92,21 +100,21 @@ public class Raycast4D : MonoBehaviour {
 
         spheres[0] = new Sphere()
         {
-            position = new Vector3(0,0,25f),
-            radius = 15f,
+            position = new Vector4(0,0,25f,0),
+            radius = 25f,
             material = defaultMat
         };
 
         spheres[1] = new Sphere()
         {
-            position = new Vector3(0,15f,35f),
+            position = new Vector4(0,15f,35f,0),
             radius = 25f,
             material = defaultMat
         };
 
         spheres[2] = new Sphere()
         {
-            position = new Vector3(-20f,15f,0f),
+            position = new Vector4(-20f,15f,0f,0),
             radius = 10f,
             material = defaultMat
         };
@@ -124,7 +132,7 @@ public class Raycast4D : MonoBehaviour {
 
     public struct Sphere
     {
-        public Vector3 position;
+        public Vector4 position;
         public float radius;
         public RayTracingMaterial material;
     }

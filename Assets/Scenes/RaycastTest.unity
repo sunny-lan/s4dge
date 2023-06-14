@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 1249531648}
   - component: {fileID: 1249531647}
   - component: {fileID: 1249531651}
+  - component: {fileID: 1249531652}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -670,13 +671,14 @@ MonoBehaviour:
   useShaderInSceneView: 1
   rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
   defaultMat:
-    colour: {r: 0.745283, g: 0.46755964, b: 0.46755964, a: 0}
+    colour: {r: 0.5660378, g: 0, b: 0, a: 0.16470589}
     emissionColour: {r: 0, g: 0, b: 0, a: 0}
     specularColour: {r: 0, g: 0, b: 0, a: 0}
     emissionStrength: 0
     smoothness: 0
     specularProbability: 0
     flag: 0
+<<<<<<< HEAD
 =======
   m_GameObject: {fileID: 788514602}
   m_Enabled: 1
@@ -687,18 +689,29 @@ MonoBehaviour:
   corner: {x: 0, y: 0, z: 0, w: 0}
   size: {x: 1, y: 1, z: 1, w: 1}
 --- !u!114 &788514605
+=======
+--- !u!114 &1249531652
+>>>>>>> 2c479d7 (Setup 4D inputs and outputs to shader)
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< HEAD
   m_GameObject: {fileID: 788514602}
+=======
+  m_GameObject: {fileID: 1249531646}
+>>>>>>> 2c479d7 (Setup 4D inputs and outputs to shader)
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
   localPosition: {x: 0, y: 0, z: -2.0081208, w: 0}
+=======
+  localPosition: {x: 0, y: 0, z: 0, w: 0}
+>>>>>>> 2c479d7 (Setup 4D inputs and outputs to shader)
   localRotation:
   - 0
   - 0
@@ -707,6 +720,7 @@ MonoBehaviour:
   - 0
   - 0
   localScale: {x: 1, y: 1, z: 1, w: 1}
+<<<<<<< HEAD
 --- !u!1001 &1165737204
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -790,6 +804,8 @@ GameObject:
   m_PrefabInstance: {fileID: 1165737204}
   m_PrefabAsset: {fileID: 0}
 >>>>>>> ef3a052 (Attached script to camera instead, still not working needs more investigating)
+=======
+>>>>>>> 2c479d7 (Setup 4D inputs and outputs to shader)
 --- !u!1 &1455770737
 GameObject:
   m_ObjectHideFlags: 0
