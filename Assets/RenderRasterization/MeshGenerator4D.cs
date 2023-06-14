@@ -97,7 +97,7 @@ namespace RasterizationRenderer
                             });
 
                             // (0, 1, 0) -> (0, 1, 1) -> (0, 0, 1) -> (1, 1, 0)
-                            tetrahedra[tetIdx + 1] = new TetMesh4D.Tet4D(new int[]
+                            tetrahedra[tetIdx + 1] = new TetMesh4D.Tet4D(new int[] //bug tetIdx + 2?
                             {
                             vertices[2], vertices[3], vertices[1], vertices[6]
                             });
