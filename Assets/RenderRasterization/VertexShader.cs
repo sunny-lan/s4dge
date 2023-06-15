@@ -54,10 +54,7 @@ namespace RasterizationRenderer
         public void OnEnable()
         {
             // set input data for vertex shader
-            inputVertices = new(vertices.Length, sizeof(float) * PTS_PER_TET);
-            NativeArray<VertexData> inputBuffer = inputVertices.BeginWrite<VertexData>(0, vertices.Length);
-            inputBuffer.CopyFrom(vertices);
-            inputVertices.EndWrite<Vector4>(vertices.Length);
+            inputVertices = RenderUtils.InitComputeBuffer<VertexData>(sizeof(float) * PTS_PER_TET, vertices);
 
             vertexShaderKernel = vertexShader.FindKernel("vert");
             vertexShader.GetKernelThreadGroupSizes(vertexShaderKernel, out threadGroupSize, out _, out _);

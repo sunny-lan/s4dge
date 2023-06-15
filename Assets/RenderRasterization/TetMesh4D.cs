@@ -69,7 +69,7 @@ namespace RasterizationRenderer
         void Render()
         {
             ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 1.0f, 0.0f);
-            Tet4D[] tetrahedraToDraw = culler.Render(vertexBuffer);
+            Culler4D.CulledTetrahedraBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
         }
 
         private void OnEnable()
