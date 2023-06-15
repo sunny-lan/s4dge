@@ -15,6 +15,9 @@ namespace RasterizationRenderer
         VertexShader vertexShader;
         VertexData[] vertices;
 
+        Culler4D culler;
+        Tet4D[] tets;
+
         // Make sure struct in passed in correct layout to the mesh vertex buffer
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct VertexData
@@ -23,8 +26,8 @@ namespace RasterizationRenderer
             public Vector4 normal;
         }
 
-
-        public class Tet4D
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        public struct Tet4D
         {
             public int[] tetPoints; // points to indices in Vector4 points array
 
@@ -57,22 +60,28 @@ namespace RasterizationRenderer
 
             this.vertices = vertices;
             vertexShader = new(this.vertices);
+
+            this.tets = tets;
+            culler = new(this.tets);
         }
 
 
         void Render()
         {
-            ComputeBuffer computeBuffer = vertexShader.Render();
+            ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 1.0f, 0.0f);
+            Tet4D[] tetrahedraToDraw = culler.Render(vertexBuffer);
         }
 
         private void OnEnable()
         {
             vertexShader.OnEnable();
+            culler.OnEnable();
         }
 
         private void OnDisable()
         {
             vertexShader.OnDisable();
+            culler.OnDisable();
         }
 
 
