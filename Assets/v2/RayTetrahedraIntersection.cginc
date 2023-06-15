@@ -28,15 +28,17 @@
 // The intersection is the set of all t that satisfy the above.
 // The solution is never 'any number' unless the ray has no direction.
 
-void _tmp_calc(float s_i, float d_i, out float min_t, out float max_t)
+void _tmp_calc(float s_i, float d_i, inout float min_t, inout float max_t)
 {
 	if (d_i > 0) min_t = max(min_t, -s_i / d_i);
 	else if (d_i < 0) max_t = min(max_t, -s_i / d_i);
 	else if (s_i < 0) max_t = -1;
 }
 
-void intersection_ray_simplex(Ray r, inout HitInfo result)
+void intersection_ray_simplex(Ray r, out HitInfo result)
 {
+	result = (HitInfo)0;
+
 	float4 dir = r.dir;
 	float4 st = r.origin;
 	float sum_d_i = dir.x + dir.y + dir.z + dir.w;
