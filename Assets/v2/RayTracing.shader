@@ -59,6 +59,7 @@ Shader "Custom/RayTracing"
 			static const int InvisibleLightSource = 2;
 			
 			#include "RayTracingStructs.cginc"
+			#include "RayTetrahedraIntersection.cginc"
 
 			struct Sphere
 			{
