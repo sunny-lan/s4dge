@@ -1,0 +1,31 @@
+#pragma kernel Culler4D
+
+#include "VertexShaderUtils.cginc"
+
+struct Tet4D {
+    int vertexIndices[4];
+};
+
+StructuredBuffer<float4> transformedVertices;
+StructuredBuffer<Tet4D> tetrahedra;
+RWStructuredBuffer<bool> shouldDraw; // Each index represents if a tetrahedron should be drawn
+
+// Set draw flags so that only "front-facing" tetrahedra are drawn
+void backFaceCull(uint3 id) {
+    Tet4D tetrahedron = tetrahedra[id.x];
+    float4 p0 = transformedVertices[tetrahedron.vertexIndices[0]];
+    float4 p1 = transformedVertices[tetrahedron.vertexIndices[1]];
+    float4 p2 = transformedVertices[tetrahedron.vertexIndices[2]];
+    float4 p3 = transformedVertices[tetrahedron.vertexIndices[3]];
+    float3 v1 = p1.xyz - p0.xyz;
+    float3 v2 = p2.xyz - p0.xyz;
+    float3 v3 = p3.xyw - p0.xyw;
+
+    shouldDraw[id.x] = dot(v1, cross(v2, v3)) > 0;
+}
+
+[numthreads(64,1,1)]
+void Culler4D (uint3 id : SV_DispatchThreadID)
+{
+    backFaceCull(id);
+}
