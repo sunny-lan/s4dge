@@ -3,14 +3,14 @@
 
 // UNIFORM VARIABLES
 
-uniform float4x4 modelViewRotation4D;
-uniform float4 modelViewTranslation4D;
+float4x4 modelViewRotation4D;
+float4 modelViewTranslation4D;
 
-uniform float4x4 modelViewProjection3D;
-uniform float zSlice; // slicing plane for 3D projected point at z = zSlice
+float4x4 modelViewProjection3D;
+float zSlice; // slicing plane for 3D projected point at z = zSlice
 
-uniform float vanishingW; // camera clip plane - vanishing point at (0, 0, 0, vanishingW)
-uniform float nearW; // camera viewport plane at w = nearW
+float vanishingW; // camera clip plane - vanishing point at (0, 0, 0, vanishingW)
+float nearW; // camera viewport plane at w = nearW
 
 // STRUCT DEFINITIONS
 
