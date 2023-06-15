@@ -9,7 +9,7 @@ Shader "Custom/RayTracing"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "UnityCG.cginc"
+			#include "UnityCG.cginc"	
 
 			struct appdata
 			{
@@ -58,33 +58,7 @@ Shader "Custom/RayTracing"
 			static const int CheckerPattern = 1;
 			static const int InvisibleLightSource = 2;
 			
-			// --- Structures ---
-			struct Ray
-			{
-				float4 origin;
-				float4 dir;
-
-				float3 origin3D()
-				{
-					return origin.xyz;
-				}
-
-				float3 dir3D()
-				{
-					return dir.xyz;
-				}
-			};
-			
-			struct RayTracingMaterial
-			{
-				float4 colour;
-				float4 emissionColour;
-				float4 specularColour;
-				float emissionStrength;
-				float smoothness;
-				float specularProbability;
-				int flag;
-			};
+			#include "RayTracingStructs.cginc"
 
 			struct Sphere
 			{
@@ -97,25 +71,6 @@ Shader "Custom/RayTracing"
 			{
 				float4 posA, posB, posC;
 				float4 normalA, normalB, normalC;
-			};
-
-			struct MeshInfo
-			{
-				uint firstTriangleIndex;
-				uint numTriangles;
-				RayTracingMaterial material;
-				float3 boundsMin;
-				float3 boundsMax;
-			};
-
-			struct HitInfo
-			{
-				bool didHit;
-				float dst;
-				float4 hitPoint;
-				float4 normal;
-				float numHits;
-				RayTracingMaterial material;
 			};
 
 			// --- Buffers ---	
