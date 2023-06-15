@@ -18,6 +18,8 @@ namespace RasterizationRenderer
         Culler4D culler;
         Tet4D[] tets;
 
+        TetSlicer tetSlicer;
+
         // Make sure struct in passed in correct layout to the mesh vertex buffer
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct VertexData
@@ -69,7 +71,8 @@ namespace RasterizationRenderer
         void Render()
         {
             ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 1.0f, 0.0f);
-            Culler4D.CulledTetrahedraBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+            VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+            VariableLengthComputeBuffer trianglesToDraw = new TetSlicer(tetrahedraToDraw.Buffer, tetrahedraToDraw.Length).Render(vertexBuffer);
         }
 
         private void OnEnable()

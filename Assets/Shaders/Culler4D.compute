@@ -1,10 +1,7 @@
 #pragma kernel Culler4D
 
 #include "VertexShaderUtils.cginc"
-
-struct Tet4D {
-    int vertexIndices[4];
-};
+#include "SlicerUtils.cginc"
 
 StructuredBuffer<float4> transformedVertices;
 StructuredBuffer<Tet4D> tetrahedra;
@@ -24,34 +21,15 @@ bool backFaceCull(uint3 id) {
     return dot(v1, cross(v2, v3)) > 0;
 }
 
-groupshared uint curLocalDrawIdx;
-groupshared uint globalDrawIdx;
-RWStructuredBuffer<uint> curGlobalDrawIdx;
 
 [numthreads(64,1,1)]
 void Culler4D (uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    // 1st thread in group initializes draw idx
-    if (threadId.x == 0) {
-        curLocalDrawIdx = 0;
-    }
+    InitLocalAppendIdx(threadId);
 
-    GroupMemoryBarrierWithGroupSync();
-
-    uint localDrawIdx = 0;
     bool shouldDraw = backFaceCull(globalId);
-    if (shouldDraw) {
-        InterlockedAdd(curLocalDrawIdx, 1, localDrawIdx);
-    }
-
-    GroupMemoryBarrierWithGroupSync();
-
-    // Update draw index for thread groups
-    if (threadId.x == 0) {
-        InterlockedAdd(curGlobalDrawIdx[0], curLocalDrawIdx, globalDrawIdx);
-    }
-
-    GroupMemoryBarrierWithGroupSync();
+    uint localDrawIdx = IncreaseLocalAppendIdx(shouldDraw ? 1 : 0);
+    uint globalDrawIdx = IncreaseGlobalAppendIdx(threadId);
 
     if (shouldDraw) {
         tetsToDraw[globalDrawIdx + localDrawIdx] = tetrahedra[globalId.x];

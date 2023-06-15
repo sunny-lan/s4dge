@@ -1,0 +1,111 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel TetrahedronSlicer
+
+#include "SlicerUtils.cginc"
+
+StructuredBuffer<float4> transformedVertices;
+StructuredBuffer<Tet4D> tetsToDraw;
+RWStructuredBuffer<Triangle> slicedTriangles;
+
+struct TetIntersection {
+    Triangle triangles[2];
+    uint numTriangles;
+};
+
+uint2 intersectingEdges[] = {
+    // table entry 0 is empty
+    uint2(0, 3), uint2(1, 3), uint2(2, 3), // entry 1
+    uint2(0, 2), uint2(1, 2), uint2(2, 2), // entry 2
+    uint2(0, 2), uint2(1, 2), uint2(0, 3), uint2(1, 3), // ...
+    uint2(0, 1), uint2(2, 1), uint2(3, 1),
+    uint2(0, 1), uint2(0, 3), uint2(2, 1), uint2(2, 3),
+    uint2(0, 1), uint2(0, 2), uint2(1, 3), uint2(2, 3),
+    uint2(0, 1), uint2(0, 2), uint2(0, 3)
+};
+
+// elements are (starting index, # of entries)
+uint2 edgeTableRows[] = {
+    uint2(0, 0),
+    uint2(0, 3),
+    uint2(3, 3),
+    uint2(6, 4),
+    uint2(10, 3),
+    uint2(13, 4),
+    uint2(17, 4),
+    uint2(21, 3)
+};
+
+// return 0 if val <= 0, else return 1
+int SignOp(int val) {
+    return sign(val) == 1;
+}
+
+// Slices the current tetrahedron with the plane z = 0
+TetIntersection PerformSlice(uint3 globalId) {
+    // Tetrahedron points
+    float4 pts[4] = {
+        transformedVertices[tetsToDraw[globalId.x].vertexIndices[0]],
+        transformedVertices[tetsToDraw[globalId.x].vertexIndices[1]],
+        transformedVertices[tetsToDraw[globalId.x].vertexIndices[2]],
+        transformedVertices[tetsToDraw[globalId.x].vertexIndices[3]],
+    };
+
+    // Index marching tetrahedron table based on the points
+    uint intersectIndex = SignOp(pts[3].z) |
+        (SignOp(pts[2].z) << 1) |
+        (SignOp(pts[1].z) << 2) |
+        (SignOp(pts[0].z) << 3);
+    intersectIndex = min(intersectIndex, 0xF - intersectIndex); // table is symmetric
+
+    uint rowStartIndex = edgeTableRows[intersectIndex].x;
+    uint rowLength = edgeTableRows[intersectIndex].y;
+
+    // If the intersection is non-empty
+    Triangle intersectedTriangles[2];
+    uint numTrianglesInIntersection = 0;
+    if (rowLength >= 3) {
+        // Get points in intersection
+        float4 planeIntersections[4];
+        for (uint edgeIdx = rowStartIndex; edgeIdx < rowStartIndex + 3; ++edgeIdx) {
+            float4 p0 = transformedVertices[intersectingEdges[edgeIdx].x];
+            float4 p1 = transformedVertices[intersectingEdges[edgeIdx].y];
+
+            planeIntersections[edgeIdx - rowStartIndex] = lerp(p0, p1, (-p0 / (p1 - p0)).zzzz);
+        }
+
+        // Add triangle
+        intersectedTriangles[0].vertexIndices[0] = planeIntersections[0];
+        intersectedTriangles[0].vertexIndices[1] = planeIntersections[1];
+        intersectedTriangles[0].vertexIndices[2] = planeIntersections[2];
+        numTrianglesInIntersection += 1;
+
+        // If the intersection is a quadrilateral, we add two triangles
+        if (rowLength == 4) {
+            intersectedTriangles[1].vertexIndices[0] = planeIntersections[2];
+            intersectedTriangles[1].vertexIndices[1] = planeIntersections[3];
+            intersectedTriangles[1].vertexIndices[2] = planeIntersections[0];
+            numTrianglesInIntersection += 1;
+        }
+    }
+
+    TetIntersection ret;
+    ret.triangles = intersectedTriangles;
+    ret.numTriangles = numTrianglesInIntersection;
+
+    return ret;
+}
+
+[numthreads(64,1,1)]
+void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
+{
+    InitLocalAppendIdx(threadId);
+
+    TetIntersection intersection = PerformSlice(globalId);
+
+    uint localTriangleIndex = IncreaseLocalAppendIdx(intersection.numTriangles);
+    uint globalTriangleIdx = IncreaseGlobalAppendIdx(threadId);
+
+    for (uint triangleIdx = 0; triangleIdx < intersection.numTriangles; ++triangleIdx) {
+        slicedTriangles[globalTriangleIdx + localTriangleIndex + triangleIdx] = intersection.triangles[triangleIdx];
+    }
+}
