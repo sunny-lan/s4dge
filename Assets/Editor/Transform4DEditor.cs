@@ -30,6 +30,8 @@ public class Transform4DEditor : Editor
             transform4D.localRotation[3] = EditorGUILayout.FloatField("yz", transform4D.localRotation[3]);
             transform4D.localRotation[4] = EditorGUILayout.FloatField("yw", transform4D.localRotation[4]);
             transform4D.localRotation[5] = EditorGUILayout.FloatField("zw", transform4D.localRotation[5]);
+
+            EditorUtility.SetDirty(target);
         }
     }
 
