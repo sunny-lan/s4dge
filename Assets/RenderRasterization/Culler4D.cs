@@ -2,7 +2,8 @@ using System.Linq;
 using Unity.Collections;
 using UnityEngine;
 using static RasterizationRenderer.TetMesh4D;
-
+using static RasterizationRenderer.RenderUtils;
+using UnityEngine.Rendering;
 
 namespace RasterizationRenderer
 {
@@ -11,7 +12,7 @@ namespace RasterizationRenderer
         [SerializeField]
         public ComputeShader cullShader;
         ComputeBuffer tetrahedraBuffer;
-        ComputeBuffer drawTetrahedron;
+        ComputeBuffer tetsToDraw;
         int cullShaderKernel;
         uint threadGroupSize;
 
@@ -28,33 +29,35 @@ namespace RasterizationRenderer
          * vanishingW: camera clip plane - vanishing point at (0, 0, 0, vanishingW)
          * nearW: camera viewport plane at w = nearW
          */
-        public Tet4D[] Render(ComputeBuffer vertexBuffer)
+        public CulledTetrahedraBuffer Render(ComputeBuffer vertexBuffer)
         {
+            ComputeBuffer curGlobalDrawIdx = InitComputeBuffer<uint>(sizeof(uint), new uint[1] { 0 });
+
             // Run vertex shader to transform points and perform perspective projection
             cullShader.SetBuffer(cullShaderKernel, "transformedVertices", vertexBuffer);
             cullShader.SetBuffer(cullShaderKernel, "tetrahedra", tetrahedraBuffer);
-            cullShader.SetBuffer(cullShaderKernel, "shouldDraw", drawTetrahedron);
+            cullShader.SetBuffer(cullShaderKernel, "tetsToDraw", tetsToDraw);
+            cullShader.SetBuffer(cullShaderKernel, "curGlobalDrawIdx", curGlobalDrawIdx);
             int numThreadGroups = (int)((vertexBuffer.count + (threadGroupSize - 1)) / threadGroupSize);
             cullShader.Dispatch(cullShaderKernel, numThreadGroups, 1, 1);
 
-            bool[] drawTetrahedronArr = new bool[tetrahedra.Length];
-            drawTetrahedron.GetData(drawTetrahedronArr);
+            uint[] tmp = new uint[1];
+            curGlobalDrawIdx.GetData(tmp);
+            uint numTetsToDraw = tmp[0];
+            curGlobalDrawIdx.Dispose();
 
             // return array of tetrahedra that drawTetrahedron says should be drawn
-            return tetrahedra.Zip(drawTetrahedronArr, (tet, shouldDraw) => (tet, shouldDraw)).Where(elem => elem.shouldDraw).Select(elem => elem.tet).ToArray();
+            return new CulledTetrahedraBuffer(tetsToDraw, numTetsToDraw);
         }
 
         public void OnEnable()
         {
-            tetrahedraBuffer = new(tetrahedra.Length, sizeof(int) * PTS_PER_TET);
-            NativeArray<Tet4D> tetInputBuffer = tetrahedraBuffer.BeginWrite<Tet4D>(0, tetrahedra.Length);
-            tetInputBuffer.CopyFrom(tetrahedra);
-            tetrahedraBuffer.EndWrite<Vector4>(tetrahedra.Length);
+            tetrahedraBuffer = RenderUtils.InitComputeBuffer<Tet4D>(sizeof(int) * PTS_PER_TET, tetrahedra);
 
             cullShaderKernel = cullShader.FindKernel("Culler4D");
             cullShader.GetKernelThreadGroupSizes(cullShaderKernel, out threadGroupSize, out _, out _);
 
-            drawTetrahedron = new(tetrahedra.Length, sizeof(int) * PTS_PER_TET);
+            tetsToDraw = new(tetrahedra.Length, sizeof(int) * PTS_PER_TET);
         }
 
         public void OnDisable()
@@ -62,8 +65,20 @@ namespace RasterizationRenderer
             // cleanup for vertex shader
             tetrahedraBuffer.Dispose();
             tetrahedraBuffer = null;
-            drawTetrahedron.Dispose();
-            drawTetrahedron = null;
+            tetsToDraw.Dispose();
+            tetsToDraw = null;
+        }
+
+        public struct CulledTetrahedraBuffer
+        {
+            ComputeBuffer buffer;
+            uint numTetsToDraw;
+
+            public CulledTetrahedraBuffer(ComputeBuffer buffer, uint numTetsToDraw)
+            {
+                this.buffer = buffer;
+                this.numTetsToDraw = numTetsToDraw;
+            }
         }
     }
 }
