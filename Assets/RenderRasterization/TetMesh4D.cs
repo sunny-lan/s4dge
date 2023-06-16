@@ -7,7 +7,6 @@ namespace RasterizationRenderer
 
     public class TetMesh4D : MonoBehaviour
     {
-        public Mesh mesh = new();
         public Transform4D modelWorldTransform4D = new();
         public Matrix4x4 modelViewProjection3D = Matrix4x4.identity;
         public static readonly int PTS_PER_TET = 4;

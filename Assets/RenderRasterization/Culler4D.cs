@@ -9,6 +9,7 @@ namespace RasterizationRenderer
         public ComputeShader cullShader;
         ComputeBuffer tetrahedraBuffer;
         VariableLengthComputeBuffer tetsToDraw;
+        VariableLengthComputeBuffer.BufferList bufferList;
         int cullShaderKernel;
         uint threadGroupSize;
 
@@ -27,7 +28,7 @@ namespace RasterizationRenderer
          */
         public VariableLengthComputeBuffer Render(ComputeBuffer vertexBuffer)
         {
-            tetsToDraw.PrepareForRender();
+            bufferList.PrepareForRender();
 
             // Run vertex shader to transform points and perform perspective projection
             cullShader.SetBuffer(cullShaderKernel, "transformedVertices", vertexBuffer);
@@ -35,7 +36,7 @@ namespace RasterizationRenderer
             int numThreadGroups = (int)((tetrahedraBuffer.count + (threadGroupSize - 1)) / threadGroupSize);
             cullShader.Dispatch(cullShaderKernel, numThreadGroups, 1, 1);
 
-            tetsToDraw.UpdateNumElements();
+            bufferList.UpdateBufferLengths();
 
             // return array of tetrahedra that drawTetrahedron says should be drawn
             return tetsToDraw;
@@ -48,7 +49,8 @@ namespace RasterizationRenderer
             cullShaderKernel = cullShader.FindKernel("Culler4D");
             cullShader.GetKernelThreadGroupSizes(cullShaderKernel, out threadGroupSize, out _, out _);
 
-            tetsToDraw = new("tetsToDraw", tetrahedra.Length, sizeof(int) * PTS_PER_TET, cullShader, cullShaderKernel);
+            tetsToDraw = new("tetsToDraw", tetrahedra.Length, sizeof(int) * PTS_PER_TET);
+            bufferList = new(new VariableLengthComputeBuffer[1] { tetsToDraw }, cullShader, cullShaderKernel);
         }
 
         public void OnDisable()
@@ -56,6 +58,7 @@ namespace RasterizationRenderer
             tetrahedraBuffer.Dispose();
             tetrahedraBuffer = null;
             tetsToDraw = null;
+            bufferList = null;
         }
     }
 }
