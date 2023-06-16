@@ -31,6 +31,7 @@ public class Raycast4D : MonoBehaviour {
 
     // Buffers
     ComputeBuffer sphereBuffer;
+    ComputeBuffer hyperSphereBuffer;
 
     private void Awake()
     {
@@ -85,6 +86,7 @@ public class Raycast4D : MonoBehaviour {
 		// Update data
 		UpdateCameraParams(Camera.current);
 		CreateSpheres();
+        CreateHyperSpheres();
 		SetShaderParams();
 
 	}
@@ -97,6 +99,7 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetFloat("DivergeStrength", divergeStrength);
 	}
 
+    // Hard code shapes for testing
     void CreateSpheres()
 	{
         Sphere[] spheres = new Sphere[3];
@@ -128,6 +131,23 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetInt("NumSpheres", spheres.Length);
 	}
 
+    void CreateHyperSpheres()
+    {
+        HyperSphere[] hyperSpheres = new HyperSphere[1];
+
+        hyperSpheres[0] = new HyperSphere()
+        {
+            position = new Vector4(0,0,25f,0),
+            radius = 25f,
+            material = defaultMat
+        };
+
+		// Create buffer containing all sphere data, and send it to the shader
+		ShaderHelper.CreateStructuredBuffer(ref hyperSphereBuffer, hyperSpheres);
+		rayTracingMaterial.SetBuffer("HyperSpheres", hyperSphereBuffer);
+		rayTracingMaterial.SetInt("NumHyperSpheres", hyperSpheres.Length);
+    }
+
     void OnDisable()
 	{
 		ShaderHelper.Release(sphereBuffer);
@@ -139,4 +159,12 @@ public class Raycast4D : MonoBehaviour {
         public float radius;
         public RayTracingMaterial material;
     }
+
+    public struct HyperSphere
+    {
+        public Vector4 position;
+        public float radius;
+        public RayTracingMaterial material;
+    };
+
 }
