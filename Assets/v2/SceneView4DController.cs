@@ -37,7 +37,7 @@ public class SceneView4DController : MonoBehaviour
         currentlyDrawingSceneView = this;
 
         t4d.localScale = Vector4.one;
-        t4d.localPosition = new Vector4(0, 0, 0, w);
+        // t4d.localPosition = new Vector4(0, 0, 0, w);
         
 
         Handles.BeginGUI();
