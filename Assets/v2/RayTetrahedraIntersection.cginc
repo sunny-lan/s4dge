@@ -122,18 +122,33 @@ struct Tet
 	}
 
 	// Determines the range of t that a ray intersects this
-	void intersection(Ray r, inout float min_t, inout float max_t)
+	HitInfo intersection(Ray r)
 	{
+		HitInfo res;
+		float min_t = 0; 
+		float max_t = 1.#INF;
+
 		float min_tmp, max_tmp;
 		volume.intersection(r, 0, min_tmp, max_tmp);
-		min_t = max(min_t, min_tmp);
+		if (min_tmp > min_t) {
+			min_t = min_tmp;
+			res.normal = volume.normal;
+		}
 		max_t = min(max_t, max_tmp);
 
 		for (int i = 0; i < 4; i++) {
 			edges[i].intersection(r, direction[i], min_tmp, max_tmp);
-			min_t = max(min_t, min_tmp);
+			if (min_tmp > min_t) {
+				min_t = min_tmp;
+				res.normal = edges[i].normal;
+			}
 			max_t = min(max_t, max_tmp);
 		}
+
+		res.dst = min_t;
+		res.didHit = min_t <= max_t;
+
+		return res;
 	}
 };
 
