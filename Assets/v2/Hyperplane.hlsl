@@ -16,6 +16,18 @@ struct Hyperplane
 	float4 normal;
 	float offset;
 
+	// Generates hyperplane containing given 4 points
+	// 1 point per row
+	void from_points(float4x4 p) {
+		float3x4 tmp = {
+			p[1]-p[0],
+			p[2]-p[0],
+			p[3]-p[0]
+		};
+		normal = cross_product(tmp);
+		offset = dot(normal, p[0]);
+	}
+
 	bool _tmp_cmp(float a, float b, int sign)
 	{
 		if (sign == 0)return a == b;

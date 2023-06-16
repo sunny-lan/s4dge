@@ -1,4 +1,6 @@
 ﻿#ifndef RAY_TETRAHEDRA_INTERSECTION
+// Upgrade NOTE: excluded shader from OpenGL ES 2.0 because it uses non-square matrices
+#pragma exclude_renderers gles
 #define RAY_TETRAHEDRA_INTERSECTION
 
 #include "RayTracingStructs.cginc"
@@ -35,9 +37,9 @@ void _tmp_calc(float s_i, float d_i, inout float min_t, inout float max_t)
 	else if (s_i < 0) max_t = -1;
 }
 
-void intersection_ray_simplex(Ray r, out HitInfo result)
+HitInfo intersection_ray_simplex(Ray r)
 {
-	result = (HitInfo)0;
+	HitInfo result = (HitInfo)0;
 
 	float4 dir = r.dir;
 	float4 st = r.origin;
@@ -49,7 +51,7 @@ void intersection_ray_simplex(Ray r, out HitInfo result)
 		if(sum_s_i != 1)
 		{
 			result.didHit = false;
-			return;
+			return result;
 		}
 
 		float min_t = 0;
@@ -62,7 +64,7 @@ void intersection_ray_simplex(Ray r, out HitInfo result)
 		if (min_t > max_t)
 		{
 			result.didHit = false;
-			return;
+			return result;
 		}
 
 		result.didHit = true;
@@ -78,6 +80,62 @@ void intersection_ray_simplex(Ray r, out HitInfo result)
 		result.didHit = result.didHit && (dir.w * t + st.w >=0);
 		result.dst = t;
 	}
+
+	return result;
 }
+
+// A tetrahedron in 4D is bounded
+// by 4 hyperplane inequalities for each of the 3D faces
+// and 1 hyperplane equality for the volume
+
+// The 3D equivalent is how a triangle in 3D
+// is bounded by 3 lines on a plane.
+
+#include "Matrix.hlsl"
+#include "Hyperplane.hlsl"
+struct Tet
+{
+	// Stored in 1 column per vertex
+	float4x4 vertices;
+
+	Hyperplane edges[4];
+	Hyperplane volume;
+
+	int direction[4];
+
+	void from_points(float4x4 vertices) {
+		volume.from_points(vertices);
+
+		for (uint i = 0; i < 4; i++) {
+			// We want each edge to be orthogonal to the normal
+			float3x4 tmp = {
+				volume.normal,
+				vertices[(i+1)%4] - vertices[i],
+				vertices[(i+2)%4] - vertices[i]
+			};
+			edges[i].normal = cross_product(tmp);
+			edges[i].offset = dot(edges[i].normal, vertices[i]);
+
+			direction[i] = dot(edges[i].normal, vertices[(i + 3) % 4]) < edges[i].offset ? -1 : 1;
+		}
+
+	}
+
+	// Determines the range of t that a ray intersects this
+	void intersection(Ray r, inout float min_t, inout float max_t)
+	{
+		float min_tmp, max_tmp;
+		volume.intersection(r, 0, min_tmp, max_tmp);
+		min_t = max(min_t, min_tmp);
+		max_t = min(max_t, max_tmp);
+
+		for (int i = 0; i < 4; i++) {
+			edges[i].intersection(r, direction[i], min_tmp, max_tmp);
+			min_t = max(min_t, min_tmp);
+			max_t = min(max_t, max_tmp);
+		}
+	}
+};
+
 
 #endif
