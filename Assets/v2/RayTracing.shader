@@ -74,9 +74,19 @@ Shader "Custom/RayTracing"
 				float4 normalA, normalB, normalC;
 			};
 
+			struct HyperSphere
+			{
+				float4 position;
+				float radius;
+				RayTracingMaterial material;
+			};
+
 			// --- Buffers ---	
 			StructuredBuffer<Sphere> Spheres;
 			int NumSpheres;
+
+			StructuredBuffer<HyperSphere> HyperSpheres;
+			int NumHyperSpheres;
 
 			StructuredBuffer<Triangle> Triangles;
 			StructuredBuffer<MeshInfo> AllMeshInfo;
@@ -111,6 +121,49 @@ Shader "Custom/RayTracing"
 						hitInfo.normal = normalize(hitInfo.hitPoint - sphereCentre);
 					}
 				}
+				return hitInfo;
+			}
+
+			// Calculate intersection of a ray with a hypersphere
+			// Math from: http://reprints.gravitywaves.com/People/Hollasch/Four-Space%20Visualization%20of%204D%20Objects%20-%20Chapter%205.htm 
+			HitInfo RayHyperSphere(Ray ray, float4 sphereCentre, float sphereRadius)
+			{
+				HitInfo hitInfo = (HitInfo)0;
+
+				float4 V = sphereCentre - ray.origin;
+				float bb = dot(V, ray.dir);
+
+				float rad = (bb*bb) - dot(V, V) + sphereRadius * sphereRadius;
+
+				if (rad < 0) { // If rad negative then no intersection
+					return hitInfo;				
+				} 
+
+				rad = sqrt(rad);
+
+				float t2 = bb - rad;
+				float t1 = bb + rad;
+
+				// Get smaller of t1 and t2
+				if (t1 < 0 || (t2 > 0 && t2 < t1)) {
+					t1 = t2;
+				}
+
+				// If behind sphere return false
+				if (t1 < 0) {
+					return hitInfo;
+				}
+
+
+				float4 intersection = ray.origin + (t1 * ray.dir);
+				float4 normal = (intersection - sphereCentre) / sphereRadius;
+
+				hitInfo.didHit = true;
+				hitInfo.dst = t1;
+				hitInfo.hitPoint = intersection;
+				hitInfo.numHits = t2 > 0 ? 2 : 0; // I think this works if I understand the math correctly
+				hitInfo.normal = normal;
+
 				return hitInfo;
 			}
 
@@ -245,6 +298,26 @@ Shader "Custom/RayTracing"
 							closestHit.numHits += hitInfo.numHits;
 						}
 					}
+				}
+
+				for (int i = 0; i < NumHyperSpheres; i++) {
+					HyperSphere hyperSphere = HyperSpheres[i];
+					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere.position, hyperSphere.radius);
+
+					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
+						
+						if (hitInfo.dst < closestHit.dst)
+						{
+							hitInfo.numHits += closestHit.numHits;
+							closestHit = hitInfo;
+							closestHit.material = hyperSphere.material;
+						}
+						else
+						{
+							closestHit.numHits += hitInfo.numHits;
+						}
+					}
+
 				}
 
 				return closestHit;
