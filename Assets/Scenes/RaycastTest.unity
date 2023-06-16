@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028305, g: 0.22571313, b: 0.3069213, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 1249531648}
   - component: {fileID: 1249531647}
   - component: {fileID: 1249531651}
+  - component: {fileID: 1249531652}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -235,7 +236,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249531646}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.64, y: 4.99, z: -11.27}
+  m_LocalPosition: {x: 2.64, y: 4.99, z: -11.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -262,13 +263,34 @@ MonoBehaviour:
   useShaderInSceneView: 1
   rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
   defaultMat:
-    colour: {r: 0.745283, g: 0.46755964, b: 0.46755964, a: 0}
+    colour: {r: 0.5660378, g: 0, b: 0, a: 0.16470589}
     emissionColour: {r: 0, g: 0, b: 0, a: 0}
     specularColour: {r: 0, g: 0, b: 0, a: 0}
     emissionStrength: 0
     smoothness: 0
     specularProbability: 0
     flag: 0
+--- !u!114 &1249531652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249531646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localPosition: {x: 0, y: 0, z: 0, w: 0}
+  localRotation:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  localScale: {x: 1, y: 1, z: 1, w: 1}
 --- !u!1 &1455770737
 GameObject:
   m_ObjectHideFlags: 0

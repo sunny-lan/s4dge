@@ -9,7 +9,7 @@ Shader "Custom/RayTracing"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "UnityCG.cginc"
+			#include "UnityCG.cginc"	
 
 			struct appdata
 			{
@@ -43,7 +43,8 @@ Shader "Custom/RayTracing"
 			float DefocusStrength;
 			float DivergeStrength;
 			float3 ViewParams;
-			float4x4 CamLocalToWorldMatrix;
+			float4x4 CamLocalToWorldMatrix; // Matrix 4x4 representing scale and rotation in 4D
+			float4 CamTranslation; // Vector representing 4D translation
 
 			// Environment Settings
 			int EnvironmentEnabled;
@@ -57,53 +58,20 @@ Shader "Custom/RayTracing"
 			static const int CheckerPattern = 1;
 			static const int InvisibleLightSource = 2;
 			
-			// --- Structures ---
-			struct Ray
-			{
-				float3 origin;
-				float3 dir;
-			};
-			
-			struct RayTracingMaterial
-			{
-				float4 colour;
-				float4 emissionColour;
-				float4 specularColour;
-				float emissionStrength;
-				float smoothness;
-				float specularProbability;
-				int flag;
-			};
+			#include "RayTracingStructs.cginc"
+			#include "RayTetrahedraIntersection.cginc"
 
 			struct Sphere
 			{
-				float3 position;
+				float4 position;
 				float radius;
 				RayTracingMaterial material;
 			};
 
 			struct Triangle
 			{
-				float3 posA, posB, posC;
-				float3 normalA, normalB, normalC;
-			};
-
-			struct MeshInfo
-			{
-				uint firstTriangleIndex;
-				uint numTriangles;
-				RayTracingMaterial material;
-				float3 boundsMin;
-				float3 boundsMax;
-			};
-
-			struct HitInfo
-			{
-				bool didHit;
-				float dst;
-				float3 hitPoint;
-				float3 normal;
-				RayTracingMaterial material;
+				float4 posA, posB, posC;
+				float4 normalA, normalB, normalC;
 			};
 
 			// --- Buffers ---	
@@ -117,14 +85,14 @@ Shader "Custom/RayTracing"
 			// --- Ray Intersection Functions ---
 		
 			// Calculate the intersection of a ray with a sphere
-			HitInfo RaySphere(Ray ray, float3 sphereCentre, float sphereRadius)
+			HitInfo RaySphere(Ray ray, float4 sphereCentre, float sphereRadius)
 			{
 				HitInfo hitInfo = (HitInfo)0;
-				float3 offsetRayOrigin = ray.origin - sphereCentre;
+				float3 offsetRayOrigin = ray.origin3D() - sphereCentre;
 				// From the equation: sqrLength(rayOrigin + rayDir * dst) = radius^2
 				// Solving for dst results in a quadratic equation with coefficients:
-				float a = dot(ray.dir, ray.dir); // a = 1 (assuming unit vector)
-				float b = 2 * dot(offsetRayOrigin, ray.dir);
+				float a = dot(ray.dir3D(), ray.dir3D()); // a = 1 (assuming unit vector)
+				float b = 2 * dot(offsetRayOrigin, ray.dir3D());
 				float c = dot(offsetRayOrigin, offsetRayOrigin) - sphereRadius * sphereRadius;
 				// Quadratic discriminant
 				float discriminant = b * b - 4 * a * c; 
@@ -139,6 +107,7 @@ Shader "Custom/RayTracing"
 						hitInfo.didHit = true;
 						hitInfo.dst = dst;
 						hitInfo.hitPoint = ray.origin + ray.dir * dst;
+						hitInfo.numHits = discriminant > 10 ? 2 : 1;
 						hitInfo.normal = normalize(hitInfo.hitPoint - sphereCentre);
 					}
 				}
@@ -152,10 +121,10 @@ Shader "Custom/RayTracing"
 				float3 edgeAB = tri.posB - tri.posA;
 				float3 edgeAC = tri.posC - tri.posA;
 				float3 normalVector = cross(edgeAB, edgeAC);
-				float3 ao = ray.origin - tri.posA;
-				float3 dao = cross(ao, ray.dir);
+				float3 ao = ray.origin3D() - tri.posA;
+				float3 dao = cross(ao, ray.dir3D());
 
-				float determinant = -dot(ray.dir, normalVector);
+				float determinant = -dot(ray.dir3D(), normalVector);
 				float invDet = 1 / determinant;
 				
 				// Calculate dst to triangle & barycentric coordinates of intersection point
@@ -176,9 +145,9 @@ Shader "Custom/RayTracing"
 			// Thanks to https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
 			bool RayBoundingBox(Ray ray, float3 boxMin, float3 boxMax)
 			{
-				float3 invDir = 1 / ray.dir;
-				float3 tMin = (boxMin - ray.origin) * invDir;
-				float3 tMax = (boxMax - ray.origin) * invDir;
+				float3 invDir = 1 / ray.dir3D();
+				float3 tMin = (boxMin - ray.origin3D()) * invDir;
+				float3 tMax = (boxMax - ray.origin3D()) * invDir;
 				float3 t1 = min(tMin, tMax);
 				float3 t2 = max(tMin, tMax);
 				float tNear = max(max(t1.x, t1.y), t1.z);
@@ -213,13 +182,14 @@ Shader "Custom/RayTracing"
 			}
 
 			// Calculate a random direction
-			float3 RandomDirection(inout uint state)
+			float4 RandomDirection(inout uint state)
 			{
 				// Thanks to https://math.stackexchange.com/a/1585996
 				float x = RandomValueNormalDistribution(state);
 				float y = RandomValueNormalDistribution(state);
 				float z = RandomValueNormalDistribution(state);
-				return normalize(float3(x, y, z));
+				float w = RandomValueNormalDistribution(state);
+				return normalize(float4(x, y, z, w));
 			}
 
 			float2 RandomPointInCircle(inout uint rngState)
@@ -241,10 +211,10 @@ Shader "Custom/RayTracing"
 					return 0;
 				}
 				
-				float skyGradientT = pow(smoothstep(0, 0.4, ray.dir.y), 0.35);
-				float groundToSkyT = smoothstep(-0.01, 0, ray.dir.y);
+				float skyGradientT = pow(smoothstep(0, 0.4, ray.dir3D().y), 0.35);
+				float groundToSkyT = smoothstep(-0.01, 0, ray.dir3D().y);
 				float3 skyGradient = lerp(SkyColourHorizon, SkyColourZenith, skyGradientT);
-				float sun = pow(max(0, dot(ray.dir, _WorldSpaceLightPos0.xyz)), SunFocus) * SunIntensity;
+				float sun = pow(max(0, dot(ray.dir3D(), _WorldSpaceLightPos0.xyz)), SunFocus) * SunIntensity;
 				// Combine ground, sky, and sun
 				float3 composite = lerp(GroundColour, skyGradient, groundToSkyT) + sun * (groundToSkyT>=1);
 				return composite;
@@ -262,9 +232,18 @@ Shader "Custom/RayTracing"
 					Sphere sphere = Spheres[i];
 					HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
 
-					if (hitInfo.didHit && hitInfo.dst < closestHit.dst){
-						closestHit = hitInfo;
-						closestHit.material = sphere.material;
+					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
+						
+						if (hitInfo.dst < closestHit.dst)
+						{
+							hitInfo.numHits += closestHit.numHits;
+							closestHit = hitInfo;
+							closestHit.material = sphere.material;
+						}
+						else
+						{
+							closestHit.numHits += hitInfo.numHits;
+						}
 					}
 				}
 
@@ -344,8 +323,8 @@ Shader "Custom/RayTracing"
 						bool isSpecularBounce = material.specularProbability >= RandomValue(rngState);
 					
 						ray.origin = hitInfo.hitPoint;
-						float3 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState));
-						float3 specularDir = reflect(ray.dir, hitInfo.normal);
+						float4 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState));
+						float4 specularDir = reflect(ray.dir, hitInfo.normal);
 						ray.dir = normalize(lerp(diffuseDir, specularDir, material.smoothness * isSpecularBounce));
 
 						// Update light calculations
@@ -375,20 +354,33 @@ Shader "Custom/RayTracing"
 			float4 frag (v2f i) : SV_Target
 			{
 				// return float4(2, 0, 0, 0); // Red
-				// return float4(ray.dir, 0); // Multicolor lol
+				// return float4(ray.dir3D(), 0); // Multicolor lol
 				// return RaySphere(ray, 0, 1).didHit; // Singular sphere
 
-
-
-
 				float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
-				float3 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1));
+				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1));
+				viewPoint = viewPoint + CamTranslation;
 
 				Ray ray;
-				ray.origin = _WorldSpaceCameraPos;
+				ray.origin = CamTranslation;
 				ray.dir = normalize(viewPoint - ray.origin);
 
-				return CalculateRayCollision(ray).material.colour;
+				HitInfo collision = CalculateRayCollision(ray);
+
+				if (collision.didHit) 
+				{
+					if (collision.numHits % 2 == 1)
+					{
+						return float4(2,2,2,2); // return white as color for all edges
+					}
+
+					float opacity = collision.material.colour.w;
+					opacity = 1.0f - pow(1.0f - opacity, collision.numHits);
+
+					return lerp(float4(0,0,0,0), collision.material.colour, opacity); // Sending in opacity in w wasn't working, lerp towards black instead
+				}
+				
+				return collision.material.colour;
 			}
 
 			ENDCG
