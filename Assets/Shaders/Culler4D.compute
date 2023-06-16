@@ -1,7 +1,10 @@
 #pragma kernel Culler4D
 
+#define VL_BUFFER_COUNT 1
+
 #include "VertexShaderUtils.cginc"
 #include "SlicerUtils.cginc"
+#include "VariableLengthBufferUtils.cginc"
 
 StructuredBuffer<float4> transformedVertices;
 StructuredBuffer<Tet4D> tetrahedra;
@@ -25,11 +28,15 @@ bool backFaceCull(uint3 id) {
 [numthreads(64,1,1)]
 void Culler4D (uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    InitLocalAppendIdx(threadId);
+    InitLocalAppendIdx(threadId, 0);
+    GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
 
     bool shouldDraw = backFaceCull(globalId);
-    uint localDrawIdx = IncreaseLocalAppendIdx(shouldDraw ? 1 : 0);
-    uint globalDrawIdx = IncreaseGlobalAppendIdx(threadId);
+    uint localDrawIdx = IncreaseLocalAppendIdx(shouldDraw ? 1 : 0, 0);
+    GroupMemoryBarrierWithGroupSync();
+
+    uint globalDrawIdx = IncreaseGlobalAppendIdx(threadId, 0);
+    GroupMemoryBarrierWithGroupSync();
 
     if (shouldDraw) {
         tetsToDraw[globalDrawIdx + localDrawIdx] = tetrahedra[globalId.x];
