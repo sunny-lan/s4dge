@@ -42,6 +42,11 @@ public class Raycast4D : MonoBehaviour {
         InitFrame();
 
         if (Camera.current.name != "SceneCamera" || useShaderInSceneView) {
+            if (Camera.current.name == "SceneCamera") {
+                // apply scene view camera position/rotation to the t4d when rendering in scene view
+                t4d.ApplyTransform3D(Camera.current.cameraToWorldMatrix);
+            }
+
             Graphics.Blit(null, target, rayTracingMaterial);
         }
         else {
@@ -60,12 +65,10 @@ public class Raycast4D : MonoBehaviour {
 
 
     Camera4D cam4D;
-    // Transform4D t4d;
     // Start is called before the first frame update
     void Start()
     {
         cam4D = GetComponent<Camera4D>();
-        // t4d = GetComponent<Transform4D>();
     }
 
     // Update is called once per frame
