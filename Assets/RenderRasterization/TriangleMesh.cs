@@ -8,15 +8,16 @@ public class TriangleMesh : MonoBehaviour
     // Stores 3D triangle points as well as depth data in w-coordinate
     public struct Triangle
     {
-        public Vector4[] points;
+        public int[] points;
 
-        public Triangle(Vector4[] points) { this.points = points; }
+        public Triangle(int[] points) { this.points = points; }
     }
 
-    public Mesh mesh = new();
+    Mesh mesh;
+    public Material material;
 
     // Updates the mesh based on the vertices, tetrahedra
-    public void UpdateMesh(Vector4[] vertices, Triangle[] tris)
+    public void Render(Vector4[] vertices, Triangle[] tris)
     {
         mesh.Clear();
 
@@ -34,13 +35,29 @@ public class TriangleMesh : MonoBehaviour
         mesh.SetVertexBufferData(vertices, 0, 0, vertices.Length);
 
         // Set tetrahedra vertex indices for mesh
-        mesh.SetIndices(tris.SelectMany(tet => tet.points).ToArray(), MeshTopology.Quads, 0);
+        mesh.SetTriangles(tris.SelectMany(tri => tri.points).ToArray(), 0);
+
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
+
+        Graphics.DrawMesh(
+            mesh: mesh,
+            matrix: Matrix4x4.identity,
+            material: material,
+            layer: gameObject.layer,
+            //camera: GetComponent<Camera>(),
+            camera: null,
+            submeshIndex: 0,
+            properties: null
+        //properties: blk
+        );
     }
 
     // Start is called before the first frame update
     void Start()
     {
-
+        mesh = new();
     }
 
     // Update is called once per frame
