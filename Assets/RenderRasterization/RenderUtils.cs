@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Unity.Collections;
+﻿using Unity.Collections;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -9,7 +8,7 @@ namespace RasterizationRenderer
         public static ComputeBuffer InitComputeBuffer<T>(int stride, T[] contents) where T : struct
         {
             int count = contents.Length;
-            ComputeBuffer buf = new(count, stride);
+            ComputeBuffer buf = new(count, stride, ComputeBufferType.Default, ComputeBufferMode.SubUpdates);
             NativeArray<T> tetInputBuffer = buf.BeginWrite<T>(0, count);
             tetInputBuffer.CopyFrom(contents);
             buf.EndWrite<T>(count);

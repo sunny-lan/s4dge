@@ -4,8 +4,7 @@ namespace RasterizationRenderer
 {
     public class TetSlicer
     {
-        [SerializeField]
-        public ComputeShader sliceShader;
+        ComputeShader sliceShader;
         ComputeBuffer tetrahedraBuffer;
         VariableLengthComputeBuffer triangleVertices;
         VariableLengthComputeBuffer slicedTriangles;
@@ -16,10 +15,12 @@ namespace RasterizationRenderer
 
         readonly int PTS_PER_TRIANGLE = 3;
 
-        public TetSlicer(ComputeBuffer tetrahedra, int numTets)
+        public TetSlicer(ComputeShader sliceShader, ComputeBuffer tetrahedra, int numTets)
         {
             this.tetrahedraBuffer = tetrahedra;
             this.numTets = numTets;
+            this.sliceShader = sliceShader;
+            Construct();
         }
 
         /*
@@ -46,21 +47,21 @@ namespace RasterizationRenderer
             return bufferList;
         }
 
-        public void OnEnable()
+        private void Construct()
         {
             sliceShaderKernel = sliceShader.FindKernel("TetrahedronSlicer");
             sliceShader.GetKernelThreadGroupSizes(sliceShaderKernel, out threadGroupSize, out _, out _);
 
-            slicedTriangles = new("slicedTriangles", numTets * 3 / 2, sizeof(float) * PTS_PER_TRIANGLE);
+            slicedTriangles = new("slicedTriangles", numTets * 3 / 2, sizeof(int) * PTS_PER_TRIANGLE);
             triangleVertices = new("triangleVertices", numTets * 4, sizeof(float) * 4);
             bufferList = new(new VariableLengthComputeBuffer[2] { slicedTriangles, triangleVertices }, sliceShader, sliceShaderKernel);
         }
 
-        public void OnDisable()
+        public void Dispose()
         {
-            slicedTriangles = null;
-            triangleVertices = null;
-            bufferList = null;
+            if (slicedTriangles != null) { slicedTriangles.Dispose(); slicedTriangles = null; }
+            if (triangleVertices != null) { triangleVertices.Dispose(); triangleVertices = null; }
+            if (bufferList != null) { bufferList.Dispose(); bufferList = null; }
         }
     }
 }

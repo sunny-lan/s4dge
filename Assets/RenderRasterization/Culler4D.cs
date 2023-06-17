@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using static RasterizationRenderer.TetMesh4D;
 
@@ -5,8 +6,7 @@ namespace RasterizationRenderer
 {
     public class Culler4D
     {
-        [SerializeField]
-        public ComputeShader cullShader;
+        ComputeShader cullShader;
         ComputeBuffer tetrahedraBuffer;
         VariableLengthComputeBuffer tetsToDraw;
         VariableLengthComputeBuffer.BufferList bufferList;
@@ -15,9 +15,11 @@ namespace RasterizationRenderer
 
         Tet4D[] tetrahedra;
 
-        public Culler4D(Tet4D[] tetrahedra)
+        public Culler4D(ComputeShader cullShader, Tet4D[] tetrahedra)
         {
+            this.cullShader = cullShader;
             this.tetrahedra = tetrahedra;
+            OnEnable();
         }
 
         /*
@@ -44,7 +46,9 @@ namespace RasterizationRenderer
 
         public void OnEnable()
         {
-            tetrahedraBuffer = RenderUtils.InitComputeBuffer<Tet4D>(sizeof(int) * PTS_PER_TET, tetrahedra);
+            // We can't directly send the Tet4D struct as the points are not directly stored in the struct (references are)
+            var tetrahedraUnpacked = tetrahedra.SelectMany(tet => tet.tetPoints).ToArray();
+            tetrahedraBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int) * PTS_PER_TET, tetrahedraUnpacked);
 
             cullShaderKernel = cullShader.FindKernel("Culler4D");
             cullShader.GetKernelThreadGroupSizes(cullShaderKernel, out threadGroupSize, out _, out _);
@@ -55,10 +59,9 @@ namespace RasterizationRenderer
 
         public void OnDisable()
         {
-            tetrahedraBuffer.Dispose();
-            tetrahedraBuffer = null;
-            tetsToDraw = null;
-            bufferList = null;
+            if (tetrahedraBuffer != null) { tetrahedraBuffer.Dispose(); tetrahedraBuffer = null; }
+            if (tetsToDraw != null) { tetsToDraw.Dispose(); tetsToDraw = null; }
+            if (bufferList != null) { bufferList.Dispose(); bufferList = null; }
         }
     }
 }

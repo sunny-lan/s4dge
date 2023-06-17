@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using static RasterizationRenderer.RenderUtils;
 
@@ -6,15 +7,18 @@ namespace RasterizationRenderer
     // Helper functions to help set up variable length buffer functionality in SlicerUtils.cginc
     public class VariableLengthComputeBuffer
     {
+        int _length;
         public int Length
         {
-            get => Length;
-            internal set { Length = value; }
+            get => _length;
+            internal set { _length = value; }
         }
+
+        ComputeBuffer _buffer;
         public ComputeBuffer Buffer
         {
-            get => Buffer;
-            internal set { Buffer = value; }
+            get => _buffer;
+            internal set { _buffer = value; }
         }
 
         readonly string name;
@@ -26,7 +30,7 @@ namespace RasterizationRenderer
             this.Length = 0;
         }
 
-        ~VariableLengthComputeBuffer()
+        public void Dispose()
         {
             Buffer.Dispose();
             Buffer = null;
@@ -44,27 +48,31 @@ namespace RasterizationRenderer
             {
                 get => Buffers.Length;
             }
+
+            VariableLengthComputeBuffer[] _buffers;
             public VariableLengthComputeBuffer[] Buffers
             {
-                get => Buffers;
-                internal set { Buffers = value; }
+                get => _buffers;
+                internal set { _buffers = value; }
             }
-            ComputeBuffer curGlobalDrawIdx;
+            ComputeBuffer curGlobalAppendIdx;
             private ComputeShader shader;
             private int shaderKernel;
+            uint[] globalAppendIdxInitValues;
 
             public BufferList(VariableLengthComputeBuffer[] buffers, ComputeShader shader, int shaderKernel)
             {
                 this.Buffers = buffers;
                 this.shader = shader;
                 this.shaderKernel = shaderKernel;
+                this.globalAppendIdxInitValues = new uint[Buffers.Length];
+                this.curGlobalAppendIdx = InitComputeBuffer<uint>(sizeof(uint), globalAppendIdxInitValues);
             }
 
             public void PrepareForRender()
             {
-                uint[] globalDrawIdxInitValues = new uint[Buffers.Length];
-                curGlobalDrawIdx = InitComputeBuffer<uint>(sizeof(uint), globalDrawIdxInitValues);
-                shader.SetBuffer(shaderKernel, "curGlobalDrawIdx", curGlobalDrawIdx);
+                Array.Clear(globalAppendIdxInitValues, 0, Buffers.Length);
+                shader.SetBuffer(shaderKernel, "curGlobalAppendIdx", curGlobalAppendIdx);
 
                 foreach (var buffer in Buffers)
                 {
@@ -76,11 +84,17 @@ namespace RasterizationRenderer
             public void UpdateBufferLengths()
             {
                 uint[] bufferLengths = new uint[Buffers.Length];
-                curGlobalDrawIdx.GetData(bufferLengths);
+                curGlobalAppendIdx.GetData(bufferLengths);
                 for (int i = 0; i < Buffers.Length; i++)
                 {
                     Buffers[i].Length = (int)bufferLengths[i];
                 }
+            }
+
+            public void Dispose()
+            {
+                curGlobalAppendIdx.Dispose();
+                curGlobalAppendIdx = null;
             }
         }
     }
