@@ -27,8 +27,10 @@ namespace RasterizationRenderer
          * zSlice: z-coordinate of slicing plane for camera
          * vanishingW: camera clip plane - vanishing point at (0, 0, 0, vanishingW)
          * nearW: camera viewport plane at w = nearW
+         * 
+         * returns: The list of triangle vertices as well as the list of triangles (each point pointing to a vertex)
          */
-        public VariableLengthComputeBuffer Render(ComputeBuffer vertexBuffer)
+        public VariableLengthComputeBuffer.BufferList Render(ComputeBuffer vertexBuffer)
         {
             bufferList.PrepareForRender();
 
@@ -41,7 +43,7 @@ namespace RasterizationRenderer
             bufferList.UpdateBufferLengths();
 
             // return array of tetrahedra that drawTetrahedron says should be drawn
-            return slicedTriangles;
+            return bufferList;
         }
 
         public void OnEnable()
