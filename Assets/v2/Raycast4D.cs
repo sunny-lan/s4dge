@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -70,12 +71,6 @@ public class Raycast4D : MonoBehaviour {
     void Start()
     {
         cam4D = GetComponent<Camera4D>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     void InitFrame()
@@ -151,6 +146,7 @@ public class Raycast4D : MonoBehaviour {
     void OnDisable()
 	{
 		ShaderHelper.Release(sphereBuffer);
+        ShaderHelper.Release(hyperSphereBuffer);
 	}
 
     public struct Sphere
