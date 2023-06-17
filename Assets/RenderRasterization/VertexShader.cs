@@ -1,14 +1,12 @@
-using Unity.Collections;
 using UnityEngine;
 using static RasterizationRenderer.TetMesh4D;
-
 
 namespace RasterizationRenderer
 {
     public class VertexShader
     {
         [SerializeField]
-        public ComputeShader vertexShader;
+        ComputeShader vertexShader;
         ComputeBuffer inputVertices;
         ComputeBuffer transformedVertices;
         int vertexShaderKernel;
@@ -17,10 +15,13 @@ namespace RasterizationRenderer
         VertexData[] vertices;
         Matrix4x4 modelViewProjection3D;
 
-        public VertexShader(VertexData[] vertices)
+        public VertexShader(ComputeShader vertexShader, VertexData[] vertices)
         {
+            this.vertexShader = vertexShader;
             this.vertices = vertices;
             this.modelViewProjection3D = Matrix4x4.identity;
+
+            OnEnable();
         }
 
         /*
@@ -31,44 +32,57 @@ namespace RasterizationRenderer
          */
         public ComputeBuffer Render(Matrix4x4 modelViewRotation4D, Vector4 modelViewTranslation4D, float zSlice, float vanishingW, float nearW)
         {
-            // Run vertex shader to transform points and perform perspective projection
+            if (inputVertices != null && transformedVertices != null)
+            {
+                // Run vertex shader to transform points and perform perspective projection
 
-            // Set uniform variables
-            vertexShader.SetMatrix("modelViewRotation4D", modelViewRotation4D);
-            vertexShader.SetVector("modelViewTranslation4D", modelViewTranslation4D);
-            vertexShader.SetFloat("zSlice", zSlice);
-            vertexShader.SetFloat("vanishingW", vanishingW);
-            vertexShader.SetFloat("nearW", nearW);
+                // Set uniform variables
+                vertexShader.SetMatrix("modelViewRotation4D", modelViewRotation4D);
+                vertexShader.SetVector("modelViewTranslation4D", modelViewTranslation4D);
+                vertexShader.SetFloat("zSlice", zSlice);
+                vertexShader.SetFloat("vanishingW", vanishingW);
+                vertexShader.SetFloat("nearW", nearW);
 
-            // Set buffers
-            vertexShader.SetBuffer(vertexShaderKernel, "vertices", inputVertices);
-            vertexShader.SetBuffer(vertexShaderKernel, "transformedVertices", transformedVertices);
+                // Set buffers
+                vertexShader.SetBuffer(vertexShaderKernel, "vertices", inputVertices);
+                vertexShader.SetBuffer(vertexShaderKernel, "transformedVertices", transformedVertices);
 
-            // Run shader
-            int numThreadGroups = (int)((vertices.Length + (threadGroupSize - 1)) / threadGroupSize);
-            vertexShader.Dispatch(vertexShaderKernel, numThreadGroups, 1, 1);
+                // Run shader
+                int numThreadGroups = (int)((vertices.Length + (threadGroupSize - 1)) / threadGroupSize);
+                vertexShader.Dispatch(vertexShaderKernel, numThreadGroups, 1, 1);
 
-            return transformedVertices;
+                return transformedVertices;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public void OnEnable()
         {
             // set input data for vertex shader
-            inputVertices = RenderUtils.InitComputeBuffer<VertexData>(sizeof(float) * PTS_PER_TET, vertices);
+            inputVertices = RenderUtils.InitComputeBuffer<VertexData>(VertexData.SizeBytes, vertices);
 
             vertexShaderKernel = vertexShader.FindKernel("vert");
             vertexShader.GetKernelThreadGroupSizes(vertexShaderKernel, out threadGroupSize, out _, out _);
 
-            transformedVertices = new ComputeBuffer(vertices.Length, sizeof(float) * PTS_PER_TET);
+            transformedVertices = new ComputeBuffer(vertices.Length, VertexData.SizeBytes * PTS_PER_TET, ComputeBufferType.Default, ComputeBufferMode.SubUpdates);
         }
 
         public void OnDisable()
         {
             // cleanup for vertex shader
-            inputVertices.Dispose();
-            inputVertices = null;
-            transformedVertices.Dispose();
-            transformedVertices = null;
+            if (inputVertices != null)
+            {
+                inputVertices.Dispose();
+                inputVertices = null;
+            }
+            if (transformedVertices != null)
+            {
+                transformedVertices.Dispose();
+                transformedVertices = null;
+            }
         }
     }
 }

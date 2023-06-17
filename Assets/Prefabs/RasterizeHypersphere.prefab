@@ -75,6 +75,9 @@ MonoBehaviour:
     e31: 0
     e32: 0
     e33: 1
+  vertexShaderProgram: {fileID: 7200000, guid: 7351420028eb33940b7d0cbbfd11d0f5, type: 3}
+  cullShaderProgram: {fileID: 7200000, guid: b25f619466f100f4da9442f4eced4ea0, type: 3}
+  sliceShaderProgram: {fileID: 7200000, guid: 553d0079b4ec5f24fb47c3006b6232e8, type: 3}
   triangleMesh: {fileID: -8519452129353054916}
 --- !u!114 &-8519452129353054916
 MonoBehaviour:

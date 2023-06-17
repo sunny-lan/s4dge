@@ -9,6 +9,12 @@ namespace RasterizationRenderer
         public Matrix4x4 modelViewProjection3D = Matrix4x4.identity;
         public static readonly int PTS_PER_TET = 4;
 
+        [SerializeField]
+        public ComputeShader vertexShaderProgram;
+        [SerializeField]
+        public ComputeShader cullShaderProgram;
+        [SerializeField]
+        public ComputeShader sliceShaderProgram;
         VertexShader vertexShader;
         VertexData[] vertices;
 
@@ -25,6 +31,11 @@ namespace RasterizationRenderer
         {
             public Vector4 position;
             public Vector4 normal;
+
+            public static int SizeBytes
+            {
+                get => sizeof(float) * 8;
+            }
         }
 
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
@@ -60,40 +71,61 @@ namespace RasterizationRenderer
             //mesh.SetIndices(tets.SelectMany(tet => tet.tetPoints).ToArray(), MeshTopology.Quads, 0);
 
             this.vertices = vertices;
-            vertexShader = new(this.vertices);
+            vertexShader = new(vertexShaderProgram, this.vertices);
 
             this.tets = tets;
-            culler = new(this.tets);
+            culler = new(cullShaderProgram, this.tets);
         }
 
         // Generate triangle mesh
         public void Render()
         {
-            ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 1.0f, 0.0f);
-            VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-            VariableLengthComputeBuffer.BufferList trianglesToDraw = new TetSlicer(tetrahedraToDraw.Buffer, tetrahedraToDraw.Length).Render(vertexBuffer);
+            if (vertexShader != null && culler != null)
+            {
+                ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 1.0f, 0.0f);
+                VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+                if (tetrahedraToDraw.Length > 0)
+                {
+                    var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Length);
+                    VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
 
-            VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
-            VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
+                    //VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
+                    //VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
 
-            TriangleMesh.Triangle[] triangles = new TriangleMesh.Triangle[triangleBuffer.Length];
-            Vector4[] triangleVertices = new Vector4[triangleVertexBuffer.Length];
-            triangleBuffer.Buffer.GetData(triangleVertices);
-            triangleVertexBuffer.Buffer.GetData(triangles);
+                    //TriangleMesh.Triangle[] triangles = new TriangleMesh.Triangle[triangleBuffer.Length];
+                    //Vector4[] triangleVertices = new Vector4[triangleVertexBuffer.Length];
+                    //triangleBuffer.Buffer.GetData(triangleVertices);
+                    //triangleVertexBuffer.Buffer.GetData(triangles);
 
-            triangleMesh.Render(triangleVertices, triangles);
+                    //triangleMesh.Render(triangleVertices, triangles);
+
+                    tetSlicer.Dispose();
+                }
+            }
         }
 
         private void OnEnable()
         {
-            vertexShader.OnEnable();
-            culler.OnEnable();
+            if (vertexShader != null)
+            {
+                vertexShader.OnEnable();
+            }
+            if (culler != null)
+            {
+                culler.OnEnable();
+            }
         }
 
         private void OnDisable()
         {
-            vertexShader.OnDisable();
-            culler.OnDisable();
+            if (vertexShader != null)
+            {
+                vertexShader.OnDisable();
+            }
+            if (culler != null)
+            {
+                culler.OnDisable();
+            }
         }
 
         // Start is called before the first frame update
@@ -105,6 +137,11 @@ namespace RasterizationRenderer
         void Update()
         {
 
+        }
+
+        private void OnDestroy()
+        {
+            OnDisable();
         }
     }
 
