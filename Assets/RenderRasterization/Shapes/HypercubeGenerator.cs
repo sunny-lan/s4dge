@@ -4,10 +4,23 @@ using UnityEngine;
 
 namespace RasterizationRenderer
 {
-    public struct TetMesh4D_tmp
+    public class TetMesh4D_tmp
     {
-        public List<TetMesh4D.VertexData> vertices;
-        public List<TetMesh4D.Tet4D> tets;
+        public List<TetMesh4D.VertexData> vertices = new();
+        public List<TetMesh4D.Tet4D> tets = new();
+
+        public void Append(IEnumerable<Vector4> tet)
+        {
+            tets.Add(new()
+            {
+                tetPoints=Enumerable.Range(vertices.Count, vertices.Count+4).ToArray()
+            });
+
+            vertices.AddRange(tet.Select(p=>new TetMesh4D.VertexData()
+            {
+                position = p
+            }));
+        }
     }
 
     public class HypercubeGenerator

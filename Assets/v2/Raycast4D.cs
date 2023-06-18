@@ -147,16 +147,26 @@ public class Raycast4D : MonoBehaviour {
 
     void CreateTets()
     {
-        Tet[] tets = 
+        RasterizationRenderer.TetMesh4D_tmp mesh = new();
+        mesh.Append(new Vector4[]
         {
-            new()
+             new(1, -1, 0, 0),
+             new(1, 1, 0, 0),
+             new(-1, 0, 1, 0),
+             new(-1, 0, -1, 0),
+        });
+        RasterizationRenderer.HypercubeGenerator.GenerateHypercube(mesh);
+        var tets = mesh.tets.Select(t =>
+        {
+            var points = t.tetPoints.Select(p => mesh.vertices[p].position).ToArray();
+            return new Tet()
             {
-                a=new(1,-1,0,0),
-                b=new(1,1,0,0),
-                c=new(-1,0,1,0),
-                d=new(-1,0,-1,0),
-            }
-        };
+                a = points[0],
+                b = points[1],
+                c = points[2],
+                d = points[3],
+            };
+        }).ToArray();
 
         ShaderHelper.CreateStructuredBuffer(ref tetBuffer, tets);
         rayTracingMaterial.SetBuffer("Tets", tetBuffer);
@@ -186,7 +196,7 @@ public class Raycast4D : MonoBehaviour {
 
     public struct Tet
     {
-        public Vector4 a, b, c, d;
+        public Vector4 a,b,c,d;
     }
 
 }
