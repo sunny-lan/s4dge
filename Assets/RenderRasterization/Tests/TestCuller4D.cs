@@ -20,10 +20,15 @@ public class TestCuller4D
         new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
         new TetMesh4D.VertexData(new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
         new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 0.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
     };
 
     static TetMesh4D.Tet4D tetForwardFacing = new(new int[] { 0, 1, 2, 3 });
-    TetMesh4D.Tet4D[] tetsForwardFacing = new TetMesh4D.Tet4D[] { tetForwardFacing };
+    static TetMesh4D.Tet4D tetBackwardFacing = new(new int[] { 0, 3, 2, 1 });
+    static TetMesh4D.Tet4D tetDegenerate = new(new int[] { 0, 4, 5, 6 });
+    TetMesh4D.Tet4D[] tets = new TetMesh4D.Tet4D[] { tetForwardFacing, tetDegenerate, tetBackwardFacing, tetForwardFacing };
 
     [UnitySetUp]
     public IEnumerator SetUp()
@@ -54,19 +59,20 @@ public class TestCuller4D
     [Test]
     public void TestCuller4DForwardFacing()
     {
-        var tetrahedraUnpacked = tetsForwardFacing.SelectMany(tet => tet.tetPoints).ToArray();
-        Culler4D culler = new(cullShader, tetsForwardFacing);
+        var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
+        Culler4D culler = new(cullShader, tets);
         var culledTets = culler.Render(vertexBuffer);
 
-        int[] culledTetBuffer = new int[4];
+        int[] culledTetBuffer = new int[4 * tets.Length];
         culledTets.Buffer.GetData(culledTetBuffer);
 
-        for (int i = 0; i < 4; ++i)
+        int[] expectedTetVertices = { 0, 1, 2, 3, 0, 1, 2, 3 };
+        for (int i = 0; i < expectedTetVertices.Length; ++i)
         {
-            Assert.AreEqual(culledTetBuffer[i], tetrahedraUnpacked[i]);
+            Assert.AreEqual(culledTetBuffer[i], expectedTetVertices[i]);
         }
 
-        Assert.AreEqual(culledTets.Length, 1);
+        Assert.AreEqual(culledTets.Count, 2);
 
         culler.OnDisable();
     }

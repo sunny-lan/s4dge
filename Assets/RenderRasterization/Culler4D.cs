@@ -37,7 +37,6 @@ namespace RasterizationRenderer
             cullShader.SetBuffer(cullShaderKernel, "tetrahedra", tetrahedraBuffer);
             cullShader.SetInt("tetCount", tetrahedra.Length);
             int numThreadGroups = (int)((tetrahedra.Length + (threadGroupSize - 1)) / threadGroupSize);
-            Debug.Log("Num tets: " + tetrahedra.Length);
             cullShader.Dispatch(cullShaderKernel, numThreadGroups, 1, 1);
 
             bufferList.UpdateBufferLengths();
