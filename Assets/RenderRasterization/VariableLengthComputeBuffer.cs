@@ -7,11 +7,11 @@ namespace RasterizationRenderer
     // Helper functions to help set up variable length buffer functionality in SlicerUtils.cginc
     public class VariableLengthComputeBuffer
     {
-        int _length;
-        public int Length
+        int _count;
+        public int Count
         {
-            get => _length;
-            internal set { _length = value; }
+            get => _count;
+            internal set { _count = value; }
         }
 
         ComputeBuffer _buffer;
@@ -27,7 +27,7 @@ namespace RasterizationRenderer
         {
             this.name = name;
             Buffer = new(capacity, stride);
-            this.Length = 0;
+            this.Count = 0;
         }
 
         public void Dispose()
@@ -85,7 +85,7 @@ namespace RasterizationRenderer
                 curGlobalAppendIdx.GetData(globalAppendIdxInitValues);
                 for (int i = 0; i < Buffers.Length; i++)
                 {
-                    Buffers[i].Length = (int)globalAppendIdxInitValues[i];
+                    Buffers[i].Count = (int)globalAppendIdxInitValues[i];
                 }
 
                 // zero global append idx buffer

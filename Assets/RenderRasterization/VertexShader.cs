@@ -5,7 +5,6 @@ namespace RasterizationRenderer
 {
     public class VertexShader
     {
-        [SerializeField]
         ComputeShader vertexShader;
         ComputeBuffer inputVertices;
         ComputeBuffer transformedVertices;
@@ -38,6 +37,7 @@ namespace RasterizationRenderer
 
                 // Set uniform variables
                 vertexShader.SetMatrix("modelViewRotation4D", modelViewRotation4D);
+                vertexShader.SetMatrix("modelViewProjection3D", modelViewProjection3D);
                 vertexShader.SetVector("modelViewTranslation4D", modelViewTranslation4D);
                 vertexShader.SetFloat("zSlice", zSlice);
                 vertexShader.SetFloat("vanishingW", vanishingW);
@@ -68,7 +68,7 @@ namespace RasterizationRenderer
             vertexShaderKernel = vertexShader.FindKernel("vert");
             vertexShader.GetKernelThreadGroupSizes(vertexShaderKernel, out threadGroupSize, out _, out _);
 
-            transformedVertices = new ComputeBuffer(vertices.Length, VertexData.SizeBytes * PTS_PER_TET, ComputeBufferType.Default, ComputeBufferMode.SubUpdates);
+            transformedVertices = new ComputeBuffer(vertices.Length, VertexData.SizeBytes, ComputeBufferType.Default, ComputeBufferMode.Immutable);
         }
 
         public void OnDisable()

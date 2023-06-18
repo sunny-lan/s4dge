@@ -90,20 +90,20 @@ namespace RasterizationRenderer
             {
                 ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 1.0f, 0.0f);
                 VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-                if (tetrahedraToDraw.Length > 0)
+                if (tetrahedraToDraw.Count > 0)
                 {
-                    var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Length);
+                    var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
                     VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
 
-                    //VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
-                    //VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
+                    VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
+                    VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
 
-                    //TriangleMesh.Triangle[] triangles = new TriangleMesh.Triangle[triangleBuffer.Length];
-                    //Vector4[] triangleVertices = new Vector4[triangleVertexBuffer.Length];
-                    //triangleBuffer.Buffer.GetData(triangleVertices);
-                    //triangleVertexBuffer.Buffer.GetData(triangles);
+                    int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
+                    float[] triangleVertexData = new float[triangleVertexBuffer.Count * 4];
+                    triangleBuffer.Buffer.GetData(triangleData);
+                    triangleVertexBuffer.Buffer.GetData(triangleVertexData);
 
-                    //triangleMesh.Render(triangleVertices, triangles);
+                    triangleMesh.Render(triangleVertexData, triangleData);
 
                     tetSlicer.Dispose();
                 }
