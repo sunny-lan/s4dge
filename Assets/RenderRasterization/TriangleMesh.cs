@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using static RasterizationRenderer.TetMesh4D;
@@ -17,13 +16,13 @@ public class TriangleMesh : MonoBehaviour
     public Material material;
 
     // Updates the mesh based on the vertices, tetrahedra
-    public void Render(Vector4[] vertices, Triangle[] tris)
+    public void Render(float[] vertexData, int[] triangleData)
     {
         mesh.Clear();
 
         // Override vertex buffer params so that position, normal take in 4D vectors
         mesh.SetVertexBufferParams(
-            vertices.Length,
+            vertexData.Length / 4,
             new[]
             {
                 new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, PTS_PER_TET),
@@ -32,10 +31,10 @@ public class TriangleMesh : MonoBehaviour
         );
 
         // Set vertices, normals for the mesh
-        mesh.SetVertexBufferData(vertices, 0, 0, vertices.Length);
+        mesh.SetVertexBufferData(vertexData, 0, 0, vertexData.Length);
 
         // Set tetrahedra vertex indices for mesh
-        mesh.SetTriangles(tris.SelectMany(tri => tri.points).ToArray(), 0);
+        mesh.SetTriangles(triangleData, 0);
 
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
