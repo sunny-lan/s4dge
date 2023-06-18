@@ -35,7 +35,9 @@ namespace RasterizationRenderer
             // Run vertex shader to transform points and perform perspective projection
             cullShader.SetBuffer(cullShaderKernel, "transformedVertices", vertexBuffer);
             cullShader.SetBuffer(cullShaderKernel, "tetrahedra", tetrahedraBuffer);
-            int numThreadGroups = (int)((tetrahedraBuffer.count + (threadGroupSize - 1)) / threadGroupSize);
+            cullShader.SetInt("tetCount", tetrahedra.Length);
+            int numThreadGroups = (int)((tetrahedra.Length + (threadGroupSize - 1)) / threadGroupSize);
+            Debug.Log("Num tets: " + tetrahedra.Length);
             cullShader.Dispatch(cullShaderKernel, numThreadGroups, 1, 1);
 
             bufferList.UpdateBufferLengths();

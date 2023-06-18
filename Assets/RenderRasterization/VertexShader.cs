@@ -42,6 +42,7 @@ namespace RasterizationRenderer
                 vertexShader.SetFloat("zSlice", zSlice);
                 vertexShader.SetFloat("vanishingW", vanishingW);
                 vertexShader.SetFloat("nearW", nearW);
+                vertexShader.SetInt("vertexCount", inputVertices.count);
 
                 // Set buffers
                 vertexShader.SetBuffer(vertexShaderKernel, "vertices", inputVertices);
@@ -62,7 +63,7 @@ namespace RasterizationRenderer
         public void OnEnable()
         {
             // set input data for vertex shader
-            inputVertices = RenderUtils.InitComputeBuffer<VertexData>(VertexData.SizeBytes, vertices);
+            inputVertices = RenderUtils.InitComputeBuffer(VertexData.SizeBytes, vertices);
 
             vertexShaderKernel = vertexShader.FindKernel("vert");
             vertexShader.GetKernelThreadGroupSizes(vertexShaderKernel, out threadGroupSize, out _, out _);
