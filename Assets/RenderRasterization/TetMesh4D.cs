@@ -32,6 +32,12 @@ namespace RasterizationRenderer
             public Vector4 position;
             public Vector4 normal;
 
+            public VertexData(Vector4 position, Vector4 normal)
+            {
+                this.position = position;
+                this.normal = normal;
+            }
+
             public static int SizeBytes
             {
                 get => sizeof(float) * 8;

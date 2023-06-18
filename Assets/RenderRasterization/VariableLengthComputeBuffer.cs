@@ -71,7 +71,6 @@ namespace RasterizationRenderer
 
             public void PrepareForRender()
             {
-                Array.Clear(globalAppendIdxInitValues, 0, Buffers.Length);
                 shader.SetBuffer(shaderKernel, "curGlobalAppendIdx", curGlobalAppendIdx);
 
                 foreach (var buffer in Buffers)
@@ -83,12 +82,15 @@ namespace RasterizationRenderer
             // Call after dispatching shader
             public void UpdateBufferLengths()
             {
-                uint[] bufferLengths = new uint[Buffers.Length];
-                curGlobalAppendIdx.GetData(bufferLengths);
+                curGlobalAppendIdx.GetData(globalAppendIdxInitValues);
                 for (int i = 0; i < Buffers.Length; i++)
                 {
-                    Buffers[i].Length = (int)bufferLengths[i];
+                    Buffers[i].Length = (int)globalAppendIdxInitValues[i];
                 }
+
+                // zero global append idx buffer
+                Array.Clear(globalAppendIdxInitValues, 0, Buffers.Length);
+                RenderUtils.WriteToComputeBuffer(curGlobalAppendIdx, globalAppendIdxInitValues);
             }
 
             public void Dispose()
