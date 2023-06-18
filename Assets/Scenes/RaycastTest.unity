@@ -709,6 +709,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   localPosition: {x: 0, y: 0, z: -2.0081208, w: 0}
 =======
   localPosition: {x: 0, y: 0, z: 0, w: 0}
@@ -716,12 +717,14 @@ MonoBehaviour:
 =======
   localPosition: {x: 0.44, y: 0.3, z: -1.46, w: -6.33}
 >>>>>>> c531dfd (Integrate tetrahedrons to main raytracer)
+=======
+  localPosition: {x: 1.71, y: -0.27, z: -0.91, w: -3.98}
+>>>>>>> ea8b294 (Hypercube test)
   localRotation:
-  - 0
-  - 0
-  - -0.04
-  - -0.22
+  - 0.52
+  - 0.68
   - 0.03
+<<<<<<< HEAD
   - 0.06
   localScale: {x: 1, y: 1, z: 1, w: 1}
 <<<<<<< HEAD
@@ -810,6 +813,12 @@ GameObject:
 >>>>>>> ef3a052 (Attached script to camera instead, still not working needs more investigating)
 =======
 >>>>>>> 2c479d7 (Setup 4D inputs and outputs to shader)
+=======
+  - -0.38
+  - 0
+  - 0
+  localScale: {x: 1, y: 1, z: 1, w: 0.94}
+>>>>>>> ea8b294 (Hypercube test)
 --- !u!1 &1455770737
 GameObject:
   m_ObjectHideFlags: 0
