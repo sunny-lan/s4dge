@@ -33,6 +33,7 @@ public class Raycast4D : MonoBehaviour {
     // Buffers
     ComputeBuffer sphereBuffer;
     ComputeBuffer hyperSphereBuffer;
+    ComputeBuffer tetBuffer;
 
     private void Awake()
     {
@@ -82,6 +83,7 @@ public class Raycast4D : MonoBehaviour {
 		UpdateCameraParams(Camera.current);
 		CreateSpheres();
         CreateHyperSpheres();
+        CreateTets();
 		SetShaderParams();
 
 	}
@@ -143,11 +145,30 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetInt("NumHyperSpheres", hyperSpheres.Length);
     }
 
+    void CreateTets()
+    {
+        Tet[] tets = 
+        {
+            new()
+            {
+                a=new(1,-1,0,0),
+                b=new(1,1,0,0),
+                c=new(-1,0,1,0),
+                d=new(-1,0,-1,0),
+            }
+        };
+
+        ShaderHelper.CreateStructuredBuffer(ref tetBuffer, tets);
+        rayTracingMaterial.SetBuffer("Tets", tetBuffer);
+        rayTracingMaterial.SetInt("NumTets", tets.Length);
+    }
+
     void OnDisable()
 	{
 		ShaderHelper.Release(sphereBuffer);
         ShaderHelper.Release(hyperSphereBuffer);
-	}
+        ShaderHelper.Release(tetBuffer);
+    }
 
     public struct Sphere
     {
@@ -162,5 +183,10 @@ public class Raycast4D : MonoBehaviour {
         public float radius;
         public RayTracingMaterial material;
     };
+
+    public struct Tet
+    {
+        public Vector4 a, b, c, d;
+    }
 
 }

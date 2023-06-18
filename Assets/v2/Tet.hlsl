@@ -85,8 +85,8 @@ HitInfo intersection_ray_simplex(Ray r)
 }
 
 // A tetrahedron in 4D is bounded
-// by 4 hyperplane inequalities for each of the 3D faces
-// and 1 hyperplane equality for the volume
+// by 4 planes for each of the 3D faces
+// and 1 hyperplane for the volume.
 
 // The 3D equivalent is how a triangle in 3D
 // is bounded by 3 lines on a plane.
@@ -95,9 +95,6 @@ HitInfo intersection_ray_simplex(Ray r)
 #include "Hyperplane.hlsl"
 struct Tet
 {
-	// Stored in 1 column per vertex
-	float4x4 vertices;
-
 	Hyperplane edges[4];
 	Hyperplane volume;
 
@@ -124,7 +121,7 @@ struct Tet
 	// Determines the range of t that a ray intersects this
 	HitInfo intersection(Ray r)
 	{
-		HitInfo res;
+		HitInfo res = (HitInfo)0;
 		float min_t = 0; 
 		float max_t = 1.#INF;
 
@@ -147,6 +144,7 @@ struct Tet
 
 		res.dst = min_t;
 		res.didHit = min_t <= max_t;
+		res.numHits = 1;
 
 		return res;
 	}
