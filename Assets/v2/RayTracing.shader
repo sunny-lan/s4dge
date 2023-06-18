@@ -10,6 +10,7 @@ Shader "Custom/RayTracing"
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "UnityCG.cginc"	
+			#include "Tet.hlsl"
 
 			struct appdata
 			{
@@ -59,7 +60,6 @@ Shader "Custom/RayTracing"
 			static const int InvisibleLightSource = 2;
 			
 			#include "RayTracingStructs.cginc"
-			#include "RayTetrahedraIntersection.cginc"
 
 			struct Sphere
 			{
@@ -91,6 +91,9 @@ Shader "Custom/RayTracing"
 			StructuredBuffer<Triangle> Triangles;
 			StructuredBuffer<MeshInfo> AllMeshInfo;
 			int NumMeshes;
+
+			StructuredBuffer<float4x4> Tets;
+			int NumTets;
 
 			// --- Ray Intersection Functions ---
 		
@@ -273,6 +276,21 @@ Shader "Custom/RayTracing"
 				return composite;
 			}
 
+			float4 tmp_checkerboard(float4 p) {
+				int4 rounded = round(p * 4);
+				int parity = rounded.x + rounded.y + rounded.z + rounded.w;
+				return (parity%2==0) ? float4(0, 0.6, 0, 1) : float4(0, 0.2, 0, 1);
+			}
+
+			float4 tmp_lighting(float4 normal, float4 p)
+			{
+				float4 light_src = {0,1,0,1};
+				float4 light_dir = light_src - p;
+				float light_dist = length(light_dir);
+				float light_angle = dot(normalize(normal), normalize(light_dir));//TODO
+				return float4(0, 0, 0, 1) + float4(1, 1, 1, 0)  / light_dist;
+			}
+
 			// --- Ray Tracing Stuff ---
 			// Find the first point that the given ray collides with, and return hit info
 			//! More basic version
@@ -311,6 +329,30 @@ Shader "Custom/RayTracing"
 							hitInfo.numHits += closestHit.numHits;
 							closestHit = hitInfo;
 							closestHit.material = hyperSphere.material;
+						}
+						else
+						{
+							closestHit.numHits += hitInfo.numHits;
+						}
+					}
+
+				}
+
+				for (int i = 0; i < NumTets; i++) {
+					Tet t;
+					t.from_points(Tets[i]); //TODO cache
+
+					HitInfo hitInfo = t.intersection(ray);
+
+					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01) {
+
+						if (hitInfo.dst < closestHit.dst)
+						{
+							hitInfo.numHits += closestHit.numHits;
+							hitInfo.hitPoint = hitInfo.dst * ray.dir + ray.origin;
+							closestHit = hitInfo;
+							closestHit.material.colour =
+								tmp_checkerboard(hitInfo.hitPoint);
 						}
 						else
 						{
@@ -444,13 +486,13 @@ Shader "Custom/RayTracing"
 				{
 					if (collision.numHits % 2 == 1)
 					{
-						return float4(2,2,2,2); // return white as color for all edges
+						//return float4(2,2,2,2); // return white as color for all edges
 					}
 
 					float opacity = collision.material.colour.w;
 					opacity = 1.0f - pow(1.0f - opacity, collision.numHits);
 
-					return lerp(float4(0,0,0,0), collision.material.colour, opacity); // Sending in opacity in w wasn't working, lerp towards black instead
+					return lerp(float4(0,0,0,0), collision.material.colour * tmp_lighting(collision.normal, collision.hitPoint), opacity); // Sending in opacity in w wasn't working, lerp towards black instead
 				}
 				
 				return collision.material.colour;
