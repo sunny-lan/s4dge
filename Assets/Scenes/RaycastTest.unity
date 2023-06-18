@@ -282,15 +282,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0.44, y: 0.3, z: -1.46, w: -6.33}
+  localPosition: {x: 1.71, y: -0.27, z: -0.91, w: -3.98}
   localRotation:
-  - 0
-  - 0
-  - -0.04
-  - -0.22
+  - 0.52
+  - 0.68
   - 0.03
-  - 0.06
-  localScale: {x: 1, y: 1, z: 1, w: 1}
+  - -0.38
+  - 0
+  - 0
+  localScale: {x: 1, y: 1, z: 1, w: 0.94}
 --- !u!1 &1455770737
 GameObject:
   m_ObjectHideFlags: 0
