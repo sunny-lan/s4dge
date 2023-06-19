@@ -38,6 +38,7 @@ namespace RasterizationRenderer
             // Run vertex shader to transform points and perform perspective projection
             sliceShader.SetBuffer(sliceShaderKernel, "transformedVertices", vertexBuffer);
             sliceShader.SetBuffer(sliceShaderKernel, "tetsToDraw", tetrahedraBuffer);
+            sliceShader.SetInt("numTets", numTets);
             int numThreadGroups = (int)((numTets + (threadGroupSize - 1)) / threadGroupSize);
             sliceShader.Dispatch(sliceShaderKernel, numThreadGroups, 1, 1);
 

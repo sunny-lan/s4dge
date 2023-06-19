@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -79,6 +80,8 @@ namespace RasterizationRenderer
             this.vertices = vertices;
             vertexShader = new(vertexShaderProgram, this.vertices);
 
+            Debug.Log(string.Join(" ", vertices.Select(vert => vert.position).Take(16)));
+
             this.tets = tets;
             culler = new(cullShaderProgram, this.tets);
         }
@@ -88,15 +91,23 @@ namespace RasterizationRenderer
         {
             if (vertexShader != null && culler != null)
             {
-                ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 1.0f, 0.0f);
+                ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, 0.0f, 5.0f, 0.0f);
                 VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
                 if (tetrahedraToDraw.Count > 0)
                 {
+                    //Debug.Log("tets: " + tetrahedraToDraw.Count);
+                    //float[] transformedVertexData = new float[vertexBuffer.count * 8];
+                    //vertexBuffer.GetData(transformedVertexData);
+                    //Debug.Log(string.Join(" ", transformedVertexData.Take(32)));
+
                     var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
                     VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
 
                     VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
                     VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
+
+                    //Debug.Log("triangles: " + triangleBuffer.Count);
+                    //Debug.Log("triangle vertices: " + triangleVertexBuffer.Count);
 
                     int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
                     float[] triangleVertexData = new float[triangleVertexBuffer.Count * 4];
