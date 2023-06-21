@@ -29,7 +29,7 @@ Shader "Rasterize4D"
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = v.vertex;
+                o.vertex = UnityObjectToClipPos(v.vertex);
                 return o;
             }
 
