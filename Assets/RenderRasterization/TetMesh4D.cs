@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -17,10 +16,17 @@ namespace RasterizationRenderer
         [SerializeField]
         public ComputeShader sliceShaderProgram;
         VertexShader vertexShader;
-        VertexData[] vertices;
+        public VertexData[] vertices
+        {
+            get; private set;
+        }
 
         Culler4D culler;
-        Tet4D[] tets;
+
+        public Tet4D[] tets
+        {
+            get; private set;
+        }
 
         TetSlicer tetSlicer;
 
@@ -54,6 +60,11 @@ namespace RasterizationRenderer
             {
                 this.tetPoints = tetPoints;
             }
+
+            public override string ToString()
+            {
+                return "(" + string.Join(",", tetPoints) + ")";
+            }
         }
 
         // Updates the mesh based on the vertices, tetrahedra
@@ -77,13 +88,14 @@ namespace RasterizationRenderer
             //// Set tetrahedra vertex indices for mesh
             //mesh.SetIndices(tets.SelectMany(tet => tet.tetPoints).ToArray(), MeshTopology.Quads, 0);
 
-            this.vertices = vertices;
-            vertexShader = new(vertexShaderProgram, this.vertices);
+            if (tets.Length > 0 && vertices.Length > 0)
+            {
+                this.vertices = vertices;
+                vertexShader = new(vertexShaderProgram, this.vertices);
 
-            Debug.Log(string.Join(" ", vertices.Select(vert => vert.position).Take(16)));
-
-            this.tets = tets;
-            culler = new(cullShaderProgram, this.tets);
+                this.tets = tets;
+                culler = new(cullShaderProgram, this.tets);
+            }
         }
 
         // Generate triangle mesh
