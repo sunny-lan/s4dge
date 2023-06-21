@@ -124,9 +124,6 @@ namespace RasterizationRenderer
                     triangleBuffer.Buffer.GetData(triangleData);
                     triangleVertexBuffer.Buffer.GetData(triangleVertexData);
 
-                    Debug.Log("triangle pts: " + string.Join(" ", triangleData));
-                    Debug.Log("triangle vertices: " + string.Join(" ", triangleVertexData));
-
                     triangleMesh.Render(triangleVertexData, triangleData);
 
                     tetSlicer.Dispose();

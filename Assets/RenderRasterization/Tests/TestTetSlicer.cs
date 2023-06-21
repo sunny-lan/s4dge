@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using RasterizationRenderer;
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEditor.SceneManagement;
@@ -29,8 +30,16 @@ public class TestTetSlicer
         new TetMesh4D.VertexData(new Vector4(1.0f, 0.0f, -1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
     };
 
+    TetMesh4D.VertexData[] vertexDataQuadIntersection = new TetMesh4D.VertexData[]
+    {
+        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, -1.0f, 0.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, -1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(1.0f, 1.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+    };
+
     static TetMesh4D.Tet4D tetForwardFacing = new(new int[] { 0, 1, 2, 3 });
-    TetMesh4D.Tet4D[] tets = new TetMesh4D.Tet4D[] { tetForwardFacing };
+    TetMesh4D.Tet4D[] tetsForwardFacing = new TetMesh4D.Tet4D[] { tetForwardFacing };
 
     [UnitySetUp]
     public IEnumerator SetUp()
@@ -52,6 +61,37 @@ public class TestTetSlicer
     [UnityTearDown]
     public void TearDown()
     {
+
+    }
+
+    public void RunTetTest(TetMesh4D.VertexData[] vertices, TetMesh4D.Tet4D[] tets, float[] expectedVertices, int[] expectedTris)
+    {
+        vertexBuffer = RenderUtils.InitComputeBuffer(TetMesh4D.VertexData.SizeBytes, vertices);
+        var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
+        tetBuffer = RenderUtils.InitComputeBuffer(sizeof(int) * TetMesh4D.PTS_PER_TET, tetrahedraUnpacked);
+        TetSlicer slicer = new(sliceShader, tetBuffer, tets.Length);
+        var slicedTriangles = slicer.Render(vertexBuffer);
+
+        int[] slicedTriBuffer = new int[expectedTris.Length];
+        float[] slicedTriVertexBuffer = new float[expectedVertices.Length];
+        slicedTriangles.Buffers[0].Buffer.GetData(slicedTriBuffer);
+        slicedTriangles.Buffers[1].Buffer.GetData(slicedTriVertexBuffer);
+
+        for (int i = 0; i < expectedVertices.Length; ++i)
+        {
+            Assert.AreEqual(slicedTriVertexBuffer[i], expectedVertices[i]);
+        }
+
+        for (int i = 0; i < expectedTris.Length; ++i)
+        {
+            Assert.AreEqual(slicedTriBuffer[i], expectedTris[i]);
+        }
+
+        Assert.AreEqual(slicedTriangles.Buffers[0].Count, expectedTris.Length / 3);
+        Assert.AreEqual(slicedTriangles.Buffers[1].Count, expectedVertices.Length / 4);
+
+        slicer.Dispose();
+
         vertexBuffer.Dispose();
         vertexBuffer = null;
     }
@@ -59,51 +99,64 @@ public class TestTetSlicer
     [Test]
     public void TestSingleTetNoIntersection()
     {
-        vertexBuffer = RenderUtils.InitComputeBuffer(TetMesh4D.VertexData.SizeBytes, vertexDataNoIntersection);
-        var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
-        tetBuffer = RenderUtils.InitComputeBuffer(sizeof(int) * TetMesh4D.PTS_PER_TET, tetrahedraUnpacked);
-        TetSlicer slicer = new(sliceShader, tetBuffer, tets.Length);
-        var slicedTriangles = slicer.Render(vertexBuffer);
-
-        int[] slicedTriBuffer = new int[3 * tets.Length];
-        int[] slicedTriVertexBuffer = new int[4 * tets.Length];
-        slicedTriangles.Buffers[0].Buffer.GetData(slicedTriBuffer);
-        slicedTriangles.Buffers[1].Buffer.GetData(slicedTriVertexBuffer);
-
-        Assert.AreEqual(slicedTriangles.Buffers[0].Count, 0);
-        Assert.AreEqual(slicedTriangles.Buffers[1].Count, 0);
-
-        slicer.Dispose();
+        RunTetTest(vertexDataNoIntersection, tetsForwardFacing, Array.Empty<float>(), Array.Empty<int>());
     }
 
     [Test]
     public void TestSingleTetTriangleIntersection()
     {
-        vertexBuffer = RenderUtils.InitComputeBuffer(TetMesh4D.VertexData.SizeBytes, vertexDataTriIntersection);
-        var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
-        tetBuffer = RenderUtils.InitComputeBuffer(sizeof(int) * TetMesh4D.PTS_PER_TET, tetrahedraUnpacked);
-        TetSlicer slicer = new(sliceShader, tetBuffer, tets.Length);
-        var slicedTriangles = slicer.Render(vertexBuffer);
+        float[] expectedTriVertices = {
+            0, 0, 0, 0,
+            1, 1, 0, 1,
+            1, 0, 0, 1
+        };
 
-        int[] slicedTriBuffer = new int[3 * tets.Length];
-        float[] slicedTriVertexBuffer = new float[4 * 4 * tets.Length];
-        slicedTriangles.Buffers[0].Buffer.GetData(slicedTriBuffer);
-        slicedTriangles.Buffers[1].Buffer.GetData(slicedTriVertexBuffer);
+        int[] expectedTris = { 0, 1, 2 };
 
-        Debug.Log("triangles: " + string.Join(" ", slicedTriBuffer));
-        Debug.Log("triangle count: " + slicedTriangles.Buffers[0].Count);
-        Debug.Log("vertices: " + string.Join(" ", slicedTriVertexBuffer));
-        Debug.Log("vertex count: " + slicedTriangles.Buffers[1].Count);
+        RunTetTest(vertexDataTriIntersection, tetsForwardFacing, expectedTriVertices, expectedTris);
+    }
 
-        //int[] expectedTriVertices = { 0, 1, 2, 3, 0, 1, 2, 3 };
-        //for (int i = 0; i < expectedTetVertices.Length; ++i)
-        //{
-        //    Assert.AreEqual(culledTetBuffer[i], expectedTetVertices[i]);
-        //}
+    [Test]
+    public void TestSingleTetQuadIntersection()
+    {
+        float[] expectedTriVertices = {
+            0, 0.5f, 0, 0.5f,
+            0.5f, 0.5f, 0, 0.5f,
+            0.5f, 1, 0, 1,
+            0, 1, 0, 1
+        };
 
-        //Assert.AreEqual(slicedTriangles.Buffers[0].Count, 0);
-        //Assert.AreEqual(slicedTriangles.Buffers[1].Count, 0);
+        int[] expectedTris = { 0, 1, 2, 0, 2, 3 };
 
-        slicer.Dispose();
+        RunTetTest(vertexDataQuadIntersection, tetsForwardFacing, expectedTriVertices, expectedTris);
+    }
+
+    [Test]
+    public void TestThreeTetsTwoIntersections()
+    {
+        TetMesh4D.VertexData[] vertexData = vertexDataNoIntersection.Concat(vertexDataTriIntersection).Concat(vertexDataQuadIntersection).ToArray();
+        TetMesh4D.Tet4D[] tets = new TetMesh4D.Tet4D[] {
+            new (new int[]{ 0, 1, 2, 3}),
+            new (new int[]{ 4, 5, 6, 7}),
+            new (new int[]{ 8, 9, 10, 11}),
+        };
+        float[] expectedTriVertices = {
+            // Triangle vertices
+            0, 0, 0, 0,
+            1, 1, 0, 1,
+            1, 0, 0, 1,
+            // Quadrilateral vertices
+            0, 0.5f, 0, 0.5f,
+            0.5f, 0.5f, 0, 0.5f,
+            0.5f, 1, 0, 1,
+            0, 1, 0, 1
+        };
+
+        int[] expectedTris = {
+            0, 1, 2, // triangle
+            3, 4, 5, 3, 5, 6  // quadrilateral
+        };
+
+        RunTetTest(vertexData, tets, expectedTriVertices, expectedTris);
     }
 }
