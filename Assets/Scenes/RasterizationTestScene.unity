@@ -367,6 +367,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: RasterizeHypersphere
       objectReference: {fileID: 0}
+    - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: zSlice
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: vanishingW
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8372625504801601057, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_RootOrder
       value: 2
