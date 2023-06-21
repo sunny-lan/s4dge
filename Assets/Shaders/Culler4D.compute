@@ -23,7 +23,7 @@ bool backFaceCull(uint3 id) {
     float4 p3 = transformedVertices[tetrahedron.vertexIndices[3]].pos;
     float3 v1 = p1.xyz - p0.xyz;
     float3 v2 = p2.xyz - p0.xyz;
-    float3 v3 = p3.xyw - p0.xyw;
+    float3 v3 = p3.xyz - p0.xyz;
 
     return (dot(v1, cross(v2, v3)) > 0);
 }
