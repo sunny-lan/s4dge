@@ -26,8 +26,9 @@ namespace RasterizationRenderer
                 );
             };
 
+            // Bounds are [(0, pi), (0, pi), (0, 2pi)]
             ParameterBounds samplingBounds = new(
-                Vector3.zero, Mathf.PI * Vector3.one, samplingInterval
+                Vector3.zero, Mathf.PI * (Vector3.one + Vector3.forward), samplingInterval
             );
 
             GenerateTetMesh(tetMesh, sphereGenerator, sphereGenerator, samplingBounds);
@@ -45,7 +46,7 @@ namespace RasterizationRenderer
          **************************
          */
 
-        private static int FlattenCoord3D(int x, int y, int z, Dimension3D dim)
+        public static int FlattenCoord3D(int x, int y, int z, Dimension3D dim)
         {
             return x * dim.y * dim.z + y * dim.z + z;
         }
@@ -74,50 +75,50 @@ namespace RasterizationRenderer
                             // Performs 6-tetrahedra decomposition to decompose the cube into tetrahedra
                             // NOTE: order of the vertices needs to be p0, (p1, p2, p3 in clockwise order) for back-culling
                             int[] vertices = new int[] {
-                            FlattenCoord3D(x, y, z, hexMeshDimension),
-                            FlattenCoord3D(x, y, z - 1, hexMeshDimension),
-                            FlattenCoord3D(x, y - 1, z, hexMeshDimension),
-                            FlattenCoord3D(x, y - 1, z - 1, hexMeshDimension),
-                            FlattenCoord3D(x - 1, y, z, hexMeshDimension),
-                            FlattenCoord3D(x - 1, y, z - 1, hexMeshDimension),
-                            FlattenCoord3D(x - 1, y - 1, z, hexMeshDimension),
-                            FlattenCoord3D(x - 1, y - 1, z - 1, hexMeshDimension),
-                        };
+                                FlattenCoord3D(x, y, z, hexMeshDimension),
+                                FlattenCoord3D(x, y, z - 1, hexMeshDimension),
+                                FlattenCoord3D(x, y - 1, z, hexMeshDimension),
+                                FlattenCoord3D(x, y - 1, z - 1, hexMeshDimension),
+                                FlattenCoord3D(x - 1, y, z, hexMeshDimension),
+                                FlattenCoord3D(x - 1, y, z - 1, hexMeshDimension),
+                                FlattenCoord3D(x - 1, y - 1, z, hexMeshDimension),
+                                FlattenCoord3D(x - 1, y - 1, z - 1, hexMeshDimension),
+                            };
 
                             // (0, 0, 0) -> (1, 0, 0) -> (1, 1, 0) -> (0, 1, 0)
                             tetrahedra[tetIdx] = new TetMesh4D.Tet4D(new int[]
                             {
-                            vertices[0], vertices[4], vertices[6], vertices[2]
+                                vertices[0], vertices[4], vertices[6], vertices[1]
                             });
 
                             // (0, 0, 0) -> (0, 1, 0) -> (1, 1, 0) -> (0, 0, 1)
                             tetrahedra[tetIdx + 1] = new TetMesh4D.Tet4D(new int[]
                             {
-                            vertices[0], vertices[2], vertices[6], vertices[1]
+                                vertices[0], vertices[2], vertices[6], vertices[1]
                             });
 
                             // (0, 1, 0) -> (0, 1, 1) -> (0, 0, 1) -> (1, 1, 0)
-                            tetrahedra[tetIdx + 2] = new TetMesh4D.Tet4D(new int[] //bug tetIdx + 2?
+                            tetrahedra[tetIdx + 2] = new TetMesh4D.Tet4D(new int[]
                             {
-                            vertices[2], vertices[3], vertices[1], vertices[6]
+                                vertices[2], vertices[3], vertices[1], vertices[6]
                             });
 
                             // (1, 0, 0) -> (1, 0, 1) -> (1, 1, 0) -> (0, 0, 1)
                             tetrahedra[tetIdx + 3] = new TetMesh4D.Tet4D(new int[]
                             {
-                            vertices[4], vertices[5], vertices[6], vertices[1]
+                                vertices[4], vertices[5], vertices[6], vertices[1]
                             });
 
                             // (0, 0, 1) -> (1, 1, 1) -> (1, 0, 1) -> (1, 1, 0)
                             tetrahedra[tetIdx + 4] = new TetMesh4D.Tet4D(new int[]
                             {
-                            vertices[1], vertices[7], vertices[5], vertices[6]
+                                vertices[1], vertices[7], vertices[5], vertices[6]
                             });
 
                             // (0, 0, 1) -> (0, 1, 1) -> (1, 1, 1) -> (1, 1, 0)
                             tetrahedra[tetIdx + 5] = new TetMesh4D.Tet4D(new int[]
                             {
-                            vertices[1], vertices[3], vertices[7], vertices[6]
+                                vertices[1], vertices[3], vertices[7], vertices[6]
                             });
 
 
@@ -132,9 +133,9 @@ namespace RasterizationRenderer
 
         private static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
         {
-            int xSize = (int)(Mathf.Ceil((samplingBounds.hi.x - samplingBounds.lo.x) / samplingBounds.samplingInterval));
-            int ySize = (int)(Mathf.Ceil((samplingBounds.hi.y - samplingBounds.lo.y) / samplingBounds.samplingInterval));
-            int zSize = (int)(Mathf.Ceil((samplingBounds.hi.z - samplingBounds.lo.z) / samplingBounds.samplingInterval));
+            int xSize = (int)(Mathf.Floor((samplingBounds.hi.x - samplingBounds.lo.x) / samplingBounds.samplingInterval)) + 1;
+            int ySize = (int)(Mathf.Floor((samplingBounds.hi.y - samplingBounds.lo.y) / samplingBounds.samplingInterval)) + 1;
+            int zSize = (int)(Mathf.Floor((samplingBounds.hi.z - samplingBounds.lo.z) / samplingBounds.samplingInterval)) + 1;
             HexMesh4D hexMesh = new HexMesh4D(xSize, ySize, zSize);
 
             // sample parametric equations positionGenerator, normalGenerator at intervals to generate a hexahedral (cube) Mesh
@@ -172,7 +173,7 @@ namespace RasterizationRenderer
             }
         }
 
-        struct Dimension3D
+        public struct Dimension3D
         {
             public int x;
             public int y;
@@ -191,8 +192,6 @@ namespace RasterizationRenderer
             // 3D array storing where 3D points in the parametric space map to 4D points
             public Vector4[,,] vertices;
             public Vector4[,,] normals;
-
-
 
             public HexMesh4D(int xSize, int ySize, int zSize)
             {
