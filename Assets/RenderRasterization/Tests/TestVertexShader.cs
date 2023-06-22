@@ -75,8 +75,6 @@ public class TestVertexShader
             vert.normal.z,
             vert.normal.w,
         }).ToArray();
-        Debug.Log("expected: " + string.Join(" ", expectedVertexData));
-        Debug.Log("actual: " + string.Join(" ", transformedVertexData));
 
         Assert.AreEqual(transformedVertexData.Length, expectedVertexData.Length);
         for (int i = 0; i < expectedVertexData.Length; ++i)

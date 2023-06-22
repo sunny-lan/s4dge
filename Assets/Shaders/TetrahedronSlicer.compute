@@ -106,7 +106,7 @@ TetIntersection PerformSlice(uint3 globalId) {
     return ret;
 }
 
-[numthreads(1,1,1)]
+[numthreads(64,1,1)]
 void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
     InitLocalAppendIdx(threadId, 0);
