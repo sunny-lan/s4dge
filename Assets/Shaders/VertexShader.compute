@@ -4,11 +4,15 @@
 
 StructuredBuffer<VertexData> vertices;
 RWStructuredBuffer<VertexData> transformedVertices;
+uint vertexCount;
 
 [numthreads(64,1,1)]
 void vert (uint3 id : SV_DispatchThreadID)
 {
-    VertexData transformed4D = applyTranslation(applyRotation(vertices[id.x], modelViewRotation4D), modelViewTranslation4D);
-    transformed4D.pos = applyPerspectiveTransformation(transformed4D.pos);
-    transformedVertices[id.x] = transformed4D;
+    // Avoid processing vertex for unused threads in group
+    if (id.x < vertexCount) {
+        VertexData transformed4D = applyTranslation(applyRotation(vertices[id.x], modelViewRotation4D), modelViewTranslation4D);
+        transformed4D.pos = applyPerspectiveTransformation(transformed4D.pos);
+        transformedVertices[id.x] = transformed4D;
+    }
 }

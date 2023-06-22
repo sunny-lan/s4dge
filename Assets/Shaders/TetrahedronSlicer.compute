@@ -1,30 +1,39 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel TetrahedronSlicer
 
-#include "SlicerUtils.cginc"
+#define VL_BUFFER_COUNT 2
 
-StructuredBuffer<float4> transformedVertices;
+#include "SlicerUtils.cginc"
+#include "VariableLengthBufferUtils.cginc"
+#include "VertexShaderUtils.cginc"
+
+StructuredBuffer<VertexData> transformedVertices;
 StructuredBuffer<Tet4D> tetsToDraw;
+RWStructuredBuffer<float4> triangleVertices;
 RWStructuredBuffer<Triangle> slicedTriangles;
+uint numTets;
 
 struct TetIntersection {
+    float4 points[4];
     Triangle triangles[2];
+    uint numPoints;
     uint numTriangles;
 };
 
-uint2 intersectingEdges[] = {
+static const uint2 intersectingEdges[] = {
     // table entry 0 is empty
     uint2(0, 3), uint2(1, 3), uint2(2, 3), // entry 1
-    uint2(0, 2), uint2(1, 2), uint2(2, 2), // entry 2
-    uint2(0, 2), uint2(1, 2), uint2(0, 3), uint2(1, 3), // ...
+    uint2(0, 2), uint2(1, 2), uint2(3, 2), // entry 2
+    uint2(0, 2), uint2(0, 3), uint2(1, 3), uint2(1, 2),  // ...
     uint2(0, 1), uint2(2, 1), uint2(3, 1),
-    uint2(0, 1), uint2(0, 3), uint2(2, 1), uint2(2, 3),
-    uint2(0, 1), uint2(0, 2), uint2(1, 3), uint2(2, 3),
-    uint2(0, 1), uint2(0, 2), uint2(0, 3)
+    uint2(0, 1), uint2(0, 3), uint2(2, 3), uint2(2, 1), 
+    uint2(0, 1), uint2(0, 2), uint2(2, 3), uint2(1, 3),
+    uint2(0, 1), uint2(0, 2), uint2(0, 3), // last entry 8
+    uint2(0, 0) // padding element at the end to avoid out of bounds access
 };
 
 // elements are (starting index, # of entries)
-uint2 edgeTableRows[] = {
+static const uint2 edgeTableRows[] = {
     uint2(0, 0),
     uint2(0, 3),
     uint2(3, 3),
@@ -42,55 +51,57 @@ int SignOp(int val) {
 
 // Slices the current tetrahedron with the plane z = 0
 TetIntersection PerformSlice(uint3 globalId) {
-    // Tetrahedron points
-    float4 pts[4] = {
-        transformedVertices[tetsToDraw[globalId.x].vertexIndices[0]],
-        transformedVertices[tetsToDraw[globalId.x].vertexIndices[1]],
-        transformedVertices[tetsToDraw[globalId.x].vertexIndices[2]],
-        transformedVertices[tetsToDraw[globalId.x].vertexIndices[3]],
-    };
+    TetIntersection ret = (TetIntersection)0;
 
-    // Index marching tetrahedron table based on the points
-    uint intersectIndex = SignOp(pts[3].z) |
-        (SignOp(pts[2].z) << 1) |
-        (SignOp(pts[1].z) << 2) |
-        (SignOp(pts[0].z) << 3);
-    intersectIndex = min(intersectIndex, 0xF - intersectIndex); // table is symmetric
+    // avoid updating the output buffers if the current thread is not utilized (its index is past the number of tetrahedra)
+    if (globalId.x < numTets) {
+        // Tetrahedron points
+        float4 pts[4] = {
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[0]].pos,
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[1]].pos,
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[2]].pos,
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[3]].pos,
+        };
 
-    uint rowStartIndex = edgeTableRows[intersectIndex].x;
-    uint rowLength = edgeTableRows[intersectIndex].y;
+        // Index marching tetrahedron table based on the points
+        uint intersectIndex = SignOp(pts[3].z) |
+            (SignOp(pts[2].z) << 1) |
+            (SignOp(pts[1].z) << 2) |
+            (SignOp(pts[0].z) << 3);
+        intersectIndex = min(intersectIndex, 0xF - intersectIndex); // table is symmetric
 
-    // If the intersection is non-empty
-    Triangle intersectedTriangles[2];
-    uint numTrianglesInIntersection = 0;
-    if (rowLength >= 3) {
-        // Get points in intersection
-        float4 planeIntersections[4];
-        for (uint edgeIdx = rowStartIndex; edgeIdx < rowStartIndex + 3; ++edgeIdx) {
-            float4 p0 = transformedVertices[intersectingEdges[edgeIdx].x];
-            float4 p1 = transformedVertices[intersectingEdges[edgeIdx].y];
+        uint rowStartIndex = edgeTableRows[intersectIndex].x;
+        uint rowLength = edgeTableRows[intersectIndex].y;
 
-            planeIntersections[edgeIdx - rowStartIndex] = lerp(p0, p1, (-p0 / (p1 - p0)).zzzz);
-        }
+        // If the intersection is non-empty
 
-        // Add triangle
-        intersectedTriangles[0].vertexIndices[0] = planeIntersections[0];
-        intersectedTriangles[0].vertexIndices[1] = planeIntersections[1];
-        intersectedTriangles[0].vertexIndices[2] = planeIntersections[2];
-        numTrianglesInIntersection += 1;
+        if (rowLength >= 3) {
+            // Get points in intersection
+            [unroll]
+            for (uint edgeIdx = 0; edgeIdx < 4; ++edgeIdx) {
+                float4 p0 = pts[intersectingEdges[edgeIdx + rowStartIndex].x];
+                float4 p1 = pts[intersectingEdges[edgeIdx + rowStartIndex].y];
 
-        // If the intersection is a quadrilateral, we add two triangles
-        if (rowLength == 4) {
-            intersectedTriangles[1].vertexIndices[0] = planeIntersections[2];
-            intersectedTriangles[1].vertexIndices[1] = planeIntersections[3];
-            intersectedTriangles[1].vertexIndices[2] = planeIntersections[0];
-            numTrianglesInIntersection += 1;
+                ret.points[edgeIdx] = lerp(p0, p1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
+            }
+
+            // Add triangle
+            ret.triangles[0].vertexIndices[0] = 0;
+            ret.triangles[0].vertexIndices[1] = 1;
+            ret.triangles[0].vertexIndices[2] = 2;
+            ++ret.numTriangles;
+            ret.numPoints = 3;
+
+            // If the intersection is a quadrilateral, we add two triangles
+            if (rowLength == 4) {
+                ret.triangles[1].vertexIndices[1] = 0;
+                ret.triangles[1].vertexIndices[1] = 2;
+                ret.triangles[1].vertexIndices[2] = 3;
+                ++ret.numTriangles;
+                ret.numPoints = 4;
+            }
         }
     }
-
-    TetIntersection ret;
-    ret.triangles = intersectedTriangles;
-    ret.numTriangles = numTrianglesInIntersection;
 
     return ret;
 }
@@ -98,14 +109,35 @@ TetIntersection PerformSlice(uint3 globalId) {
 [numthreads(64,1,1)]
 void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    InitLocalAppendIdx(threadId);
+    InitLocalAppendIdx(threadId, 0);
+    InitLocalAppendIdx(threadId, 1);
+    GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
 
     TetIntersection intersection = PerformSlice(globalId);
 
-    uint localTriangleIndex = IncreaseLocalAppendIdx(intersection.numTriangles);
-    uint globalTriangleIdx = IncreaseGlobalAppendIdx(threadId);
+    uint localTriangleIndex = IncreaseLocalAppendIdx(intersection.numTriangles, 0);
+    uint localPointIndex = IncreaseLocalAppendIdx(intersection.numPoints, 1);
+    GroupMemoryBarrierWithGroupSync();
 
+    IncreaseGlobalAppendIdx(threadId, 0);
+    IncreaseGlobalAppendIdx(threadId, 1);
+    GroupMemoryBarrierWithGroupSync();
+    uint globalTriangleIdx = globalAppendIdx[0];
+    uint globalPointIdx = globalAppendIdx[1];
+
+    // Set the points for the current tetrahedron intersection
+    for (uint pointIdx = 0; pointIdx < intersection.numPoints; ++pointIdx) {
+        triangleVertices[globalPointIdx + localPointIndex + pointIdx] = intersection.points[pointIdx];
+    }
+
+    // Set the triangles for the current tetrahedron intersection
     for (uint triangleIdx = 0; triangleIdx < intersection.numTriangles; ++triangleIdx) {
-        slicedTriangles[globalTriangleIdx + localTriangleIndex + triangleIdx] = intersection.triangles[triangleIdx];
+        // Current triangle vertex indices are just offsets, make them refer to the actual index in triangleVertices
+        Triangle curTriangle;
+        curTriangle.vertexIndices[0] = globalPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[0];
+        curTriangle.vertexIndices[1] = globalPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[1];
+        curTriangle.vertexIndices[2] = globalPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[2];
+
+        slicedTriangles[globalTriangleIdx + localTriangleIndex + triangleIdx] = curTriangle;
     }
 }

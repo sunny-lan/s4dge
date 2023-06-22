@@ -1,36 +1,47 @@
 #pragma kernel Culler4D
 
+#define VL_BUFFER_COUNT 1
+
 #include "VertexShaderUtils.cginc"
 #include "SlicerUtils.cginc"
+#include "VariableLengthBufferUtils.cginc"
 
-StructuredBuffer<float4> transformedVertices;
+StructuredBuffer<VertexData> transformedVertices;
 StructuredBuffer<Tet4D> tetrahedra;
 RWStructuredBuffer<Tet4D> tetsToDraw;
+uint tetCount;
 
 // Set draw flags so that only "front-facing" tetrahedra are drawn
 bool backFaceCull(uint3 id) {
+    if (id.x >= tetCount) {
+        return false;
+    }
     Tet4D tetrahedron = tetrahedra[id.x];
-    float4 p0 = transformedVertices[tetrahedron.vertexIndices[0]];
-    float4 p1 = transformedVertices[tetrahedron.vertexIndices[1]];
-    float4 p2 = transformedVertices[tetrahedron.vertexIndices[2]];
-    float4 p3 = transformedVertices[tetrahedron.vertexIndices[3]];
+    float4 p0 = transformedVertices[tetrahedron.vertexIndices[0]].pos;
+    float4 p1 = transformedVertices[tetrahedron.vertexIndices[1]].pos;
+    float4 p2 = transformedVertices[tetrahedron.vertexIndices[2]].pos;
+    float4 p3 = transformedVertices[tetrahedron.vertexIndices[3]].pos;
     float3 v1 = p1.xyz - p0.xyz;
     float3 v2 = p2.xyz - p0.xyz;
-    float3 v3 = p3.xyw - p0.xyw;
+    float3 v3 = p3.xyz - p0.xyz;
 
-    return dot(v1, cross(v2, v3)) > 0;
+    return (dot(v1, cross(v2, v3)) > 0);
 }
-
 
 [numthreads(64,1,1)]
 void Culler4D (uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    InitLocalAppendIdx(threadId);
+    InitLocalAppendIdx(threadId, 0);
+    GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
 
     bool shouldDraw = backFaceCull(globalId);
-    uint localDrawIdx = IncreaseLocalAppendIdx(shouldDraw ? 1 : 0);
-    uint globalDrawIdx = IncreaseGlobalAppendIdx(threadId);
+    uint localDrawIdx = IncreaseLocalAppendIdx(shouldDraw ? 1 : 0, 0);
+    GroupMemoryBarrierWithGroupSync();
 
+    IncreaseGlobalAppendIdx(threadId, 0);
+    GroupMemoryBarrierWithGroupSync();
+    uint globalDrawIdx = globalAppendIdx[0];
+    
     if (shouldDraw) {
         tetsToDraw[globalDrawIdx + localDrawIdx] = tetrahedra[globalId.x];
     }
