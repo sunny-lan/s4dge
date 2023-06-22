@@ -105,9 +105,6 @@ namespace RasterizationRenderer
             {
                 ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
                 VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-
-                int[] tetData = new int[tets.Length * PTS_PER_TET];
-                tetrahedraToDraw.Buffer.GetData(tetData);
                 if (tetrahedraToDraw.Count > 0)
                 {
                     float[] transformedVertexData = new float[vertexBuffer.count * 8];
@@ -118,9 +115,6 @@ namespace RasterizationRenderer
 
                     VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
                     VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
-
-                    Debug.Log("triangles: " + triangleBuffer.Count);
-                    Debug.Log("triangle vertices: " + triangleVertexBuffer.Count);
 
                     int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
                     float[] triangleVertexData = new float[triangleVertexBuffer.Count * 4];
