@@ -106,7 +106,7 @@ TetIntersection PerformSlice(uint3 globalId) {
     return ret;
 }
 
-[numthreads(64,1,1)]
+[numthreads(1,1,1)]
 void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
     InitLocalAppendIdx(threadId, 0);
@@ -119,9 +119,11 @@ void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_
     uint localPointIndex = IncreaseLocalAppendIdx(intersection.numPoints, 1);
     GroupMemoryBarrierWithGroupSync();
 
-    uint globalTriangleIdx = IncreaseGlobalAppendIdx(threadId, 0);
-    uint globalPointIdx = IncreaseGlobalAppendIdx(threadId, 1);
+    IncreaseGlobalAppendIdx(threadId, 0);
+    IncreaseGlobalAppendIdx(threadId, 1);
     GroupMemoryBarrierWithGroupSync();
+    uint globalTriangleIdx = globalAppendIdx[0];
+    uint globalPointIdx = globalAppendIdx[1];
 
     // Set the points for the current tetrahedron intersection
     for (uint pointIdx = 0; pointIdx < intersection.numPoints; ++pointIdx) {

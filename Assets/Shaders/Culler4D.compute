@@ -38,8 +38,9 @@ void Culler4D (uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThr
     uint localDrawIdx = IncreaseLocalAppendIdx(shouldDraw ? 1 : 0, 0);
     GroupMemoryBarrierWithGroupSync();
 
-    uint globalDrawIdx = IncreaseGlobalAppendIdx(threadId, 0);
+    IncreaseGlobalAppendIdx(threadId, 0);
     GroupMemoryBarrierWithGroupSync();
+    uint globalDrawIdx = globalAppendIdx[0];
     
     if (shouldDraw) {
         tetsToDraw[globalDrawIdx + localDrawIdx] = tetrahedra[globalId.x];

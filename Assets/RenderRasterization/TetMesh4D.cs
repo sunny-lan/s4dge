@@ -105,6 +105,9 @@ namespace RasterizationRenderer
             {
                 ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
                 VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+
+                int[] tetData = new int[tets.Length * PTS_PER_TET];
+                tetrahedraToDraw.Buffer.GetData(tetData);
                 if (tetrahedraToDraw.Count > 0)
                 {
                     float[] transformedVertexData = new float[vertexBuffer.count * 8];
