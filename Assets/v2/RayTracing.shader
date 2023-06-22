@@ -278,7 +278,7 @@ Shader "Custom/RayTracing"
 
 			float4 tmp_checkerboard(float4 p) {
 				int4 rounded = round(p * 4);
-				int parity = rounded.x + rounded.y + rounded.z + rounded.w;
+				int parity = rounded.x + rounded.y + rounded.z;
 				return (parity%2==0) ? float4(0, 0.6, 0, 1) : float4(0, 0.2, 0, 1);
 			}
 
@@ -309,7 +309,7 @@ Shader "Custom/RayTracing"
 						{0,0,0,0},
 						{1,1,1,1}
 					};
-					HitInfo hitInfo = c.intersection(ray);
+					HitInfo hitInfo = t.intersection(ray);
 
 					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01) {
 
@@ -326,9 +326,7 @@ Shader "Custom/RayTracing"
 							closestHit.numHits += hitInfo.numHits;
 						}
 					}
-
 				}
-
 				return closestHit;
 			}
 
@@ -440,7 +438,7 @@ Shader "Custom/RayTracing"
 				// return RaySphere(ray, 0, 1).didHit; // Singular sphere
 
 				float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
-				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1));
+				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 0));
 				viewPoint = viewPoint + CamTranslation;
 
 				Ray ray;
