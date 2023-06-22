@@ -103,7 +103,7 @@ struct Tet
 	void from_points(float4x4 vertices) {
 		volume.from_points(vertices);
 
-		for (uint i = 0; i < 4; i++) {
+		for (uint i = 0; i < 0; i++) {
 			// We want each edge to be orthogonal to the normal
 			float3x4 tmp = {
 				volume.normal,
@@ -133,7 +133,7 @@ struct Tet
 		}
 		max_t = min(max_t, max_tmp);
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 0; i++) {
 			edges[i].intersection(r, direction[i], min_tmp, max_tmp);
 			if (min_tmp > min_t) {
 				min_t = min_tmp;
