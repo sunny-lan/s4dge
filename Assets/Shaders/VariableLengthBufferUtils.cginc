@@ -32,12 +32,10 @@ uint IncreaseLocalAppendIdx(uint amount, uint bufferId) {
 
 // For the first thread in the group
 // Fetches the global index for the current thread group to append to and update the index the next requesting group
-uint IncreaseGlobalAppendIdx(uint3 threadId, uint bufferId) {
+void IncreaseGlobalAppendIdx(uint3 threadId, uint bufferId) {
     if (threadId.x == 0) {
         InterlockedAdd(curGlobalAppendIdx[bufferId], curLocalAppendIdx[bufferId], globalAppendIdx[bufferId]);
     }
-
-    return globalAppendIdx[bufferId];
 }
 
 #endif // VARIABLE_LENGTH_BUFFER_H
