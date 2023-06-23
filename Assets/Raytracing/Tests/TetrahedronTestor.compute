@@ -24,8 +24,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
 
 	Ray r;
-	r.origin = float4(0,0,-5,1);
-	r.dir = float4(0, 0, 1, 0);
+	r.origin = float4(0,0,-5,0);
+	r.dir = float4(0, 0.1, 1, 0);
 	hitInfo[0].dst = 6969;
 	hitInfo[0] = t.intersection(r);
 }

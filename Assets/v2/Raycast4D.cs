@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using v2;
+using Unity.Mathematics;
 
 
 // Video that this shader is based on and hopefully we can adopt
@@ -159,13 +160,13 @@ public class Raycast4D : MonoBehaviour {
         var tets = mesh.tets.Select(t =>
         {
             var points = t.tetPoints.Select(p => mesh.vertices[p].position).ToArray();
-            return new Tet()
-            {
-                a = points[0],
-                b = points[1],
-                c = points[2],
-                d = points[3],
-            };
+            return new Matrix4x4(
+            
+                points[0],
+                points[1],
+                points[2],
+                points[3]
+            ).transpose;
         }).ToArray();
 
         ShaderHelper.CreateStructuredBuffer(ref tetBuffer, tets);
@@ -194,9 +195,5 @@ public class Raycast4D : MonoBehaviour {
         public RayTracingMaterial material;
     };
 
-    public struct Tet
-    {
-        public Vector4 a,b,c,d;
-    }
 
 }

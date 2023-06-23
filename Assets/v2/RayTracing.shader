@@ -278,7 +278,7 @@ Shader "Custom/RayTracing"
 
 			float4 tmp_checkerboard(float4 p) {
 				int4 rounded = round(p * 4);
-				int parity = rounded.x + rounded.y + rounded.z;
+				int parity = rounded.x + rounded.y + rounded.z + rounded.w;
 				return (parity%2==0) ? float4(0, 0.6, 0, 1) : float4(0, 0.2, 0, 1);
 			}
 
