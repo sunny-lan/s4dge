@@ -8,6 +8,7 @@
 
 StructuredBuffer<VertexData> transformedVertices;
 StructuredBuffer<Tet4D> tetrahedra;
+groupshared VLComputeBuffer tetsToDrawManager = (VLComputeBuffer)0;
 RWStructuredBuffer<Tet4D> tetsToDraw;
 uint tetCount;
 
@@ -31,18 +32,18 @@ bool backFaceCull(uint3 id) {
 [numthreads(64,1,1)]
 void Culler4D (uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    InitLocalAppendIdx(threadId, 0);
-    GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
+    tetsToDrawManager.Init(threadId, 0);
+    GroupMemoryBarrierWithGroupSync();
 
     bool shouldDraw = backFaceCull(globalId);
-    uint localDrawIdx = IncreaseLocalAppendIdx(shouldDraw ? 1 : 0, 0);
+    uint localDrawIdx = tetsToDrawManager.IncreaseLocalAppendIdx(shouldDraw ? 1 : 0);
     GroupMemoryBarrierWithGroupSync();
 
-    IncreaseGlobalAppendIdx(threadId, 0);
+    tetsToDrawManager.IncreaseGlobalAppendIdx(threadId);
     GroupMemoryBarrierWithGroupSync();
-    uint globalDrawIdx = globalAppendIdx[0];
+    uint groupDrawIdx = tetsToDrawManager.GetGroupAppendIdx();
     
     if (shouldDraw) {
-        tetsToDraw[globalDrawIdx + localDrawIdx] = tetrahedra[globalId.x];
+        tetsToDraw[groupDrawIdx + localDrawIdx] = tetrahedra[globalId.x];
     }
 }

@@ -9,7 +9,11 @@
 
 StructuredBuffer<VertexData> transformedVertices;
 StructuredBuffer<Tet4D> tetsToDraw;
+
+groupshared VLComputeBuffer triangleVerticesManager = (VLComputeBuffer)0;
 RWStructuredBuffer<float4> triangleVertices;
+
+groupshared VLComputeBuffer slicedTrianglesManager = (VLComputeBuffer)0;
 RWStructuredBuffer<Triangle> slicedTriangles;
 uint numTets;
 
@@ -109,35 +113,35 @@ TetIntersection PerformSlice(uint3 globalId) {
 [numthreads(64,1,1)]
 void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    InitLocalAppendIdx(threadId, 0);
-    InitLocalAppendIdx(threadId, 1);
+    slicedTrianglesManager.Init(threadId, 0);
+    triangleVerticesManager.Init(threadId, 1);
     GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
 
     TetIntersection intersection = PerformSlice(globalId);
 
-    uint localTriangleIndex = IncreaseLocalAppendIdx(intersection.numTriangles, 0);
-    uint localPointIndex = IncreaseLocalAppendIdx(intersection.numPoints, 1);
+    uint localTriangleIndex = slicedTrianglesManager.IncreaseLocalAppendIdx(intersection.numTriangles);
+    uint localPointIndex = triangleVerticesManager.IncreaseLocalAppendIdx(intersection.numPoints);
     GroupMemoryBarrierWithGroupSync();
 
-    IncreaseGlobalAppendIdx(threadId, 0);
-    IncreaseGlobalAppendIdx(threadId, 1);
+    slicedTrianglesManager.IncreaseGlobalAppendIdx(threadId);
+    triangleVerticesManager.IncreaseGlobalAppendIdx(threadId);
     GroupMemoryBarrierWithGroupSync();
-    uint globalTriangleIdx = globalAppendIdx[0];
-    uint globalPointIdx = globalAppendIdx[1];
+    uint groupTriangleIdx = slicedTrianglesManager.GetGroupAppendIdx();
+    uint groupPointIdx = triangleVerticesManager.GetGroupAppendIdx();
 
     // Set the points for the current tetrahedron intersection
     for (uint pointIdx = 0; pointIdx < intersection.numPoints; ++pointIdx) {
-        triangleVertices[globalPointIdx + localPointIndex + pointIdx] = intersection.points[pointIdx];
+        triangleVertices[groupPointIdx + localPointIndex + pointIdx] = intersection.points[pointIdx];
     }
 
     // Set the triangles for the current tetrahedron intersection
     for (uint triangleIdx = 0; triangleIdx < intersection.numTriangles; ++triangleIdx) {
         // Current triangle vertex indices are just offsets, make them refer to the actual index in triangleVertices
         Triangle curTriangle;
-        curTriangle.vertexIndices[0] = globalPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[0];
-        curTriangle.vertexIndices[1] = globalPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[1];
-        curTriangle.vertexIndices[2] = globalPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[2];
+        curTriangle.vertexIndices[0] = groupPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[0];
+        curTriangle.vertexIndices[1] = groupPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[1];
+        curTriangle.vertexIndices[2] = groupPointIdx + localPointIndex + intersection.triangles[triangleIdx].vertexIndices[2];
 
-        slicedTriangles[globalTriangleIdx + localTriangleIndex + triangleIdx] = curTriangle;
+        slicedTriangles[groupTriangleIdx + localTriangleIndex + triangleIdx] = curTriangle;
     }
 }
