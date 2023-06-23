@@ -290,7 +290,6 @@ Shader "Custom/RayTracing"
 				float light_angle = dot(normalize(normal), normalize(light_dir));//TODO
 				return float4(0, 0, 0, 1) + float4(1, 1, 1, 0)  / light_dist;
 			}
-#include "Hypercube.hlsl"
 
 			// --- Ray Tracing Stuff ---
 			// Find the first point that the given ray collides with, and return hit info
@@ -300,15 +299,49 @@ Shader "Custom/RayTracing"
 				HitInfo closestHit = (HitInfo)0;
 				closestHit.dst = 1.#INF;
 
-				
+				for (int i = 0; i < NumSpheres; i++) {
+					Sphere sphere = Spheres[i];
+					HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
+
+					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
+						
+						if (hitInfo.dst < closestHit.dst)
+						{
+							hitInfo.numHits += closestHit.numHits;
+							closestHit = hitInfo;
+							closestHit.material = sphere.material;
+						}
+						else
+						{
+							closestHit.numHits += hitInfo.numHits;
+						}
+					}
+				}
+
+				for (int i = 0; i < NumHyperSpheres; i++) {
+					HyperSphere hyperSphere = HyperSpheres[i];
+					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere.position, hyperSphere.radius);
+
+					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
+						
+						if (hitInfo.dst < closestHit.dst)
+						{
+							hitInfo.numHits += closestHit.numHits;
+							closestHit = hitInfo;
+							closestHit.material = hyperSphere.material;
+						}
+						else
+						{
+							closestHit.numHits += hitInfo.numHits;
+						}
+					}
+
+				}
 
 				for (int i = 0; i < NumTets; i++) {
 					Tet t;
 					t.from_points(Tets[i]); //TODO cache
-					Hypercube c = {
-						{0,0,0,0},
-						{1,1,1,1}
-					};
+
 					HitInfo hitInfo = t.intersection(ray);
 
 					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01) {
@@ -326,7 +359,9 @@ Shader "Custom/RayTracing"
 							closestHit.numHits += hitInfo.numHits;
 						}
 					}
+
 				}
+
 				return closestHit;
 			}
 
@@ -438,13 +473,12 @@ Shader "Custom/RayTracing"
 				// return RaySphere(ray, 0, 1).didHit; // Singular sphere
 
 				float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
-				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 0));
+				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1));
 				viewPoint = viewPoint + CamTranslation;
 
 				Ray ray;
 				ray.origin = CamTranslation;
 				ray.dir = normalize(viewPoint - ray.origin);
-				ray.dir.w = 0;
 
 				HitInfo collision = CalculateRayCollision(ray);
 
