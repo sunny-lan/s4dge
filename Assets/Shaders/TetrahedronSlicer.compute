@@ -10,10 +10,10 @@
 StructuredBuffer<VertexData> transformedVertices;
 StructuredBuffer<Tet4D> tetsToDraw;
 
-groupshared VLComputeBuffer triangleVerticesManager = (VLComputeBuffer)0;
+groupshared VLComputeBuffer triangleVerticesManager;
 RWStructuredBuffer<float4> triangleVertices;
 
-groupshared VLComputeBuffer slicedTrianglesManager = (VLComputeBuffer)0;
+groupshared VLComputeBuffer slicedTrianglesManager;
 RWStructuredBuffer<Triangle> slicedTriangles;
 uint numTets;
 
