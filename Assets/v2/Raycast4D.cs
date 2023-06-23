@@ -97,8 +97,55 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetFloat("DivergeStrength", divergeStrength);
 	}
 
+	void CreateSpheres()
+	{
+		// Create sphere data from the sphere objects in the scene
+		RayTracedSphere[] sphereObjects = FindObjectsOfType<RayTracedSphere>();
+		Sphere[] spheres = new Sphere[sphereObjects.Length];
+
+		for (int i = 0; i < sphereObjects.Length; i++)
+		{
+			spheres[i] = new Sphere()
+			{
+				position = sphereObjects[i].position,
+				radius = sphereObjects[i].radius,
+				material = sphereObjects[i].material,
+			};
+		}
+
+		// Create buffer containing all sphere data, and send it to the shader
+		ShaderHelper.CreateStructuredBuffer(ref sphereBuffer, spheres);
+		rayTracingMaterial.SetBuffer("Spheres", sphereBuffer);
+		rayTracingMaterial.SetInt("NumSpheres", spheres.Length);
+	}
+
+	void CreateHyperSpheres()
+	{
+		// Create sphere data from the sphere objects in the scene
+		RayTracedHyperSphere[] sphereObjects = FindObjectsOfType<RayTracedHyperSphere>();
+		HyperSphere[] spheres = new HyperSphere[sphereObjects.Length];
+
+		for (int i = 0; i < sphereObjects.Length; i++)
+		{
+			spheres[i] = new HyperSphere()
+			{
+				position = sphereObjects[i].position,
+				radius = sphereObjects[i].radius,
+				material = sphereObjects[i].material,
+			};
+		}
+
+		// Create buffer containing all sphere data, and send it to the shader
+		ShaderHelper.CreateStructuredBuffer(ref hyperSphereBuffer, spheres);
+		rayTracingMaterial.SetBuffer("HyperSpheres", hyperSphereBuffer);
+		rayTracingMaterial.SetInt("NumHyperSpheres", sphereObjects.Length);
+	}
+
+
+
     // Hard code shapes for testing
-    void CreateSpheres()
+    //! Becoming Deprecated
+    /*void CreateSpheresHardCode()
 	{
         Sphere[] spheres = new Sphere[3];
 
@@ -129,7 +176,8 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetInt("NumSpheres", spheres.Length);
 	}
 
-    void CreateHyperSpheres()
+    //! Deprecated
+    void CreateHyperSpheresHardCode()
     {
         HyperSphere[] hyperSpheres = new HyperSphere[1];
 
@@ -144,7 +192,7 @@ public class Raycast4D : MonoBehaviour {
 		ShaderHelper.CreateStructuredBuffer(ref hyperSphereBuffer, hyperSpheres);
 		rayTracingMaterial.SetBuffer("HyperSpheres", hyperSphereBuffer);
 		rayTracingMaterial.SetInt("NumHyperSpheres", hyperSpheres.Length);
-    }
+    } */
 
     void CreateTets()
     {
