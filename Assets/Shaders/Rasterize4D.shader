@@ -31,6 +31,7 @@ Shader "Rasterize4D"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
+                //o.vertex = v.vertex;
                 return o;
             }
 

@@ -107,9 +107,6 @@ namespace RasterizationRenderer
                 VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
                 if (tetrahedraToDraw.Count > 0)
                 {
-                    float[] transformedVertexData = new float[vertexBuffer.count * 8];
-                    vertexBuffer.GetData(transformedVertexData);
-
                     var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
                     VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
 
