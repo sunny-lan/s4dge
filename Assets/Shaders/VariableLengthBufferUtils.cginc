@@ -11,7 +11,7 @@ RWStructuredBuffer<uint> curGlobalAppendIdx;
 
 // STRUCT DEFINITIONS
 
-class VLComputeBuffer {
+struct VLComputeBuffer {
 
     // MEMBERS
     uint mBufferId;
@@ -22,9 +22,11 @@ class VLComputeBuffer {
 
     // The first thread in a group initializes the append index
     void Init(uint3 threadId, uint bufferId) {
+        [branch]
         if (threadId.x == 0) {
             mCurLocalAppendIdx = 0;
             mBufferId = bufferId;
+            mGlobalAppendIdx = 0;
         }
     }
 

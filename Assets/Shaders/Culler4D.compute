@@ -8,7 +8,7 @@
 
 StructuredBuffer<VertexData> transformedVertices;
 StructuredBuffer<Tet4D> tetrahedra;
-groupshared VLComputeBuffer tetsToDrawManager = (VLComputeBuffer)0;
+groupshared VLComputeBuffer tetsToDrawManager;
 RWStructuredBuffer<Tet4D> tetsToDraw;
 uint tetCount;
 
