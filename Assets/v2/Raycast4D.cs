@@ -156,7 +156,7 @@ public class Raycast4D : MonoBehaviour {
              new(0, 1, 1, 0),
              new(0, 1, -1, 0),
         });
-        //RasterizationRenderer.HypercubeGenerator.GenerateHypercube(mesh);
+        RasterizationRenderer.HypercubeGenerator.GenerateHypercube(mesh);
         var tets = mesh.tets.Select(t =>
         {
             var points = t.tetPoints.Select(p => mesh.vertices[p].position).ToArray();
