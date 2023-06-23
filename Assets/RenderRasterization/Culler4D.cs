@@ -49,7 +49,7 @@ namespace RasterizationRenderer
         {
             // We can't directly send the Tet4D struct as the points are not directly stored in the struct (references are)
             var tetrahedraUnpacked = tetrahedra.SelectMany(tet => tet.tetPoints).ToArray();
-            tetrahedraBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int) * PTS_PER_TET, tetrahedraUnpacked);
+            tetrahedraBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
 
             cullShaderKernel = cullShader.FindKernel("Culler4D");
             cullShader.GetKernelThreadGroupSizes(cullShaderKernel, out threadGroupSize, out _, out _);
