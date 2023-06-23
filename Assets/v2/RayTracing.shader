@@ -444,6 +444,7 @@ Shader "Custom/RayTracing"
 				Ray ray;
 				ray.origin = CamTranslation;
 				ray.dir = normalize(viewPoint - ray.origin);
+				ray.dir.w = 0;
 
 				HitInfo collision = CalculateRayCollision(ray);
 
