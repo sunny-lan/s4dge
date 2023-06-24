@@ -14,6 +14,7 @@ using Unity.Mathematics;
 
 [ExecuteAlways, ImageEffectAllowedInSceneView]
 [RequireComponent(typeof(Transform4D))]
+[RequireComponent(typeof(Scene4D))]
 public class Raycast4D : MonoBehaviour {
 
     [Header("Ray Tracing Settings")]
@@ -82,8 +83,7 @@ public class Raycast4D : MonoBehaviour {
 		
 		// Update data
 		UpdateCameraParams(Camera.current);
-		CreateSpheres();
-        CreateHyperSpheres();
+        UpdateShapes();
         CreateTets();
 		SetShaderParams();
 
@@ -97,102 +97,60 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetFloat("DivergeStrength", divergeStrength);
 	}
 
-	void CreateSpheres()
-	{
-		// Create sphere data from the sphere objects in the scene
-		RayTracedSphere[] sphereObjects = FindObjectsOfType<RayTracedSphere>();
-		Sphere[] spheres = new Sphere[sphereObjects.Length];
-
-		for (int i = 0; i < sphereObjects.Length; i++)
-		{
-			spheres[i] = new Sphere()
-			{
-				position = sphereObjects[i].position,
-				radius = sphereObjects[i].radius,
-				material = sphereObjects[i].material,
-			};
-		}
-
-		// Create buffer containing all sphere data, and send it to the shader
-		ShaderHelper.CreateStructuredBuffer(ref sphereBuffer, spheres);
-		rayTracingMaterial.SetBuffer("Spheres", sphereBuffer);
-		rayTracingMaterial.SetInt("NumSpheres", spheres.Length);
-	}
-
-	void CreateHyperSpheres()
-	{
-		// Create sphere data from the sphere objects in the scene
-		RayTracedHyperSphere[] sphereObjects = FindObjectsOfType<RayTracedHyperSphere>();
-		HyperSphere[] spheres = new HyperSphere[sphereObjects.Length];
-
-		for (int i = 0; i < sphereObjects.Length; i++)
-		{
-			spheres[i] = new HyperSphere()
-			{
-				position = sphereObjects[i].position,
-				radius = sphereObjects[i].radius,
-				material = sphereObjects[i].material,
-			};
-		}
-
-		// Create buffer containing all sphere data, and send it to the shader
-		ShaderHelper.CreateStructuredBuffer(ref hyperSphereBuffer, spheres);
-		rayTracingMaterial.SetBuffer("HyperSpheres", hyperSphereBuffer);
-		rayTracingMaterial.SetInt("NumHyperSpheres", sphereObjects.Length);
-	}
-
-
-
-    // Hard code shapes for testing
-    //! Becoming Deprecated
-    /*void CreateSpheresHardCode()
-	{
-        Sphere[] spheres = new Sphere[3];
-
-        spheres[0] = new Sphere()
-        {
-            position = new Vector4(0,0,25f,0),
-            radius = 25f,
-            material = defaultMat
-        };
-
-        spheres[1] = new Sphere()
-        {
-            position = new Vector4(0,15f,35f,0),
-            radius = 25f,
-            material = defaultMat
-        };
-
-        spheres[2] = new Sphere()
-        {
-            position = new Vector4(-20f,15f,0f,0),
-            radius = 10f,
-            material = defaultMat
-        };
-
-		// Create buffer containing all sphere data, and send it to the shader
-		ShaderHelper.CreateStructuredBuffer(ref sphereBuffer, spheres);
-		rayTracingMaterial.SetBuffer("Spheres", sphereBuffer);
-		rayTracingMaterial.SetInt("NumSpheres", spheres.Length);
-	}
-
-    //! Deprecated
-    void CreateHyperSpheresHardCode()
+    void UpdateShapes()
     {
-        HyperSphere[] hyperSpheres = new HyperSphere[1];
+        List<RayTracedShape> shapes = Scene4D.Instance.rayTracedShapes;
+        List<Sphere> spheres = new List<Sphere>();
+        List<HyperSphere> hyperSpheres = new List<HyperSphere>();
 
-        hyperSpheres[0] = new HyperSphere()
+        foreach (RayTracedShape shape in shapes)
         {
-            position = new Vector4(0,0,25f,0),
-            radius = 25f,
-            material = defaultMat
-        };
+            switch (shape.shapeClass)
+            {
+                case ShapeClass.Sphere:
+                {
+                    RayTracedSphere sphere = (RayTracedSphere)shape;
+                    spheres.Add(
+                        new Sphere()
+                        {
+                            scaleAndRot = sphere.transform4D.worldToLocalMatrix.scaleAndRot,
+                            position = sphere.transform4D.worldToLocalMatrix.translation,
+                            radius = sphere.radius,
+                            material = sphere.material
+                        }
+                    );
+                    break;
+                }
+                case ShapeClass.HyperSphere:
+                {
+                    RayTracedHyperSphere hyperSphere = (RayTracedHyperSphere)shape;
+                    hyperSpheres.Add(
+                        new HyperSphere()
+                        {
+                            scaleAndRot = hyperSphere.transform4D.worldToLocalMatrix.scaleAndRot,
+                            position = hyperSphere.transform4D.worldToLocalMatrix.translation,
+                            radius = hyperSphere.radius,
+                            material = hyperSphere.material
+                        }
+                    );
+                    break;
+                }
+                default:
+                {
+                    Debug.LogWarning($"Found shape with unhandled shape class {shape.shapeClass}");
+                    break;
+                }
+            }
+        }
+        
+        ShaderHelper.CreateStructuredBuffer(ref sphereBuffer, spheres);
+		rayTracingMaterial.SetBuffer("Spheres", sphereBuffer);
+		rayTracingMaterial.SetInt("NumSpheres", spheres.Count);
 
-		// Create buffer containing all sphere data, and send it to the shader
-		ShaderHelper.CreateStructuredBuffer(ref hyperSphereBuffer, hyperSpheres);
+        ShaderHelper.CreateStructuredBuffer(ref hyperSphereBuffer, hyperSpheres);
 		rayTracingMaterial.SetBuffer("HyperSpheres", hyperSphereBuffer);
-		rayTracingMaterial.SetInt("NumHyperSpheres", hyperSpheres.Length);
-    } */
+		rayTracingMaterial.SetInt("NumHyperSpheres", hyperSpheres.Count);
+    }
 
     void CreateTets()
     {
@@ -231,6 +189,7 @@ public class Raycast4D : MonoBehaviour {
 
     public struct Sphere
     {
+        public Matrix4x4 scaleAndRot;
         public Vector4 position;
         public float radius;
         public RayTracingMaterial material;
@@ -238,6 +197,7 @@ public class Raycast4D : MonoBehaviour {
 
     public struct HyperSphere
     {
+        public Matrix4x4 scaleAndRot;
         public Vector4 position;
         public float radius;
         public RayTracingMaterial material;

@@ -10,7 +10,7 @@ Shader "Custom/RayTracing"
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "UnityCG.cginc"	
-			#include "Tet.hlsl"
+			#include "Assets/Raytracing/Tet.hlsl"
 
 			struct appdata
 			{
@@ -63,6 +63,7 @@ Shader "Custom/RayTracing"
 
 			struct Sphere
 			{
+				float4x4 scaleAndRot;
 				float4 position;
 				float radius;
 				RayTracingMaterial material;
@@ -76,6 +77,7 @@ Shader "Custom/RayTracing"
 
 			struct HyperSphere
 			{
+				float4x4 scaleAndRot;
 				float4 position;
 				float radius;
 				RayTracingMaterial material;
@@ -473,7 +475,7 @@ Shader "Custom/RayTracing"
 				// return RaySphere(ray, 0, 1).didHit; // Singular sphere
 
 				float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
-				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 1));
+				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 0));
 				viewPoint = viewPoint + CamTranslation;
 
 				Ray ray;

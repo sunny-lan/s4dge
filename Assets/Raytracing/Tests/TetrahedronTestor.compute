@@ -2,8 +2,8 @@
 #pragma kernel CSMain
 
 #include "UnityCG.cginc"	
-#include "Assets/v2/Tet.hlsl"
-#include "Assets/v2/RayTracingStructs.cginc"
+#include "Assets/Raytracing/Tet.hlsl"
+#include "Assets/Raytracing/RayTracingStructs.cginc"
 
 RWStructuredBuffer<Tet> ret;
 RWStructuredBuffer<HitInfo> hitInfo;
