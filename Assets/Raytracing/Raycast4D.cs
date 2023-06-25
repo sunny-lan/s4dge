@@ -35,7 +35,9 @@ public class Raycast4D : MonoBehaviour {
     // Buffers
     ComputeBuffer sphereBuffer;
     ComputeBuffer hyperSphereBuffer;
+    ComputeBuffer vertexBuffer;
     ComputeBuffer tetBuffer;
+    ComputeBuffer tetMeshBuffer;
 
     private void Awake()
     {
@@ -84,7 +86,6 @@ public class Raycast4D : MonoBehaviour {
 		// Update data
 		UpdateCameraParams(Camera.current);
         UpdateShapes();
-        CreateTets();
 		SetShaderParams();
 
 	}
@@ -97,11 +98,19 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetFloat("DivergeStrength", divergeStrength);
 	}
 
+    List<Vector4> vertices = new();
+    List<int4> tets = new();
+    List<TetMesh_shader> tetMeshes = new();
+
     void UpdateShapes()
     {
         List<RayTracedShape> shapes = Scene4D.Instance.rayTracedShapes;
         List<Sphere> spheres = new List<Sphere>();
         List<HyperSphere> hyperSpheres = new List<HyperSphere>();
+
+        vertices.Clear();
+        tets.Clear();
+        tetMeshes.Clear();
 
         foreach (RayTracedShape shape in shapes)
         {
@@ -135,6 +144,25 @@ public class Raycast4D : MonoBehaviour {
                     );
                     break;
                 }
+                case ShapeClass.Tet: 
+                    {
+                        TetMesh mesh = (TetMesh)shape;
+                        int idxStart = tets.Count;
+                        vertices.AddRange<Vector4>(mesh.mesh.vertices.Select(vertex=>vertex.position));
+                        tets.AddRange<int4>(mesh.mesh.tets.Select(x=>new int4(
+                            x.tetPoints[0],
+                            x.tetPoints[1],
+                            x.tetPoints[2],
+                            x.tetPoints[3]
+                        )));
+                        tetMeshes.Add(new()
+                        {
+                            inverseTransform = mesh.transform4D.worldToLocalMatrix,
+                            idxStart = idxStart,
+                            idxEnd = tets.Count
+                        });
+                        break;
+                    }
                 default:
                 {
                     Debug.LogWarning($"Found shape with unhandled shape class {shape.shapeClass}");
@@ -150,41 +178,27 @@ public class Raycast4D : MonoBehaviour {
         ShaderHelper.CreateStructuredBuffer(ref hyperSphereBuffer, hyperSpheres);
 		rayTracingMaterial.SetBuffer("HyperSpheres", hyperSphereBuffer);
 		rayTracingMaterial.SetInt("NumHyperSpheres", hyperSpheres.Count);
-    }
 
-    void CreateTets()
-    {
-        RasterizationRenderer.TetMesh4D_tmp mesh = new();
-        mesh.Append(new Vector4[]
-        {
-             new(1, -1, 0, 0),
-             new(-1, -1, 0, 0),
-             new(0, 1, 1, 0),
-             new(0, 1, -1, 0),
-        });
-        RasterizationRenderer.HypercubeGenerator.GenerateHypercube(mesh);
-        var tets = mesh.tets.Select(t =>
-        {
-            var points = t.tetPoints.Select(p => mesh.vertices[p].position).ToArray();
-            return new Matrix4x4(
-            
-                points[0],
-                points[1],
-                points[2],
-                points[3]
-            ).transpose;
-        }).ToArray();
+
+        ShaderHelper.CreateStructuredBuffer(ref vertexBuffer, vertices);
+        rayTracingMaterial.SetBuffer("Vertices", vertexBuffer);
+        rayTracingMaterial.SetInt("NumVertices", vertices.Count);
 
         ShaderHelper.CreateStructuredBuffer(ref tetBuffer, tets);
         rayTracingMaterial.SetBuffer("Tets", tetBuffer);
-        rayTracingMaterial.SetInt("NumTets", tets.Length);
+        rayTracingMaterial.SetInt("NumTets", tets.Count);
+
+        ShaderHelper.CreateStructuredBuffer(ref tetMeshBuffer, tetMeshes);
+        rayTracingMaterial.SetBuffer("TetMeshes", tetMeshBuffer);
+        rayTracingMaterial.SetInt("NumTetMeshes", tetMeshes.Count);
     }
+
 
     void OnDisable()
 	{
 		ShaderHelper.Release(sphereBuffer);
         ShaderHelper.Release(hyperSphereBuffer);
-        ShaderHelper.Release(tetBuffer);
+        ShaderHelper.Release(tetMeshBuffer);
     }
 
     public struct Sphere

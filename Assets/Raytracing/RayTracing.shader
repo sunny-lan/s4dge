@@ -94,8 +94,14 @@ Shader "Custom/RayTracing"
 			StructuredBuffer<MeshInfo> AllMeshInfo;
 			int NumMeshes;
 
-			StructuredBuffer<float4x4> Tets;
+			StructuredBuffer<float4> Vertices;
+			int NumVertices;
+
+			StructuredBuffer<int4> Tets;
 			int NumTets;
+
+			StructuredBuffer<TetMesh> TetMeshes;
+			int NumTetMeshes;
 
 			// --- Ray Intersection Functions ---
 		
@@ -340,28 +346,43 @@ Shader "Custom/RayTracing"
 
 				}
 
-				for (int i = 0; i < NumTets; i++) {
-					Tet t;
-					t.from_points(Tets[i]); //TODO cache
+				for (int j = 0; j < NumTetMeshes; j++) {
+					TetMesh mesh = TetMeshes[j];
 
-					HitInfo hitInfo = t.intersection(ray);
+					// Transform ray into local space of object
+					Ray localRay;
+					localRay.origin = mesh.inverseTransform.apply(ray.origin);
+					localRay.dir = mul(mesh.inverseTransform.scaleAndRot,ray.dir); // TODO SUS
+					
+					for (int i = mesh.stIdx; i < mesh.edIdx; i++) {
+						Tet t;
+						int4 indices = Tets[i];
+						t.from_points(float4x4(
+							Vertices[indices[0]],
+							Vertices[indices[1]],
+							Vertices[indices[2]],
+							Vertices[indices[3]]
+						)); //TODO cache
 
-					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01) {
+						HitInfo hitInfo = t.intersection(localRay);
 
-						if (hitInfo.dst < closestHit.dst)
-						{
-							hitInfo.numHits += closestHit.numHits;
-							hitInfo.hitPoint = hitInfo.dst * ray.dir + ray.origin;
-							closestHit = hitInfo;
-							closestHit.material.colour =
-								tmp_checkerboard(hitInfo.hitPoint);
+						if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01) {
+
+							if (hitInfo.dst < closestHit.dst)
+							{
+								hitInfo.numHits += closestHit.numHits;
+								hitInfo.hitPoint = hitInfo.dst * localRay.dir + localRay.origin;
+								closestHit = hitInfo;
+								closestHit.material.colour =
+									tmp_checkerboard(hitInfo.hitPoint);
+							}
+							else
+							{
+								closestHit.numHits += hitInfo.numHits;
+							}
 						}
-						else
-						{
-							closestHit.numHits += hitInfo.numHits;
-						}
+
 					}
-
 				}
 
 				return closestHit;
