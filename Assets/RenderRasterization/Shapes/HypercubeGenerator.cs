@@ -85,7 +85,7 @@ namespace RasterizationRenderer
                 });
             }
 
-            Decompose3Cube(Enumerable.Range(v0_idx, v0_idx + 6).ToArray(), output.tets);
+            Decompose3Cube(Enumerable.Range(v0_idx, v0_idx + 8).ToArray(), output.tets);
         }
 
         /// <summary>
