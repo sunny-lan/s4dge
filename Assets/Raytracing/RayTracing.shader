@@ -63,8 +63,7 @@ Shader "Custom/RayTracing"
 
 			struct Sphere
 			{
-				float4x4 scaleAndRot;
-				float4 position;
+				Transform4D inverseTransform;
 				float radius;
 				RayTracingMaterial material;
 			};
@@ -77,8 +76,7 @@ Shader "Custom/RayTracing"
 
 			struct HyperSphere
 			{
-				float4x4 scaleAndRot;
-				float4 position;
+				Transform4D inverseTransform;
 				float radius;
 				RayTracingMaterial material;
 			};
@@ -105,16 +103,26 @@ Shader "Custom/RayTracing"
 
 			// --- Ray Intersection Functions ---
 		
-			// Calculate the intersection of a ray with a sphere
-			HitInfo RaySphere(Ray ray, float4 sphereCentre, float sphereRadius)
+			// Apply transform to ray - used for inverse transform of shapes
+			Ray TransformRay(Ray ray, Transform4D transform)
 			{
+				Ray localRay;
+				localRay.origin = transform.apply(ray.origin);
+				localRay.dir = mul(transform.scaleAndRot,ray.dir); // TODO SUS
+				return localRay;
+			}
+
+			// Calculate the intersection of a ray with a sphere
+			HitInfo RaySphere(Ray ray, Sphere sphere)
+			{
+				Ray localRay = TransformRay(ray, sphere.inverseTransform);
 				HitInfo hitInfo = (HitInfo)0;
-				float3 offsetRayOrigin = ray.origin3D() - sphereCentre;
+				float3 offsetRayOrigin = localRay.origin3D();
 				// From the equation: sqrLength(rayOrigin + rayDir * dst) = radius^2
 				// Solving for dst results in a quadratic equation with coefficients:
-				float a = dot(ray.dir3D(), ray.dir3D()); // a = 1 (assuming unit vector)
-				float b = 2 * dot(offsetRayOrigin, ray.dir3D());
-				float c = dot(offsetRayOrigin, offsetRayOrigin) - sphereRadius * sphereRadius;
+				float a = dot(localRay.dir3D(), localRay.dir3D()); // a = 1 (assuming unit vector)
+				float b = 2 * dot(offsetRayOrigin, localRay.dir3D());
+				float c = dot(offsetRayOrigin, offsetRayOrigin) - sphere.radius * sphere.radius;
 				// Quadratic discriminant
 				float discriminant = b * b - 4 * a * c; 
 
@@ -127,9 +135,9 @@ Shader "Custom/RayTracing"
 					if (dst >= 0) {
 						hitInfo.didHit = true;
 						hitInfo.dst = dst;
-						hitInfo.hitPoint = ray.origin + ray.dir * dst;
+						hitInfo.hitPoint = localRay.origin + localRay.dir * dst;
 						hitInfo.numHits = discriminant > 10 ? 2 : 1;
-						hitInfo.normal = normalize(hitInfo.hitPoint - sphereCentre);
+						hitInfo.normal = normalize(hitInfo.hitPoint);
 					}
 				}
 				return hitInfo;
@@ -137,14 +145,15 @@ Shader "Custom/RayTracing"
 
 			// Calculate intersection of a ray with a hypersphere
 			// Math from: http://reprints.gravitywaves.com/People/Hollasch/Four-Space%20Visualization%20of%204D%20Objects%20-%20Chapter%205.htm 
-			HitInfo RayHyperSphere(Ray ray, float4 sphereCentre, float sphereRadius)
+			HitInfo RayHyperSphere(Ray ray, HyperSphere hyperSphere)
 			{
+				Ray localRay = TransformRay(ray, hyperSphere.inverseTransform);
 				HitInfo hitInfo = (HitInfo)0;
 
-				float4 V = sphereCentre - ray.origin;
-				float bb = dot(V, ray.dir);
+				float4 V = localRay.origin * -1;
+				float bb = dot(V, localRay.dir);
 
-				float rad = (bb*bb) - dot(V, V) + sphereRadius * sphereRadius;
+				float rad = (bb*bb) - dot(V, V) + hyperSphere.radius * hyperSphere.radius;
 
 				if (rad < 0) { // If rad negative then no intersection
 					return hitInfo;				
@@ -166,8 +175,8 @@ Shader "Custom/RayTracing"
 				}
 
 
-				float4 intersection = ray.origin + (t1 * ray.dir);
-				float4 normal = (intersection - sphereCentre) / sphereRadius;
+				float4 intersection = localRay.origin + (t1 * localRay.dir);
+				float4 normal = intersection / hyperSphere.radius;
 
 				hitInfo.didHit = true;
 				hitInfo.dst = t1;
@@ -309,7 +318,7 @@ Shader "Custom/RayTracing"
 
 				for (int i = 0; i < NumSpheres; i++) {
 					Sphere sphere = Spheres[i];
-					HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
+					HitInfo hitInfo = RaySphere(ray, sphere);
 
 					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
 						
@@ -328,7 +337,7 @@ Shader "Custom/RayTracing"
 
 				for (int i = 0; i < NumHyperSpheres; i++) {
 					HyperSphere hyperSphere = HyperSpheres[i];
-					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere.position, hyperSphere.radius);
+					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere);
 
 					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
 						

@@ -102,15 +102,18 @@ public class Raycast4D : MonoBehaviour {
     List<int4> tets = new();
     List<TetMesh_shader> tetMeshes = new();
 
+    List<Sphere> spheres = new();
+    List<HyperSphere> hyperSpheres = new();
+
     void UpdateShapes()
     {
         List<RayTracedShape> shapes = Scene4D.Instance.rayTracedShapes;
-        List<Sphere> spheres = new List<Sphere>();
-        List<HyperSphere> hyperSpheres = new List<HyperSphere>();
 
         vertices.Clear();
         tets.Clear();
         tetMeshes.Clear();
+        spheres.Clear();
+        hyperSpheres.Clear();
 
         foreach (RayTracedShape shape in shapes)
         {
@@ -122,8 +125,7 @@ public class Raycast4D : MonoBehaviour {
                     spheres.Add(
                         new Sphere()
                         {
-                            scaleAndRot = sphere.transform4D.worldToLocalMatrix.scaleAndRot,
-                            position = sphere.transform4D.worldToLocalMatrix.translation,
+                            inverseTransform = sphere.transform4D.worldToLocalMatrix,
                             radius = sphere.radius,
                             material = sphere.material
                         }
@@ -136,8 +138,7 @@ public class Raycast4D : MonoBehaviour {
                     hyperSpheres.Add(
                         new HyperSphere()
                         {
-                            scaleAndRot = hyperSphere.transform4D.worldToLocalMatrix.scaleAndRot,
-                            position = hyperSphere.transform4D.worldToLocalMatrix.translation,
+                            inverseTransform = hyperSphere.transform4D.worldToLocalMatrix,
                             radius = hyperSphere.radius,
                             material = hyperSphere.material
                         }
@@ -203,16 +204,14 @@ public class Raycast4D : MonoBehaviour {
 
     public struct Sphere
     {
-        public Matrix4x4 scaleAndRot;
-        public Vector4 position;
+        public TransformMatrixAffine4D inverseTransform;
         public float radius;
         public RayTracingMaterial material;
     }
 
     public struct HyperSphere
     {
-        public Matrix4x4 scaleAndRot;
-        public Vector4 position;
+        public TransformMatrixAffine4D inverseTransform;
         public float radius;
         public RayTracingMaterial material;
     };

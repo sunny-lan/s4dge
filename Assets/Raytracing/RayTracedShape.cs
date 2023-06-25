@@ -22,7 +22,10 @@ public abstract class RayTracedShape : MonoBehaviour
 
     protected void OnDestroy()
     {
-        Scene4D.Instance.Remove(this);
+        if (Scene4D.Instance != null) // Check that scene was not also destroyed
+        {
+            Scene4D.Instance.Remove(this);
+        }
     }
 
     void Start()
