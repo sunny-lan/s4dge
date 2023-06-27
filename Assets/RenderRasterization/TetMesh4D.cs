@@ -99,29 +99,35 @@ namespace RasterizationRenderer
         }
 
         // Generate triangle mesh
-        public void Render(float zSlice, float vanishingW, float nearW)
+        public void Render(float vanishingW, float nearW)
         {
             if (vertexShader != null && culler != null)
             {
-                ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
-                VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-                if (tetrahedraToDraw.Count > 0)
+                for (float zSlice = -1.0f; zSlice <= 1.0f; zSlice += 0.1f)
                 {
-                    var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
-                    VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
+                    ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
+                    VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+                    if (tetrahedraToDraw.Count > 0)
+                    {
+                        var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
+                        VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
 
-                    VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
-                    VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
+                        VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
+                        VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
 
-                    int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
-                    float[] triangleVertexData = new float[triangleVertexBuffer.Count * 4];
-                    triangleBuffer.Buffer.GetData(triangleData);
-                    triangleVertexBuffer.Buffer.GetData(triangleVertexData);
+                        int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
+                        float[] triangleVertexData = new float[triangleVertexBuffer.Count * 4];
+                        triangleBuffer.Buffer.GetData(triangleData);
+                        triangleVertexBuffer.Buffer.GetData(triangleVertexData);
 
-                    triangleMesh.Render(triangleVertexData, triangleData);
+                        triangleMesh.UpdateData(triangleVertexData, triangleData);
 
-                    tetSlicer.Dispose();
+                        tetSlicer.Dispose();
+                    }
                 }
+
+                triangleMesh.Render();
+                triangleMesh.Reset();
             }
         }
 

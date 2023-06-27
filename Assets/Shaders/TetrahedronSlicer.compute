@@ -131,7 +131,9 @@ void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_
 
     // Set the points for the current tetrahedron intersection
     for (uint pointIdx = 0; pointIdx < intersection.numPoints; ++pointIdx) {
-        triangleVertices[groupPointIdx + localPointIndex + pointIdx] = intersection.points[pointIdx];
+        // since the z-coordinate is always 0 (from vertex shader), we piggyback the w-coordinate into z for depth-testing
+        triangleVertices[groupPointIdx + localPointIndex + pointIdx].xyz = intersection.points[pointIdx].xyw;
+        triangleVertices[groupPointIdx + localPointIndex + pointIdx].w = 1;
     }
 
     // Set the triangles for the current tetrahedron intersection
