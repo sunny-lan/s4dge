@@ -2,32 +2,22 @@
 using UnityEngine;
 using v2;
 
-public class TetMesh : RayTracedShape
+public class TetMeshRenderer : RayTracedShape
 {
-    public TetMesh4D_tmp mesh= new();
+    public TetMesh_UnityObj mesh;
 
     protected new void Awake()
     {
         base.Awake();
 
         shapeClass = ShapeClass.Tet;
-
-        mesh = new TetMesh4D_tmp();
-        mesh.Append(new Vector4[]
-        {
-            new Vector4(1,-1,0,0),
-            new Vector4(-1,-1,0,0),
-            new Vector4(0,1,1,0),
-            new Vector4(0,1,-1,0),
-        });
-        //HypercubeGenerator.GenerateHypercube(mesh);
     }
 }
 
 // Represents a single tet mesh, by indicating the range of the indices
 // that form this mesh. The same transform is applied to each tet in the mesh
 
-public struct TetMesh_shader
+public struct TetMesh_shaderdata
 {
     public TransformMatrixAffine4D inverseTransform;
 

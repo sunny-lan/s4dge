@@ -123,50 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &306365402
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 306365404}
-  - component: {fileID: 306365403}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &306365403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 306365402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21c1f44c37c903a42af7988eb12ae901, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &306365404
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 306365402}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &324992487
 GameObject:
   m_ObjectHideFlags: 0
@@ -178,6 +134,7 @@ GameObject:
   - component: {fileID: 324992490}
   - component: {fileID: 324992489}
   - component: {fileID: 324992488}
+  - component: {fileID: 324992491}
   m_Layer: 0
   m_Name: Tet
   m_TagString: Untagged
@@ -208,6 +165,7 @@ MonoBehaviour:
   shapeClass: 3
   materialObjectID: 0
   materialInitFlag: 1
+  mesh: {fileID: 1644549851}
 --- !u!114 &324992489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,15 +178,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0.45, y: 0.04, z: 0, w: 0}
+  localPosition: {x: 0, y: 0, z: 0, w: 0}
   localRotation:
-  - 3.26
-  - 0.6
-  - 0
-  - -0.61
   - 0
   - 0
-  localScale: {x: 1.54, y: -1.01, z: 1, w: 1}
+  - 0
+  - 0
+  - 0
+  - 0
+  localScale: {x: 1, y: 1, z: 1, w: 1}
 --- !u!4 &324992490
 Transform:
   m_ObjectHideFlags: 0
@@ -242,8 +200,20 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &324992491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 324992487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8997f754ef3f848bef54e00a42977f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &934519524
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,7 +225,6 @@ GameObject:
   - component: {fileID: 934519527}
   - component: {fileID: 934519526}
   - component: {fileID: 934519525}
-  - component: {fileID: 934519530}
   - component: {fileID: 934519528}
   - component: {fileID: 934519531}
   - component: {fileID: 934519533}
@@ -362,18 +331,6 @@ MonoBehaviour:
   - 0
   - 0
   localScale: {x: 1, y: 1, z: 1, w: 1}
---- !u!114 &934519530
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 934519524}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd62c0599c727a44083e655f4febb1a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &934519531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403,7 +360,7 @@ MonoBehaviour:
   defocusStrength: 0
   divergeStrength: 0.3
   focusDistance: 1
-  useShaderInSceneView: 0
+  useShaderInSceneView: 1
   rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
   defaultMat:
     colour: {r: 0, g: 0, b: 0, a: 0}
@@ -425,6 +382,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a74b4a6ab33e19242ba69ed418de42da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1644549851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a94be4a37fae7f4abba15360c0d4324, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mesh_Raw:
+    vertices:
+    - position: {x: 1, y: -1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: -1, y: -1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: -1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    tets:
+    - tetPoints: 00000000010000000200000003000000
 --- !u!1 &1973040293
 GameObject:
   m_ObjectHideFlags: 0

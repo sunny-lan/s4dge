@@ -100,7 +100,7 @@ public class Raycast4D : MonoBehaviour {
 
     List<Vector4> vertices = new();
     List<int4> tets = new();
-    List<TetMesh_shader> tetMeshes = new();
+    List<TetMesh_shaderdata> tetMeshes = new();
 
     List<Sphere> spheres = new();
     List<HyperSphere> hyperSpheres = new();
@@ -147,10 +147,12 @@ public class Raycast4D : MonoBehaviour {
                 }
                 case ShapeClass.Tet: 
                     {
-                        TetMesh mesh = (TetMesh)shape;
+                        TetMeshRenderer meshRenderer = (TetMeshRenderer)shape;
+                        if (meshRenderer.mesh?.mesh_Raw == null) continue;
+
                         int idxStart = tets.Count;
-                        vertices.AddRange<Vector4>(mesh.mesh.vertices.Select(vertex=>vertex.position));
-                        tets.AddRange<int4>(mesh.mesh.tets.Select(x=>new int4(
+                        vertices.AddRange<Vector4>(meshRenderer.mesh.mesh_Raw.vertices.Select(vertex=>vertex.position));
+                        tets.AddRange<int4>(meshRenderer.mesh.mesh_Raw.tets.Select(x=>new int4(
                             x.tetPoints[0],
                             x.tetPoints[1],
                             x.tetPoints[2],
@@ -158,7 +160,7 @@ public class Raycast4D : MonoBehaviour {
                         )));
                         tetMeshes.Add(new()
                         {
-                            inverseTransform = mesh.transform4D.worldToLocalMatrix,
+                            inverseTransform = meshRenderer.transform4D.worldToLocalMatrix,
                             idxStart = idxStart,
                             idxEnd = tets.Count
                         });
