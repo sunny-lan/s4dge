@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -34,9 +35,13 @@ namespace RasterizationRenderer
 
         // Make sure struct in passed in correct layout to the mesh vertex buffer
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        [Serializable]
         public struct VertexData
         {
+            [SerializeField]
             public Vector4 position;
+
+            [SerializeField]
             public Vector4 normal;
 
             public VertexData(Vector4 position, Vector4 normal)
@@ -52,8 +57,10 @@ namespace RasterizationRenderer
         }
 
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        [Serializable]
         public struct Tet4D
         {
+            [SerializeField]
             public int[] tetPoints; // points to indices in Vector4 points array
 
             public Tet4D(int[] tetPoints)

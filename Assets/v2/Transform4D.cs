@@ -293,6 +293,15 @@ namespace v2
             tmp_transformations.Clear();
             return p;
         }
+
+        // Apply details from a 3D TRS camera matrix to this t4d
+        public void ApplyTransform3D(Matrix4x4 worldToLocal3D)
+        {
+            localEulerAngles3D = Quaternion.LookRotation(worldToLocal3D.GetColumn(2), worldToLocal3D.GetColumn(1)).eulerAngles * Mathf.PI / 180f;
+            localRotation[(int)Rot4D.xz] = (Mathf.PI - localRotation[(int)Rot4D.xz]); // Reverse the z forward direction - cameras use OpenGL standard which has -z axis
+            localPosition3D = worldToLocal3D.GetPosition();
+            localScale = worldToLocal3D.lossyScale.withW(localScale.w);
+        }
     }
 
 }

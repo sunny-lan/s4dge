@@ -37,11 +37,11 @@ public class SceneView4DController : MonoBehaviour
         currentlyDrawingSceneView = this;
 
         t4d.localScale = Vector4.one;
-        t4d.localPosition = new Vector4(0, 0, 0, w);
+        t4d.localPosition = t4d.localPosition3D.withW(w);
         
 
         Handles.BeginGUI();
-        w = GUILayout.HorizontalSlider(w, -10, 20);
+        w = GUILayout.HorizontalSlider(w, -100, 200);
         Handles.EndGUI();
     }
 

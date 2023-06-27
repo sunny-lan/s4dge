@@ -40,19 +40,12 @@ namespace RasterizationRenderer
             Generate6TetMeshFromHexMesh(tetMesh, hexMesh);
         }
 
-        /*
-         **************************
-         * PUBLIC FUNCTIONS END *
-         **************************
-         */
-
         public static int FlattenCoord3D(int x, int y, int z, Dimension3D dim)
         {
             return x * dim.y * dim.z + y * dim.z + z;
         }
 
-        // Generates tetrahedral mesh using 6-tetrahedra algorithm
-        private static void Generate6TetMeshFromHexMesh(TetMesh4D tetMesh, HexMesh4D hexMesh)
+        public static (TetMesh4D.VertexData[] meshVertices, TetMesh4D.Tet4D[] tetrahedra) Generate6TetMeshFromHexMesh(HexMesh4D hexMesh)
         {
             var hexMeshDimension = hexMesh.GetDimension();
             TetMesh4D.VertexData[] meshVertices = new TetMesh4D.VertexData[hexMeshDimension.x * hexMeshDimension.y * hexMeshDimension.z];
@@ -128,10 +121,17 @@ namespace RasterizationRenderer
                 }
             }
 
+            return (meshVertices, tetrahedra);
+        }
+
+        // Generates tetrahedral mesh using 6-tetrahedra algorithm
+        public static void Generate6TetMeshFromHexMesh(TetMesh4D tetMesh, HexMesh4D hexMesh)
+        {
+            var (meshVertices, tetrahedra) = Generate6TetMeshFromHexMesh(hexMesh);
             tetMesh.UpdateMesh(meshVertices, tetrahedra);
         }
 
-        private static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
+        public static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
         {
             int xSize = (int)(Mathf.Floor((samplingBounds.hi.x - samplingBounds.lo.x) / samplingBounds.samplingInterval)) + 1;
             int ySize = (int)(Mathf.Floor((samplingBounds.hi.y - samplingBounds.lo.y) / samplingBounds.samplingInterval)) + 1;
@@ -187,7 +187,7 @@ namespace RasterizationRenderer
             }
         }
 
-        struct HexMesh4D
+        public struct HexMesh4D
         {
             // 3D array storing where 3D points in the parametric space map to 4D points
             public Vector4[,,] vertices;

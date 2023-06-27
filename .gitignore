@@ -10,3 +10,5 @@ crust.sln
 Assembly-CSharp-Editor.csproj
 Assets/TextMesh Pro
 .vscode
+*.csproj
+*.sln
