@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mesh_Raw:
     vertices:
-    - position: {x: 1, y: 1, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
     - position: {x: -1, y: 1, z: 0, w: 0}
       normal: {x: 0, y: 0, z: 0, w: 0}
     - position: {x: 0, y: -1, z: 1, w: 0}
       normal: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: -1, z: -1, w: 0}
+    - position: {x: 0, y: -1, z: -1, w: -0.5}
       normal: {x: 0, y: 0, z: 0, w: 0}
     tets:
     - tetPoints: 00000000010000000200000003000000
