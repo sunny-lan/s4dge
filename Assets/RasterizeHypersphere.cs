@@ -6,7 +6,8 @@ public class RasterizeHypersphere : MonoBehaviour
     TetMesh4D tetMesh;
     TriangleMesh triMesh;
 
-    public float zSlice, vanishingW, nearW;
+    public float zSliceStart, zSliceLength, zSliceInterval;
+    public float vanishingW, nearW;
     public float samplingInterval;
 
     void Awake()
@@ -23,7 +24,7 @@ public class RasterizeHypersphere : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        tetMesh.Render(zSlice, vanishingW, nearW);
+        tetMesh.Render(zSliceStart, zSliceLength, zSliceInterval, vanishingW, nearW);
     }
 
     private void OnEnable()

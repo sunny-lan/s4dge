@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using static RasterizationRenderer.TetMesh4D;
@@ -15,14 +16,26 @@ public class TriangleMesh : MonoBehaviour
     Mesh mesh;
     public Material material;
 
-    // Updates the mesh based on the vertices, tetrahedra
-    public void Render(float[] vertexData, int[] triangleData)
+    float[] vertexDataArr = new float[0];
+    int[] triangleDataArr = new int[0];
+
+    // Appends the vertex data to the triangle mesh
+    public void UpdateData(float[] newVertexData, int[] newTriangleData)
+    {
+        int floatsPerVertex = 4;
+        int curVertexCount = vertexDataArr.Length / floatsPerVertex;
+        triangleDataArr = triangleDataArr.Concat(newTriangleData.Select(idx => idx + curVertexCount)).ToArray();
+
+        vertexDataArr = vertexDataArr.Concat(newVertexData).ToArray();
+    }
+
+    public void Render()
     {
         mesh.Clear();
 
         // Override vertex buffer params so that position, normal take in 4D vectors
         mesh.SetVertexBufferParams(
-            vertexData.Length / 4,
+            vertexDataArr.Length / 4,
             new[]
             {
                 new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, PTS_PER_TET),
@@ -31,10 +44,10 @@ public class TriangleMesh : MonoBehaviour
         );
 
         // Set vertices, normals for the mesh
-        mesh.SetVertexBufferData(vertexData, 0, 0, vertexData.Length);
+        mesh.SetVertexBufferData(vertexDataArr, 0, 0, vertexDataArr.Length);
 
         // Set tetrahedra vertex indices for mesh
-        mesh.SetTriangles(triangleData, 0);
+        mesh.SetTriangles(triangleDataArr, 0);
 
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
@@ -51,6 +64,12 @@ public class TriangleMesh : MonoBehaviour
             properties: null
         //properties: blk
         );
+    }
+
+    public void Reset()
+    {
+        vertexDataArr = new float[0];
+        triangleDataArr = new int[0];
     }
 
     // Start is called before the first frame update

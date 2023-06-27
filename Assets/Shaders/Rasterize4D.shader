@@ -5,15 +5,16 @@ Shader "Rasterize4D"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
         LOD 100
 
         Pass
         {
             Cull Off
+            Blend SrcAlpha OneMinusSrcAlpha
             CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+            #pragma vertex vert alpha
+            #pragma fragment frag alpha:blend
 
             #include "UnityCG.cginc"
 
@@ -37,8 +38,7 @@ Shader "Rasterize4D"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // sample the texture
-                fixed4 col = fixed4(0.0, 1.0, 0.0, 1.0);
+                fixed4 col = fixed4(0, 1, 0, 0.5);
                 return col;
             }
             ENDCG
