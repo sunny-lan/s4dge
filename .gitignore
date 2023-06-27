@@ -9,5 +9,4 @@ Assembly-CSharp.csproj
 crust.sln
 Assembly-CSharp-Editor.csproj
 Assets/TextMesh Pro
-*.meta
 .vscode
