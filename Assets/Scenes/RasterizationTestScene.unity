@@ -274,7 +274,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: nearW
@@ -298,7 +298,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: samplingInterval
-      value: 0.1
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8372625504801601057, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: m_RootOrder

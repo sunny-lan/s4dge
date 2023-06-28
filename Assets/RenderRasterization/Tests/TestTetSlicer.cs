@@ -106,9 +106,9 @@ public class TestTetSlicer
     public void TestSingleTetTriangleIntersection()
     {
         float[] expectedTriVertices = {
-            0, 0, 0, 0,
-            1, 1, 0, 1,
-            1, 0, 0, 1
+            0, 0, 0, 1,
+            1, 1, 1, 1,
+            1, 0, 1, 1
         };
 
         int[] expectedTris = { 0, 1, 2 };
@@ -120,10 +120,10 @@ public class TestTetSlicer
     public void TestSingleTetQuadIntersection()
     {
         float[] expectedTriVertices = {
-            0, 0.5f, 0, 0.5f,
-            0.5f, 0.5f, 0, 0.5f,
-            0.5f, 1, 0, 1,
-            0, 1, 0, 1
+            0, 0.5f, 0.5f, 1f,
+            0.5f, 0.5f, 0.5f, 1f,
+            0.5f, 1, 1, 1,
+            0, 1, 1, 1
         };
 
         int[] expectedTris = { 0, 1, 2, 0, 2, 3 };
@@ -142,14 +142,14 @@ public class TestTetSlicer
         };
         float[] expectedTriVertices = {
             // Triangle vertices
-            0, 0, 0, 0,
-            1, 1, 0, 1,
-            1, 0, 0, 1,
+            0, 0, 0, 1,
+            1, 1, 1, 1,
+            1, 0, 1, 1,
             // Quadrilateral vertices
-            0, 0.5f, 0, 0.5f,
-            0.5f, 0.5f, 0, 0.5f,
-            0.5f, 1, 0, 1,
-            0, 1, 0, 1
+            0, 0.5f, 0.5f, 1f,
+            0.5f, 0.5f, 0.5f, 1f,
+            0.5f, 1, 1, 1,
+            0, 1, 1, 1
         };
 
         int[] expectedTris = {

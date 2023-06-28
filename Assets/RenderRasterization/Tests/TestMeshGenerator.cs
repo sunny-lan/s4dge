@@ -1,11 +1,7 @@
 using NUnit.Framework;
 using RasterizationRenderer;
-using System.Collections;
 using System.Linq;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.TestTools;
 using static RasterizationRenderer.MeshGenerator4D;
 
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
@@ -13,14 +9,6 @@ using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 public class TestMeshGenerator
 {
     TetMesh4D tetMesh;
-
-    [UnitySetUp]
-    public IEnumerator SetUp()
-    {
-        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizationTestScene.unity", new LoadSceneParameters(LoadSceneMode.Single));
-        yield return null; // wait until scene finishes loading
-        Assert.IsNotNull(tetMesh);
-    }
 
     // A Test behaves as an ordinary method
     [Test]
