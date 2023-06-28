@@ -12,3 +12,4 @@ Assets/TextMesh Pro
 .vscode
 *.csproj
 *.sln
+CodeCoverage/

@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
+using System.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -14,7 +13,6 @@ public class TestTetrahedron
     [UnitySetUp]
     public IEnumerator Setup()
     {
-
         EditorSceneManager.LoadSceneInPlayMode("Assets/Raytracing/Tests/TetrahedronTestScene.unity", new LoadSceneParameters(LoadSceneMode.Single));
         yield return null; // wait until scene finishes loading
 
@@ -27,8 +25,6 @@ public class TestTetrahedron
             }
         }
         Assert.IsNotNull(testor);
-
-        
     }
 
     struct Hyperplane
@@ -40,7 +36,7 @@ public class TestTetrahedron
     struct Tet
     {
         public Hyperplane edges1, edges2, edges3, edges4;
-        public  Hyperplane volume;
+        public Hyperplane volume;
     }
 
 
