@@ -88,7 +88,7 @@ public class HypercubeGenerator
         // (0, 0, 0) -> (1, 0, 0) -> (1, 1, 0) -> (0, 1, 0)
         tets_out.Add(new TetMesh4D.Tet4D(new int[]
         {
-                            cube[0], cube[4], cube[6], cube[2]
+                            cube[0], cube[4], cube[6], cube[1]
         }));
 
         // (0, 0, 0) -> (0, 1, 0) -> (1, 1, 0) -> (0, 0, 1)
