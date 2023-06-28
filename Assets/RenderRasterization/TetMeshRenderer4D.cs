@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -40,10 +41,14 @@ namespace RasterizationRenderer
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
                     ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
-                    VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-                    if (tetrahedraToDraw.Count > 0)
+                    //VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+                    var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
+                    ComputeBuffer tetsToDraw = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
+                    //if (tetrahedraToDraw.Count > 0)
+                    if (tetsToDraw.count > 0)
                     {
-                        var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
+                        //var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
+                        var tetSlicer = new TetSlicer(sliceShaderProgram, tetsToDraw, tetsToDraw.count / 4);
                         VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
 
                         VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
