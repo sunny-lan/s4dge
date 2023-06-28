@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class RasterizeHypersphere : MonoBehaviour
 {
-    TetMesh4D tetMesh;
+    TetMeshRenderer4D tetMeshRenderer;
     TriangleMesh triMesh;
 
     public float zSliceStart, zSliceLength, zSliceInterval;
@@ -12,30 +12,30 @@ public class RasterizeHypersphere : MonoBehaviour
 
     void Awake()
     {
-        tetMesh = GetComponent<TetMesh4D>();
+        tetMeshRenderer = GetComponent<TetMeshRenderer4D>();
         triMesh = GetComponent<TriangleMesh>();
     }
 
     private void Start()
     {
-        MeshGenerator4D.GenerateHypersphereMesh(tetMesh, samplingInterval);
+        tetMeshRenderer.SetTetMesh(MeshGenerator4D.GenerateHypersphereMesh(samplingInterval));
     }
 
     // Update is called once per frame
     void Update()
     {
-        tetMesh.Render(zSliceStart, zSliceLength, zSliceInterval, vanishingW, nearW);
+        tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval, vanishingW, nearW);
     }
 
     private void OnEnable()
     {
-        tetMesh.gameObject.SetActive(true);
+        tetMeshRenderer.gameObject.SetActive(true);
         triMesh.gameObject.SetActive(true);
     }
 
     private void OnDisable()
     {
-        tetMesh.gameObject.SetActive(false);
+        tetMeshRenderer.gameObject.SetActive(false);
         triMesh.gameObject.SetActive(false);
     }
 }

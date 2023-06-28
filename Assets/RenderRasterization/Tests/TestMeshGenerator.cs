@@ -19,8 +19,6 @@ public class TestMeshGenerator
     {
         EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizationTestScene.unity", new LoadSceneParameters(LoadSceneMode.Single));
         yield return null; // wait until scene finishes loading
-
-        tetMesh = Resources.FindObjectsOfTypeAll<TetMesh4D>()[0];
         Assert.IsNotNull(tetMesh);
     }
 
@@ -45,7 +43,7 @@ public class TestMeshGenerator
             Vector3.zero, Vector3.one, 1.0f
         );
 
-        GenerateTetMesh(tetMesh, generator, generator, samplingBounds);
+        tetMesh = GenerateTetMesh(generator, generator, samplingBounds);
 
         for (int i = 0; i < 2; ++i)
             for (int j = 0; j < 2; ++j)

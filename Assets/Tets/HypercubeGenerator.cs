@@ -9,7 +9,16 @@ public class HypercubeGenerator
     /// Generates a hypercube spanning [0,0,0,0] and [1,1,1,1]
     /// </summary>
     /// <param name="output">Mesh to append the hypercube to</param>
-    public static void GenerateHypercube(TetMesh_raw output)
+    /// 
+    public static TetMesh4D GenerateHypercube()
+    {
+        TetMesh_raw outputTmp = new();
+        GenerateHypercubeTmp(outputTmp);
+
+        return new TetMesh4D(outputTmp.vertices.ToArray(), outputTmp.tets.ToArray());
+    }
+
+    public static void GenerateHypercubeTmp(TetMesh_raw output)
     {
         // hypercube is formed by 8 bounding 3-cubes
 

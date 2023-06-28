@@ -11,16 +11,16 @@ namespace RasterizationRenderer
         int vertexShaderKernel;
         uint threadGroupSize;
 
-        VertexData[] vertices;
         Matrix4x4 modelViewProjection3D;
+
+        int numVertices;
 
         public VertexShader(ComputeShader vertexShader, VertexData[] vertices)
         {
             this.vertexShader = vertexShader;
-            this.vertices = vertices;
             this.modelViewProjection3D = Matrix4x4.identity;
 
-            OnEnable();
+            OnEnable(vertices);
         }
 
         /*
@@ -49,7 +49,7 @@ namespace RasterizationRenderer
                 vertexShader.SetBuffer(vertexShaderKernel, "transformedVertices", transformedVertices);
 
                 // Run shader
-                int numThreadGroups = (int)((vertices.Length + (threadGroupSize - 1)) / threadGroupSize);
+                int numThreadGroups = (int)((numVertices + (threadGroupSize - 1)) / threadGroupSize);
                 vertexShader.Dispatch(vertexShaderKernel, numThreadGroups, 1, 1);
 
                 return transformedVertices;
@@ -60,8 +60,10 @@ namespace RasterizationRenderer
             }
         }
 
-        public void OnEnable()
+        public void OnEnable(VertexData[] vertices)
         {
+            numVertices = vertices.Length;
+
             // set input data for vertex shader
             inputVertices = RenderUtils.InitComputeBuffer(VertexData.SizeBytes, vertices);
 

@@ -13,13 +13,12 @@ namespace RasterizationRenderer
         int cullShaderKernel;
         uint threadGroupSize;
 
-        Tet4D[] tetrahedra;
+        int numTets;
 
         public Culler4D(ComputeShader cullShader, Tet4D[] tetrahedra)
         {
             this.cullShader = cullShader;
-            this.tetrahedra = tetrahedra;
-            OnEnable();
+            OnEnable(tetrahedra);
         }
 
         /*
@@ -35,8 +34,8 @@ namespace RasterizationRenderer
             // Run vertex shader to transform points and perform perspective projection
             cullShader.SetBuffer(cullShaderKernel, "transformedVertices", vertexBuffer);
             cullShader.SetBuffer(cullShaderKernel, "tetrahedra", tetrahedraBuffer);
-            cullShader.SetInt("tetCount", tetrahedra.Length);
-            int numThreadGroups = (int)((tetrahedra.Length + (threadGroupSize - 1)) / threadGroupSize);
+            cullShader.SetInt("tetCount", numTets);
+            int numThreadGroups = (int)((numTets + (threadGroupSize - 1)) / threadGroupSize);
             cullShader.Dispatch(cullShaderKernel, numThreadGroups, 1, 1);
 
             bufferList.UpdateBufferLengths();
@@ -45,8 +44,10 @@ namespace RasterizationRenderer
             return tetsToDraw;
         }
 
-        public void OnEnable()
+        public void OnEnable(Tet4D[] tetrahedra)
         {
+            numTets = tetrahedra.Length;
+
             // We can't directly send the Tet4D struct as the points are not directly stored in the struct (references are)
             var tetrahedraUnpacked = tetrahedra.SelectMany(tet => tet.tetPoints).ToArray();
             tetrahedraBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);

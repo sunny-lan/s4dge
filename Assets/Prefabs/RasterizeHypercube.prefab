@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8372625504801601057}
-  - component: {fileID: 4059179108556614259}
   - component: {fileID: -8519452129353054916}
   - component: {fileID: 1240992786616724268}
+  - component: {fileID: 8192934327145224507}
   m_Layer: 0
-  m_Name: RasterizeHypersphere
+  m_Name: RasterizeHypercube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,24 +34,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4059179108556614259
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2288248937925208516}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20322856a0e01ab4b97d191a02be287e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zSliceStart: 0
-  zSliceLength: 0
-  zSliceInterval: 0
-  vanishingW: 0
-  nearW: 0
-  samplingInterval: 0
 --- !u!114 &-8519452129353054916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,3 +80,21 @@ MonoBehaviour:
   cullShaderProgram: {fileID: 7200000, guid: b25f619466f100f4da9442f4eced4ea0, type: 3}
   sliceShaderProgram: {fileID: 7200000, guid: 553d0079b4ec5f24fb47c3006b6232e8, type: 3}
   triangleMesh: {fileID: -8519452129353054916}
+--- !u!114 &8192934327145224507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2288248937925208516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 982ace97ca191aa48addcceff0e2c899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zSliceStart: 0
+  zSliceLength: 0
+  zSliceInterval: 0
+  vanishingW: 0
+  nearW: 0
+  samplingInterval: 0

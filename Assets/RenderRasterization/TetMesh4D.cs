@@ -4,34 +4,18 @@ using UnityEngine;
 namespace RasterizationRenderer
 {
 
-    public class TetMesh4D : MonoBehaviour
+    public class TetMesh4D
     {
-        public Transform4D modelWorldTransform4D = new();
-        public Matrix4x4 modelViewProjection3D = Matrix4x4.identity;
         public static readonly int PTS_PER_TET = 4;
-
-        [SerializeField]
-        public ComputeShader vertexShaderProgram;
-        [SerializeField]
-        public ComputeShader cullShaderProgram;
-        [SerializeField]
-        public ComputeShader sliceShaderProgram;
-        VertexShader vertexShader;
         public VertexData[] vertices
         {
             get; private set;
         }
 
-        Culler4D culler;
-
         public Tet4D[] tets
         {
             get; private set;
         }
-
-        TetSlicer tetSlicer;
-
-        public TriangleMesh triangleMesh;
 
         // Make sure struct in passed in correct layout to the mesh vertex buffer
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
@@ -75,7 +59,7 @@ namespace RasterizationRenderer
         }
 
         // Updates the mesh based on the vertices, tetrahedra
-        public void UpdateMesh(VertexData[] vertices, Tet4D[] tets)
+        public TetMesh4D(VertexData[] vertices, Tet4D[] tets)
         {
             //mesh.Clear();
 
@@ -95,87 +79,8 @@ namespace RasterizationRenderer
             //// Set tetrahedra vertex indices for mesh
             //mesh.SetIndices(tets.SelectMany(tet => tet.tetPoints).ToArray(), MeshTopology.Quads, 0);
 
-            if (tets.Length > 0 && vertices.Length > 0)
-            {
-                this.vertices = vertices;
-                vertexShader = new(vertexShaderProgram, this.vertices);
-
-                this.tets = tets;
-                culler = new(cullShaderProgram, this.tets);
-            }
-        }
-
-        // Generate triangle mesh
-        public void Render(float zSliceStart, float zSliceLength, float zSliceInterval, float vanishingW, float nearW)
-        {
-            if (vertexShader != null && culler != null)
-            {
-                for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
-                {
-                    ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
-                    VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-                    if (tetrahedraToDraw.Count > 0)
-                    {
-                        var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
-                        VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
-
-                        VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
-                        VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
-
-                        int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
-                        float[] triangleVertexData = new float[triangleVertexBuffer.Count * 4];
-                        triangleBuffer.Buffer.GetData(triangleData);
-                        triangleVertexBuffer.Buffer.GetData(triangleVertexData);
-
-                        triangleMesh.UpdateData(triangleVertexData, triangleData);
-
-                        tetSlicer.Dispose();
-                    }
-                }
-
-                triangleMesh.Render();
-                triangleMesh.Reset();
-            }
-        }
-
-        private void OnEnable()
-        {
-            if (vertexShader != null)
-            {
-                vertexShader.OnEnable();
-            }
-            if (culler != null)
-            {
-                culler.OnEnable();
-            }
-        }
-
-        private void OnDisable()
-        {
-            if (vertexShader != null)
-            {
-                vertexShader.OnDisable();
-            }
-            if (culler != null)
-            {
-                culler.OnDisable();
-            }
-        }
-
-        // Start is called before the first frame update
-        void Start()
-        {
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
-        private void OnDestroy()
-        {
-            OnDisable();
+            this.vertices = vertices;
+            this.tets = tets;
         }
     }
 

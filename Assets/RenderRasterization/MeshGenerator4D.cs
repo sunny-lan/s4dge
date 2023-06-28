@@ -13,7 +13,7 @@ namespace RasterizationRenderer
          **************************
          */
 
-        public static void GenerateHypersphereMesh(TetMesh4D tetMesh, float samplingInterval)
+        public static TetMesh4D GenerateHypersphereMesh(float samplingInterval)
         {
             // same set of equations generate positions and normals
             Manifold3D sphereGenerator = params3D =>
@@ -31,13 +31,13 @@ namespace RasterizationRenderer
                 Vector3.zero, Mathf.PI * (Vector3.one + Vector3.forward), samplingInterval
             );
 
-            GenerateTetMesh(tetMesh, sphereGenerator, sphereGenerator, samplingBounds);
+            return GenerateTetMesh(sphereGenerator, sphereGenerator, samplingBounds);
         }
 
-        public static void GenerateTetMesh(TetMesh4D tetMesh, Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
+        public static TetMesh4D GenerateTetMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
         {
             var hexMesh = GenerateHexMesh(positionGenerator, normalGenerator, samplingBounds);
-            Generate6TetMeshFromHexMesh(tetMesh, hexMesh);
+            return Generate6TetMeshFromHexMesh(hexMesh);
         }
 
         public static int FlattenCoord3D(int x, int y, int z, Dimension3D dim)
@@ -45,7 +45,7 @@ namespace RasterizationRenderer
             return x * dim.y * dim.z + y * dim.z + z;
         }
 
-        public static (TetMesh4D.VertexData[] meshVertices, TetMesh4D.Tet4D[] tetrahedra) Generate6TetMeshFromHexMesh(HexMesh4D hexMesh)
+        public static TetMesh4D Generate6TetMeshFromHexMesh(HexMesh4D hexMesh)
         {
             var hexMeshDimension = hexMesh.GetDimension();
             TetMesh4D.VertexData[] meshVertices = new TetMesh4D.VertexData[hexMeshDimension.x * hexMeshDimension.y * hexMeshDimension.z];
@@ -121,14 +121,7 @@ namespace RasterizationRenderer
                 }
             }
 
-            return (meshVertices, tetrahedra);
-        }
-
-        // Generates tetrahedral mesh using 6-tetrahedra algorithm
-        public static void Generate6TetMeshFromHexMesh(TetMesh4D tetMesh, HexMesh4D hexMesh)
-        {
-            var (meshVertices, tetrahedra) = Generate6TetMeshFromHexMesh(hexMesh);
-            tetMesh.UpdateMesh(meshVertices, tetrahedra);
+            return new TetMesh4D(meshVertices, tetrahedra);
         }
 
         public static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
