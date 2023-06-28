@@ -320,7 +320,7 @@ Shader "Custom/RayTracingHyperCube"
 
 				Hypercube c = {
 					{0,0,0,0},
-					{1,1,1,1}
+					{5,5,5,5}
 				};
 				HitInfo hitInfo = c.intersection(ray);
 
