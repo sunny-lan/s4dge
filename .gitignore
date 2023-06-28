@@ -13,3 +13,4 @@ Assets/TextMesh Pro
 *.csproj
 *.sln
 CodeCoverage/
+Assets/InitTestScene*
