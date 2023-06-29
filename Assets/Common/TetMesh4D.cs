@@ -38,6 +38,12 @@ namespace RasterizationRenderer
             {
                 get => sizeof(float) * 8;
             }
+
+            public override string ToString()
+            {
+                //return "(pos: " + position + ", norm: " + normal + ")";
+                return "(" + position + ")";
+            }
         }
 
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]

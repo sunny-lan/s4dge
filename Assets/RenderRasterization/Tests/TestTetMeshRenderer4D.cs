@@ -36,13 +36,18 @@ public class TestTetMeshRenderer4D
     }
 
     [Test]
-    public void TestRenderHypercube()
+    public void TestRender3Cube()
     {
-        renderer.SetTetMesh(HypercubeGenerator.GenerateHypercube());
+        TetMesh_raw rawTetMesh = new();
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one, 
+            new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
+        renderer.SetTetMesh(rawTetMesh.ToTetMesh());
         float zSlice = 0;
         float vanishingW = 1e6f;
         float nearW = 1;
         (int[] triangleData, float[] vertexData) = renderer.GenerateTriangleMesh(zSlice, vanishingW, nearW);
+        Debug.Log("triangles: " + string.Join(",", triangleData));
+        Debug.Log("vertices: " + string.Join(",", vertexData));
 
         int[] expectedTris = new int[6 * 3];
         float[] expectedVertices = new float[6 * 4];
@@ -57,7 +62,7 @@ public class TestTetMeshRenderer4D
         //    Assert.AreEqual(triangleData[i], expectedTris[i]);
         //}
 
-        //Assert.AreEqual(triangleData.Length, expectedTris.Length);
-        //Assert.AreEqual(vertexData.Length, expectedVertices.Length);
+        Assert.AreEqual(triangleData.Length, expectedTris.Length);
+        Assert.AreEqual(vertexData.Length, expectedVertices.Length);
     }
 }

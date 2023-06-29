@@ -25,4 +25,9 @@ public class TetMesh_raw
             position = p
         }));
     }
+
+    public TetMesh4D ToTetMesh()
+    {
+        return new TetMesh4D(vertices.ToArray(), tets.ToArray());
+    }
 }

@@ -55,17 +55,19 @@ public class TestVertexShader
         Assert.Less(Mathf.Abs(expected - actual), 1e-3);
     }
 
-    [Test]
-    public void TestIdentityTransform()
+    
+    public void PerformIdentityTransformTest(TetMesh4D.VertexData[] vertices)
     {
-        VertexShader vertexTransformer = new(vertexShader, vertexData);
+        VertexShader vertexTransformer = new(vertexShader, vertices);
         float inf = 1e6f;
         ComputeBuffer transformedVertexBuffer = vertexTransformer.Render(Matrix4x4.identity, Vector4.zero, 0, inf, 0.0f);
 
-        float[] transformedVertexData = new float[vertexData.Length * 8];
+        float[] transformedVertexData = new float[vertices.Length * 8];
         transformedVertexBuffer.GetData(transformedVertexData);
 
-        float[] expectedVertexData = vertexData.SelectMany(vert => new float[] {
+        Debug.Log(string.Join(",", transformedVertexData));
+
+        float[] expectedVertexData = vertices.SelectMany(vert => new float[] {
             vert.position.x,
             vert.position.y,
             vert.position.z,
@@ -80,10 +82,26 @@ public class TestVertexShader
         for (int i = 0; i < expectedVertexData.Length; ++i)
         {
             Assert.True(!double.IsNaN(transformedVertexData[i]));
-            //Assert.AreEqual(expectedVertexData[i], transformedVertexData[i]);
             AssertAlmostEqual(expectedVertexData[i], transformedVertexData[i]);
         }
 
         vertexTransformer.OnDisable();
+    }
+
+    [Test]
+    public void TestIdentityTransform()
+    {
+        PerformIdentityTransformTest(vertexData);
+    }
+
+    [Test]
+    public void Test3CubeIdentityTransform()
+    {
+        TetMesh_raw rawTetMesh = new();
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one,
+            new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
+        TetMesh4D.VertexData[] vertices = rawTetMesh.vertices.ToArray();
+
+        PerformIdentityTransformTest(vertices);
     }
 }

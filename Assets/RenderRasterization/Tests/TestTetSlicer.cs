@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using RasterizationRenderer;
 using System;
 using System.Collections;
@@ -66,6 +67,9 @@ public class TestTetSlicer
 
     public void RunTetTest(TetMesh4D.VertexData[] vertices, TetMesh4D.Tet4D[] tets, float[] expectedVertices, int[] expectedTris)
     {
+        Debug.Log("tet vertices: " + string.Join(",", vertices));
+        Debug.Log("tets: " + string.Join(",", tets));
+
         vertexBuffer = RenderUtils.InitComputeBuffer(TetMesh4D.VertexData.SizeBytes, vertices);
         var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
         tetBuffer = RenderUtils.InitComputeBuffer(sizeof(int) * TetMesh4D.PTS_PER_TET, tetrahedraUnpacked);
@@ -76,6 +80,11 @@ public class TestTetSlicer
         float[] slicedTriVertexBuffer = new float[expectedVertices.Length];
         slicedTriangles.Buffers[0].Buffer.GetData(slicedTriBuffer);
         slicedTriangles.Buffers[1].Buffer.GetData(slicedTriVertexBuffer);
+
+        Debug.Log("num tris: " + slicedTriangles.Buffers[0].Count);
+        Debug.Log("triangles: " + string.Join(",", slicedTriBuffer));
+        Debug.Log("num vertices: " + slicedTriangles.Buffers[1].Count);
+        Debug.Log("vertices: " + string.Join(",", slicedTriVertexBuffer));
 
         for (int i = 0; i < expectedVertices.Length; ++i)
         {
@@ -158,5 +167,51 @@ public class TestTetSlicer
         };
 
         RunTetTest(vertexData, tets, expectedTriVertices, expectedTris);
+    }
+
+    [Test]
+    public void TestSlice3Cube()
+    {
+        TetMesh_raw rawTetMesh = new();
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one,
+            new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
+
+        Debug.Log("num tets: " + rawTetMesh.tets.Count());
+
+        float[] expectedTriVertices = {
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+            0,0,0,0,
+        };
+
+        int[] expectedTris = {
+            0,0,0,
+            0,0,0,
+            0,0,0,
+            0,0,0,
+            0,0,0,
+            0,0,0,
+            0,0,0,
+            0,0,0,
+        };
+
+        RunTetTest(rawTetMesh.vertices.Take(5).ToArray(), rawTetMesh.tets.Take(1).ToArray(), expectedTriVertices, expectedTris);
     }
 }

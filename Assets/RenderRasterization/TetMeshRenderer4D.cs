@@ -36,11 +36,11 @@ namespace RasterizationRenderer
         public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, float vanishingW, float nearW)
         {
             ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
-            //VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
             var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
             ComputeBuffer tetsToDraw = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
-            //if (tetrahedraToDraw.Count > 0)
             if (tetsToDraw.count > 0)
+            //VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+            //if (tetrahedraToDraw.Count > 0)
             {
                 //var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
                 var tetSlicer = new TetSlicer(sliceShaderProgram, tetsToDraw, tetsToDraw.count / 4);
