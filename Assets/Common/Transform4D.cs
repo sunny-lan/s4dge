@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace v2
 {
 
-    enum Rot4D
+    public enum Rot4D
     {
         xy = 0,
         xz,
@@ -174,7 +172,7 @@ namespace v2
             Vector4 componentInverse = Vector4.one;
             for (int i = 0; i < 4; i++)
             {
-                if(divisors[i] == 0)
+                if (divisors[i] == 0)
                     Debug.LogWarning("ERROR: Scale vector with a 0 component attempted division by 0: " + divisors);
                 componentInverse[i] = 1.0f / divisors[i];
             }
