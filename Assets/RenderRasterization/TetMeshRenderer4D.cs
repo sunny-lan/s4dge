@@ -39,7 +39,7 @@ namespace RasterizationRenderer
             var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
             ComputeBuffer tetsToDraw = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
             if (tetsToDraw.count > 0)
-            //VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+            //    VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
             //if (tetrahedraToDraw.Count > 0)
             {
                 //var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
@@ -70,7 +70,10 @@ namespace RasterizationRenderer
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
                     (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vanishingW, nearW);
-                    triangleMesh.UpdateData(vertexData, triangleData);
+                    if (triangleData != null && vertexData != null)
+                    {
+                        triangleMesh.UpdateData(vertexData, triangleData);
+                    }
                 }
 
                 triangleMesh.Render();
