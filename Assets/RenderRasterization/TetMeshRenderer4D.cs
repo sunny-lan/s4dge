@@ -47,13 +47,13 @@ namespace RasterizationRenderer
                 VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
                 tetDrawCount = tetrahedraToDraw.Count;
                 tetDrawBuffer = tetrahedraToDraw.Buffer;
-                Debug.Log("num tets: " + tetrahedraToDraw.Count);
+                //Debug.Log("num tets: " + tetrahedraToDraw.Count);
             }
             else
             {
-                ComputeBuffer tetsToDraw = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
-                tetDrawCount = tetsToDraw.count / 4;
-                tetDrawBuffer = tetsToDraw;
+                tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
+                tetDrawCount = tetDrawBuffer.count / 4;
+                //Debug.Log("num tets: " + tetDrawCount);
             }
 
             if (tetDrawCount > 0)

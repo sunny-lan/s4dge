@@ -268,6 +268,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1240992786616724268, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
+      propertyPath: useCuller
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: m_Name
       value: RasterizeHypercube
