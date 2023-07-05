@@ -84,10 +84,10 @@ namespace RasterizationRenderer
                                 vertices[0], vertices[4], vertices[6], vertices[1]
                             });
 
-                            // (0, 0, 0) -> (0, 1, 0) -> (1, 1, 0) -> (0, 0, 1)
+                            // (0, 0, 0) -> (0, 1, 0) -> (0, 0, 1) -> (1, 1, 0)
                             tetrahedra[tetIdx + 1] = new TetMesh4D.Tet4D(new int[]
                             {
-                                vertices[0], vertices[2], vertices[6], vertices[1]
+                                vertices[0], vertices[2], vertices[1], vertices[6]
                             });
 
                             // (0, 1, 0) -> (0, 1, 1) -> (0, 0, 1) -> (1, 1, 0)
@@ -102,10 +102,10 @@ namespace RasterizationRenderer
                                 vertices[4], vertices[5], vertices[1], vertices[6]
                             });
 
-                            // (0, 0, 1) -> (1, 1, 1) -> (1, 0, 1) -> (1, 1, 0)
+                            // (0, 0, 1) -> (1, 1, 1) -> (1, 1, 0) -> (1, 0, 1)
                             tetrahedra[tetIdx + 4] = new TetMesh4D.Tet4D(new int[]
                             {
-                                vertices[1], vertices[7], vertices[5], vertices[6]
+                                vertices[1], vertices[7], vertices[6], vertices[5]
                             });
 
                             // (0, 0, 1) -> (0, 1, 1) -> (1, 1, 0) -> (1, 1, 1)

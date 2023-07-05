@@ -24,20 +24,20 @@ public class HypercubeGenerator
 
 
         //left and right
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
-        Generate3Cube(new(1, 0, 0, 0), Vector3.one, new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        //Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        //Generate3Cube(new(1, 0, 0, 0), Vector3.one, new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
         ////top and bottom
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
-        Generate3Cube(new(0, 1, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        //Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        //Generate3Cube(new(0, 1, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
         ////front and back
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
-        Generate3Cube(new(0, 0, 1, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
+        //Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
+        //Generate3Cube(new(0, 0, 1, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
 
         //past and future
         Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
-        Generate3Cube(new(0, 0, 0, 1), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
+        //Generate3Cube(new(0, 0, 0, 1), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
     }
 
     /// <summary>
