@@ -37,13 +37,13 @@ namespace RasterizationRenderer
         {
             ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
             var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
-            ComputeBuffer tetsToDraw = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
-            if (tetsToDraw.count > 0)
-            //    VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-            //if (tetrahedraToDraw.Count > 0)
+            //ComputeBuffer tetsToDraw = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
+            //if (tetsToDraw.count > 0)
+            VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
+            if (tetrahedraToDraw.Count > 0)
             {
-                //var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
-                var tetSlicer = new TetSlicer(sliceShaderProgram, tetsToDraw, tetsToDraw.count / 4);
+                var tetSlicer = new TetSlicer(sliceShaderProgram, tetrahedraToDraw.Buffer, tetrahedraToDraw.Count);
+                //var tetSlicer = new TetSlicer(sliceShaderProgram, tetsToDraw, tetsToDraw.count / 4);
                 VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
 
                 VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];

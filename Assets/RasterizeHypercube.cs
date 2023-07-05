@@ -8,7 +8,6 @@ public class RasterizeHypercube : MonoBehaviour
 
     public float zSliceStart, zSliceLength, zSliceInterval;
     public float vanishingW, nearW;
-    public float samplingInterval;
 
     void Awake()
     {

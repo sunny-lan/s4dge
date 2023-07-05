@@ -86,7 +86,11 @@ TetIntersection PerformSlice(uint3 globalId) {
                 float4 p0 = pts[intersectingEdges[edgeIdx + rowStartIndex].x];
                 float4 p1 = pts[intersectingEdges[edgeIdx + rowStartIndex].y];
 
-                ret.points[edgeIdx] = lerp(p0, p1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
+                if (p1.z == 0 && p0.z == 0) {
+                    ret.points[edgeIdx] = p1;
+                } else {
+                    ret.points[edgeIdx] = lerp(p0, p1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
+                }
             }
 
             // Add triangle
