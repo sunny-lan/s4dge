@@ -270,7 +270,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1240992786616724268, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: useCuller
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1240992786616724268, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: modelWorldTransform4D
@@ -286,23 +286,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: nearW
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
-      propertyPath: vanishingW
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
-      propertyPath: zSliceStart
-      value: -2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
-      propertyPath: zSliceLength
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
+      propertyPath: vanishingW
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
+      propertyPath: zSliceStart
+      value: -5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
+      propertyPath: zSliceLength
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: zSliceInterval
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: samplingInterval
@@ -734,4 +734,4 @@ MonoBehaviour:
   - 0
   - 0
   - 0
-  localScale: {x: 1, y: 1, z: 1, w: 1}
+  localScale: {x: 3, y: 3, z: 3, w: 3}
