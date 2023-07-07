@@ -11,7 +11,7 @@ void vert (uint3 id : SV_DispatchThreadID)
 {
     // Avoid processing vertex for unused threads in group
     if (id.x < vertexCount) {
-        VertexData transformed4D = applyTranslation(applyRotation(vertices[id.x], modelViewRotation4D), modelViewTranslation4D);
+        VertexData transformed4D = applyTranslation(applyScaleAndRot(vertices[id.x], modelViewScaleAndRot4D, modelViewScaleAndRotInv4D), modelViewTranslation4D);
         transformed4D.pos = applyPerspectiveTransformation(transformed4D.pos);
         transformedVertices[id.x] = transformed4D;
     }

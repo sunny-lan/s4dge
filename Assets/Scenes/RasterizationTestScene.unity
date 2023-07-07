@@ -272,13 +272,17 @@ PrefabInstance:
       propertyPath: useCuller
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1240992786616724268, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
+      propertyPath: modelWorldTransform4D
+      value: 
+      objectReference: {fileID: 2027376805}
     - target: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: m_Name
       value: RasterizeHypercube
       objectReference: {fileID: 0}
     - target: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: nearW
@@ -290,11 +294,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: zSliceStart
-      value: -1
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: zSliceLength
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: zSliceInterval
@@ -351,7 +355,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2027376805}
   m_SourcePrefab: {fileID: 100100000, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
 --- !u!1 &497203112
 GameObject:
@@ -483,13 +490,17 @@ PrefabInstance:
       propertyPath: useCuller
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1240992786616724268, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: modelWorldTransform4D
+      value: 
+      objectReference: {fileID: 1703129065}
     - target: {fileID: 2288248937925208516, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_Name
       value: RasterizeHypersphere
       objectReference: {fileID: 0}
     - target: {fileID: 2288248937925208516, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: nearW
@@ -562,8 +573,37 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2288248937925208516, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1703129065}
   m_SourcePrefab: {fileID: 100100000, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+--- !u!1 &1703129064 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2288248937925208516, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+  m_PrefabInstance: {fileID: 1636097603}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1703129065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703129064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localPosition: {x: 0, y: 0, z: 0, w: 0}
+  localRotation:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  localScale: {x: 1, y: 1, z: 1, w: 1}
 --- !u!1 &1803263006
 GameObject:
   m_ObjectHideFlags: 0
@@ -669,3 +709,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2027376800 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
+  m_PrefabInstance: {fileID: 366056969}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2027376805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027376800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localPosition: {x: 0, y: 0, z: 0, w: 0}
+  localRotation:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  localScale: {x: 1, y: 1, z: 1, w: 1}

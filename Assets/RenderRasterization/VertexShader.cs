@@ -1,4 +1,5 @@
 using UnityEngine;
+using v2;
 using static RasterizationRenderer.TetMesh4D;
 
 namespace RasterizationRenderer
@@ -29,16 +30,17 @@ namespace RasterizationRenderer
          * vanishingW: camera clip plane - vanishing point at (0, 0, 0, vanishingW)
          * nearW: camera viewport plane at w = nearW
          */
-        public ComputeBuffer Render(Matrix4x4 modelViewRotation4D, Vector4 modelViewTranslation4D, float zSlice, float vanishingW, float nearW)
+        public ComputeBuffer Render(TransformMatrixAffine4D modelViewTransform4D, float zSlice, float vanishingW, float nearW)
         {
             if (inputVertices != null && transformedVertices != null)
             {
                 // Run vertex shader to transform points and perform perspective projection
 
                 // Set uniform variables
-                vertexShader.SetMatrix("modelViewRotation4D", modelViewRotation4D);
+                vertexShader.SetMatrix("modelViewScaleAndRot4D", modelViewTransform4D.scaleAndRot);
+                vertexShader.SetMatrix("modelViewScaleAndRotInv4D", modelViewTransform4D.inverse.scaleAndRot);
                 vertexShader.SetMatrix("modelViewProjection3D", modelViewProjection3D);
-                vertexShader.SetVector("modelViewTranslation4D", modelViewTranslation4D);
+                vertexShader.SetVector("modelViewTranslation4D", modelViewTransform4D.translation);
                 vertexShader.SetFloat("zSlice", zSlice);
                 vertexShader.SetFloat("vanishingW", vanishingW);
                 vertexShader.SetFloat("nearW", nearW);

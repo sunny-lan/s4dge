@@ -55,12 +55,16 @@ public class TestVertexShader
         Assert.Less(Mathf.Abs(expected - actual), 1e-3);
     }
 
-    
+
     public void PerformIdentityTransformTest(TetMesh4D.VertexData[] vertices)
     {
         VertexShader vertexTransformer = new(vertexShader, vertices);
         float inf = 1e6f;
-        ComputeBuffer transformedVertexBuffer = vertexTransformer.Render(Matrix4x4.identity, Vector4.zero, 0, inf, 0.0f);
+        ComputeBuffer transformedVertexBuffer = vertexTransformer.Render(new v2.TransformMatrixAffine4D
+        {
+            scaleAndRot = Matrix4x4.identity,
+            translation = Vector4.zero,
+        }, 0, inf, 0.0f);
 
         float[] transformedVertexData = new float[vertices.Length * 8];
         transformedVertexBuffer.GetData(transformedVertexData);

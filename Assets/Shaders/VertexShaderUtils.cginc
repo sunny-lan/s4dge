@@ -3,7 +3,8 @@
 
 // UNIFORM VARIABLES
 
-float4x4 modelViewRotation4D;
+float4x4 modelViewScaleAndRot4D;
+float4x4 modelViewScaleAndRotInv4D;
 float4 modelViewTranslation4D;
 
 float4x4 modelViewProjection3D;
@@ -21,10 +22,10 @@ struct VertexData {
 
 // FUNCTIONS
 
-VertexData applyRotation(VertexData v, float4x4 rotation) {
+VertexData applyScaleAndRot(VertexData v, float4x4 scaleAndRot, float4x4 scaleAndRotInv) {
 	VertexData transformed;
-	transformed.pos = mul(rotation, v.pos);
-	transformed.normal = mul(transpose(rotation), v.normal); // transpose of rotation matrix is equal to the inverse
+	transformed.pos = mul(scaleAndRot, v.pos);
+	transformed.normal = mul(scaleAndRotInv, v.normal); // transpose of transform matrix is equal to the inverse
 	return transformed;
 }
 

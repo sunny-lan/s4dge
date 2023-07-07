@@ -31,7 +31,7 @@ namespace v2
 
         public override string ToString()
         {
-            return scaleAndRot.ToString() + "\n" + translation.ToString()+"\n";
+            return scaleAndRot.ToString() + "\n" + translation.ToString() + "\n";
         }
 
         public static Vector4 operator *(TransformMatrixAffine4D a, Vector4 b)
@@ -48,7 +48,7 @@ namespace v2
                 return new()
                 {
                     scaleAndRot = invScaleRot, // gives identity matrix in first 4x4
-                    translation = invScaleRot*-translation, // want to cancel out last column to get 0
+                    translation = invScaleRot * -translation, // want to cancel out last column to get 0
                 };
             }
         }

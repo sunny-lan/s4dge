@@ -6,7 +6,7 @@ namespace RasterizationRenderer
 
     public class TetMeshRenderer4D : MonoBehaviour
     {
-        public Transform4D modelWorldTransform4D = new();
+        public v2.Transform4D modelWorldTransform4D;
         public Matrix4x4 modelViewProjection3D = Matrix4x4.identity;
         public static readonly int PTS_PER_TET = 4;
         public bool useCuller;
@@ -36,7 +36,7 @@ namespace RasterizationRenderer
 
         public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, float vanishingW, float nearW)
         {
-            ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.rotation, modelWorldTransform4D.translation, zSlice, vanishingW, nearW);
+            ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.localToWorldMatrix, zSlice, vanishingW, nearW);
             var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
 
             int tetDrawCount = 0;
