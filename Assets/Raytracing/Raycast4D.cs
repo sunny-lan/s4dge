@@ -35,6 +35,7 @@ public class Raycast4D : MonoBehaviour {
     // Buffers
     ComputeBuffer sphereBuffer;
     ComputeBuffer hyperSphereBuffer;
+    ComputeBuffer hyperCubeBuffer;
     ComputeBuffer vertexBuffer;
     ComputeBuffer tetBuffer;
     ComputeBuffer tetMeshBuffer;
@@ -104,6 +105,7 @@ public class Raycast4D : MonoBehaviour {
 
     List<Sphere> spheres = new();
     List<HyperSphere> hyperSpheres = new();
+    List<HyperCube> hyperCubes = new();
 
     void UpdateShapes()
     {
@@ -114,6 +116,7 @@ public class Raycast4D : MonoBehaviour {
         tetMeshes.Clear();
         spheres.Clear();
         hyperSpheres.Clear();
+        hyperCubes.Clear();
 
         foreach (RayTracedShape shape in shapes)
         {
@@ -141,6 +144,20 @@ public class Raycast4D : MonoBehaviour {
                             inverseTransform = hyperSphere.transform4D.worldToLocalMatrix,
                             radius = hyperSphere.radius,
                             material = hyperSphere.material
+                        }
+                    );
+                    break;
+                }
+                case ShapeClass.HyperCube:
+                {
+                    RayTracedHyperCube hyperCube = (RayTracedHyperCube)shape;
+                    hyperCubes.Add(
+                        new HyperCube()
+                        {
+                            inverseTransform = hyperCube.transform4D.worldToLocalMatrix,
+                            p1 = hyperCube.p1,
+                            p2 = hyperCube.p2,
+                            material = hyperCube.material
                         }
                     );
                     break;
@@ -182,6 +199,9 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetBuffer("HyperSpheres", hyperSphereBuffer);
 		rayTracingMaterial.SetInt("NumHyperSpheres", hyperSpheres.Count);
 
+        ShaderHelper.CreateStructuredBuffer(ref hyperCubeBuffer, hyperCubes);
+		rayTracingMaterial.SetBuffer("HyperCubes", hyperCubeBuffer);
+		rayTracingMaterial.SetInt("NumHyperCubes", hyperCubes.Count);
 
         ShaderHelper.CreateStructuredBuffer(ref vertexBuffer, vertices);
         rayTracingMaterial.SetBuffer("Vertices", vertexBuffer);
@@ -201,6 +221,7 @@ public class Raycast4D : MonoBehaviour {
 	{
 		ShaderHelper.Release(sphereBuffer);
         ShaderHelper.Release(hyperSphereBuffer);
+        ShaderHelper.Release(hyperCubeBuffer);
         ShaderHelper.Release(tetMeshBuffer);
     }
 
@@ -218,5 +239,12 @@ public class Raycast4D : MonoBehaviour {
         public RayTracingMaterial material;
     };
 
+    public struct HyperCube
+    {
+        public TransformMatrixAffine4D inverseTransform;
+        public Vector4 p1;
+        public Vector4 p2;
+        public RayTracingMaterial material;
+    };
 
 }
