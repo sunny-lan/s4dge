@@ -65,7 +65,7 @@ namespace RasterizationRenderer
                 VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
 
                 int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
-                float[] triangleVertexData = new float[triangleVertexBuffer.Count * 4];
+                float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
                 triangleBuffer.Buffer.GetData(triangleData);
                 triangleVertexBuffer.Buffer.GetData(triangleVertexData);
 

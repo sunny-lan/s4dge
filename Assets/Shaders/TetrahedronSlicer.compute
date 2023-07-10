@@ -11,14 +11,14 @@ StructuredBuffer<VertexData> transformedVertices;
 StructuredBuffer<Tet4D> tetsToDraw;
 
 groupshared VLComputeBuffer triangleVerticesManager;
-RWStructuredBuffer<float4> triangleVertices;
+RWStructuredBuffer<VertexData> triangleVertices;
 
 groupshared VLComputeBuffer slicedTrianglesManager;
 RWStructuredBuffer<Triangle> slicedTriangles;
 uint numTets;
 
 struct TetIntersection {
-    float4 points[4];
+    VertexData points[4];
     Triangle triangles[2];
     uint numPoints;
     uint numTriangles;
@@ -60,18 +60,18 @@ TetIntersection PerformSlice(uint3 globalId) {
     // avoid updating the output buffers if the current thread is not utilized (its index is past the number of tetrahedra)
     if (globalId.x < numTets) {
         // Tetrahedron points
-        float4 pts[4] = {
-            transformedVertices[tetsToDraw[globalId.x].vertexIndices[0]].pos,
-            transformedVertices[tetsToDraw[globalId.x].vertexIndices[1]].pos,
-            transformedVertices[tetsToDraw[globalId.x].vertexIndices[2]].pos,
-            transformedVertices[tetsToDraw[globalId.x].vertexIndices[3]].pos,
+        VertexData pts[4] = {
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[0]],
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[1]],
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[2]],
+            transformedVertices[tetsToDraw[globalId.x].vertexIndices[3]],
         };
 
         // Index marching tetrahedron table based on the points
-        uint intersectIndex = SignOp(pts[3].z) |
-            (SignOp(pts[2].z) << 1) |
-            (SignOp(pts[1].z) << 2) |
-            (SignOp(pts[0].z) << 3);
+        uint intersectIndex = SignOp(pts[3].pos.z) |
+            (SignOp(pts[2].pos.z) << 1) |
+            (SignOp(pts[1].pos.z) << 2) |
+            (SignOp(pts[0].pos.z) << 3);
         intersectIndex = min(intersectIndex, 0xF - intersectIndex); // table is symmetric
 
         uint rowStartIndex = edgeTableRows[intersectIndex].x;
@@ -83,13 +83,20 @@ TetIntersection PerformSlice(uint3 globalId) {
             // Get points in intersection
             [unroll]
             for (uint edgeIdx = 0; edgeIdx < 4; ++edgeIdx) {
-                float4 p0 = pts[intersectingEdges[edgeIdx + rowStartIndex].x];
-                float4 p1 = pts[intersectingEdges[edgeIdx + rowStartIndex].y];
+                VertexData v0 = pts[intersectingEdges[edgeIdx + rowStartIndex].x];
+                VertexData v1 = pts[intersectingEdges[edgeIdx + rowStartIndex].y];
+
+                float4 p0 = v0.pos;
+                float4 p1 = v1.pos;
+
+                float4 n0 = v0.normal;
+                float4 n1 = v1.normal;
 
                 if (p1.z == 0 && p0.z == 0) {
-                    ret.points[edgeIdx] = p1;
+                    ret.points[edgeIdx] = v1;
                 } else {
-                    ret.points[edgeIdx] = lerp(p0, p1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
+                    ret.points[edgeIdx].pos = lerp(p0, p1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
+                    ret.points[edgeIdx].normal = lerp(n0, n1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
                 }
             }
 
@@ -137,8 +144,11 @@ void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_
     for (uint pointIdx = 0; pointIdx < intersection.numPoints; ++pointIdx) {
         // since the z-coordinate is always 0 (from vertex shader)
         // we piggyback the w-coordinate into z fto leverage hardware depth-testing
-        triangleVertices[groupPointIdx + localPointIndex + pointIdx].xyz = intersection.points[pointIdx].xyw;
-        triangleVertices[groupPointIdx + localPointIndex + pointIdx].w = 1;
+        triangleVertices[groupPointIdx + localPointIndex + pointIdx].pos.xyz = intersection.points[pointIdx].pos.xyw;
+        triangleVertices[groupPointIdx + localPointIndex + pointIdx].pos.w = 1;
+
+        // keep the normal as a 4D vector
+        triangleVertices[groupPointIdx + localPointIndex + pointIdx].normal= intersection.points[pointIdx].normal;
     }
 
     // Set the triangles for the current tetrahedron intersection

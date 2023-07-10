@@ -40,12 +40,12 @@ public class TestMeshGenerator
 
         TetMesh4D.Tet4D[] expectedTets =
         {
-            new(new int[] { 7, 3, 1, 6 }),
-            new(new int[] { 7, 5, 1, 6 }),
-            new(new int[] { 5, 4, 6, 1 }),
-            new(new int[] { 3, 2, 1, 6 }),
-            new(new int[] { 6, 0, 2, 1 }),
-            new(new int[] { 6, 4, 0, 1 }),
+            new(new int[] { 7,3,6,1 }),
+            new(new int[] { 7,5,1,6 }),
+            new(new int[] { 5,4,1,6 }),
+            new(new int[] { 3,2,6,1 }),
+            new(new int[] { 6,0,1,2 }),
+            new(new int[] { 6,4,1,0 }),
         };
 
         foreach (var expectedTet in expectedTets)

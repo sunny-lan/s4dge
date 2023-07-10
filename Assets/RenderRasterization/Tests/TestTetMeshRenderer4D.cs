@@ -35,34 +35,120 @@ public class TestTetMeshRenderer4D
         Assert.Less(Mathf.Abs(expected - actual), 1e-3);
     }
 
-    [Test]
-    public void TestRender3Cube()
+    void RunMeshRendererTest(TetMesh4D mesh, float zSlice, float vanishingW, float nearW, int[] expectedTris, float[] expectedVertices)
     {
-        TetMesh_raw rawTetMesh = new();
-        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one, 
-            new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
-        renderer.SetTetMesh(rawTetMesh.ToTetMesh());
-        float zSlice = 0;
-        float vanishingW = 1e6f;
-        float nearW = 1;
+        renderer.SetTetMesh(mesh);
         (int[] triangleData, float[] vertexData) = renderer.GenerateTriangleMesh(zSlice, vanishingW, nearW);
         Debug.Log("triangles: " + string.Join(",", triangleData));
         Debug.Log("vertices: " + string.Join(",", vertexData));
 
-        int[] expectedTris = new int[6 * 3];
-        float[] expectedVertices = new float[6 * 4];
 
-        //for (int i = 0; i < expectedVertices.Length; ++i)
-        //{
-        //    Assert.AreEqual(expectedVertices[i], expectedVertices[i]);
-        //}
+        for (int i = 0; i < expectedVertices.Length; ++i)
+        {
+            Assert.AreEqual(expectedVertices[i], expectedVertices[i]);
+        }
 
-        //for (int i = 0; i < expectedTris.Length; ++i)
-        //{
-        //    Assert.AreEqual(triangleData[i], expectedTris[i]);
-        //}
+        for (int i = 0; i < expectedTris.Length; ++i)
+        {
+            Assert.AreEqual(triangleData[i], expectedTris[i]);
+        }
 
         Assert.AreEqual(triangleData.Length, expectedTris.Length);
         Assert.AreEqual(vertexData.Length, expectedVertices.Length);
+    }
+
+    [Test]
+    public void TestRender3CubeWithCuller()
+    {
+        renderer.useCuller = true;
+
+        TetMesh_raw rawTetMesh = new();
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one,
+            new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
+
+        // triangles left after culling
+        int[] expectedTris = {
+            0,1,2,
+            3,4,5,
+            6,7,8,
+            6,8,9
+        };
+
+        float[] expectedVertices =
+        {
+            0,0,0,1,0,0,0,0,
+            1,0,0,1,0,0,0,0,
+            1,1,0,1,0,0,0,0,
+            0,0,0,1,0,0,0,0,
+            0,1,0,1,0,0,0,0,
+            1,1,0,1,0,0,0,0,
+            0,1,0,1,0,0,0,0,
+            0,1,0,1,0,0,0,0,
+            1,1,0,1,0,0,0,0,
+            1,1,0,1,0,0,0,0
+        };
+
+        RunMeshRendererTest(
+            mesh: rawTetMesh.ToTetMesh(),
+            zSlice: 0,
+            vanishingW: 1e6f,
+            nearW: 1,
+            expectedTris: expectedTris,
+            expectedVertices: expectedVertices
+        );
+    }
+
+    [Test]
+    public void TestRender3CubeWithoutCuller()
+    {
+        renderer.useCuller = false;
+
+        TetMesh_raw rawTetMesh = new();
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one,
+            new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
+
+        int[] expectedTris = {
+            0,1,2,
+            3,4,5,
+            6,7,8,
+            6,8,9,
+            10,11,12,
+            10,12,13,
+            14,15,16,
+            17,18,19
+        };
+
+        float[] expectedVertices =
+        {
+            0,0,0,1,0,0,0,0,
+            3,0,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            0,0,0,1,0,0,0,0,
+            0,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            0,3,0,1,0,0,0,0,
+            0,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,0,0,1,0,0,0,0,
+            3,0,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0,
+            3,3,0,1,0,0,0,0
+        };
+
+        RunMeshRendererTest(
+            mesh: rawTetMesh.ToTetMesh(),
+            zSlice: 0,
+            vanishingW: 1e6f,
+            nearW: 1,
+            expectedTris: expectedTris,
+            expectedVertices: expectedVertices
+        );
     }
 }

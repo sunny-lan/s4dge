@@ -22,7 +22,7 @@ public class TriangleMesh : MonoBehaviour
     // Appends the vertex data to the triangle mesh
     public void UpdateData(float[] newVertexData, int[] newTriangleData)
     {
-        int floatsPerVertex = 4;
+        int floatsPerVertex = VertexData.SizeFloats;
         int curVertexCount = vertexDataArr.Length / floatsPerVertex;
         triangleDataArr = triangleDataArr.Concat(newTriangleData.Select(idx => idx + curVertexCount)).ToArray();
 
@@ -35,11 +35,11 @@ public class TriangleMesh : MonoBehaviour
 
         // Override vertex buffer params so that position, normal take in 4D vectors
         mesh.SetVertexBufferParams(
-            vertexDataArr.Length / 4,
+            vertexDataArr.Length / VertexData.SizeFloats,
             new[]
             {
                 new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, PTS_PER_TET),
-                //new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, PTS_PER_TET),
+                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, PTS_PER_TET),
             }
         );
 

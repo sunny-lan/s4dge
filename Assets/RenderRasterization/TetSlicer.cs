@@ -54,7 +54,7 @@ namespace RasterizationRenderer
             sliceShader.GetKernelThreadGroupSizes(sliceShaderKernel, out threadGroupSize, out _, out _);
 
             slicedTriangles = new("slicedTriangles", numTets * 2, sizeof(int) * PTS_PER_TRIANGLE);
-            triangleVertices = new("triangleVertices", numTets * TetMesh4D.PTS_PER_TET, sizeof(float) * 4);
+            triangleVertices = new("triangleVertices", numTets * TetMesh4D.PTS_PER_TET, TetMesh4D.VertexData.SizeBytes);
             bufferList = new(new VariableLengthComputeBuffer[2] { slicedTriangles, triangleVertices }, sliceShader, sliceShaderKernel);
         }
 

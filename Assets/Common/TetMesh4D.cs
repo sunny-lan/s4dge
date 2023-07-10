@@ -34,15 +34,20 @@ namespace RasterizationRenderer
                 this.normal = normal;
             }
 
+            public static int SizeFloats
+            {
+                get => 8;
+            }
+
             public static int SizeBytes
             {
-                get => sizeof(float) * 8;
+                get => sizeof(float) * SizeFloats;
             }
 
             public override string ToString()
             {
-                //return "(pos: " + position + ", norm: " + normal + ")";
-                return "(" + position + ")";
+                return "(pos: " + position + ", norm: " + normal + ")";
+                //return "(" + position + ")";
             }
         }
 
