@@ -64,7 +64,7 @@ public class TestVertexShader
         {
             scaleAndRot = Matrix4x4.identity,
             translation = Vector4.zero,
-        }, 0, inf, 0.0f);
+        }, Matrix4x4.identity, 0, inf, 0.0f);
 
         float[] transformedVertexData = new float[vertices.Length * 8];
         transformedVertexBuffer.GetData(transformedVertexData);

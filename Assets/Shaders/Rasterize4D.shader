@@ -1,3 +1,7 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Rasterize4D"
 {
     Properties
@@ -18,6 +22,8 @@ Shader "Rasterize4D"
 
             #include "UnityCG.cginc"
 
+            float4x4 projectionMatrix;
+
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -34,8 +40,10 @@ Shader "Rasterize4D"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.normal = normalize(UnityObjectToClipPos(v.normal));
-                //o.vertex = v.vertex;
+                o.normal = normalize(v.normal);
+                //o.vertex = mul(UNITY_MATRIX_VP, float4(v.vertex.xyz, 1.0));
+                //o.vertex = mul(projectionMatrix, float4(v.vertex.xyz, 1.0));
+                //o.vertex = float4(v.vertex.xyz, 1.0);
                 //o.normal = v.normal;
                 return o;
             }

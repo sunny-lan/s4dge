@@ -12,14 +12,11 @@ namespace RasterizationRenderer
         int vertexShaderKernel;
         uint threadGroupSize;
 
-        Matrix4x4 modelViewProjection3D;
-
         int numVertices;
 
         public VertexShader(ComputeShader vertexShader, VertexData[] vertices)
         {
             this.vertexShader = vertexShader;
-            this.modelViewProjection3D = Matrix4x4.identity;
 
             OnEnable(vertices);
         }
@@ -30,7 +27,7 @@ namespace RasterizationRenderer
          * vanishingW: camera clip plane - vanishing point at (0, 0, 0, vanishingW)
          * nearW: camera viewport plane at w = nearW
          */
-        public ComputeBuffer Render(TransformMatrixAffine4D modelViewTransform4D, float zSlice, float vanishingW, float nearW)
+        public ComputeBuffer Render(TransformMatrixAffine4D modelViewTransform4D, Matrix4x4 modelViewProjection3D, float zSlice, float vanishingW, float nearW)
         {
             if (inputVertices != null && transformedVertices != null)
             {

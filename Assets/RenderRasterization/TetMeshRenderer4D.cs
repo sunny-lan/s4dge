@@ -7,7 +7,6 @@ namespace RasterizationRenderer
     public class TetMeshRenderer4D : MonoBehaviour
     {
         public v2.Transform4D modelWorldTransform4D;
-        public Matrix4x4 modelViewProjection3D = Matrix4x4.identity;
         public static readonly int PTS_PER_TET = 4;
         public bool useCuller;
 
@@ -20,6 +19,8 @@ namespace RasterizationRenderer
         VertexShader vertexShader;
 
         Culler4D culler;
+
+        Camera4D camera4D;
 
         public TriangleMesh triangleMesh;
         private TetMesh4D tetMesh;
@@ -34,9 +35,15 @@ namespace RasterizationRenderer
             }
         }
 
-        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, float vanishingW, float nearW)
+        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice)
         {
-            ComputeBuffer vertexBuffer = vertexShader.Render(modelWorldTransform4D.localToWorldMatrix, zSlice, vanishingW, nearW);
+            Camera camera3D = camera4D.camera3D;
+
+            ComputeBuffer vertexBuffer = vertexShader.Render(
+                camera4D.WorldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
+                Matrix4x4.identity,
+                zSlice, camera3D.farClipPlane, camera3D.nearClipPlane
+            );
             var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
 
             int tetDrawCount = 0;
@@ -47,13 +54,11 @@ namespace RasterizationRenderer
                 VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
                 tetDrawCount = tetrahedraToDraw.Count;
                 tetDrawBuffer = tetrahedraToDraw.Buffer;
-                //Debug.Log("num tets: " + tetrahedraToDraw.Count);
             }
             else
             {
                 tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
                 tetDrawCount = tetDrawBuffer.count / 4;
-                //Debug.Log("num tets: " + tetDrawCount);
             }
 
             if (tetDrawCount > 0)
@@ -78,20 +83,20 @@ namespace RasterizationRenderer
         }
 
         // Generate triangle mesh
-        public void Render(float zSliceStart, float zSliceLength, float zSliceInterval, float vanishingW, float nearW)
+        public void Render(float zSliceStart, float zSliceLength, float zSliceInterval)
         {
             if (vertexShader != null && culler != null)
             {
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
-                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vanishingW, nearW);
+                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice);
                     if (triangleData != null && vertexData != null)
                     {
                         triangleMesh.UpdateData(vertexData, triangleData);
                     }
                 }
 
-                triangleMesh.Render();
+                triangleMesh.Render(camera4D.camera3D);
                 triangleMesh.Reset();
             }
         }
@@ -123,6 +128,7 @@ namespace RasterizationRenderer
         // Start is called before the first frame update
         void Start()
         {
+            camera4D = Camera4D.main;
         }
 
         // Update is called once per frame

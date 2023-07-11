@@ -93,6 +93,11 @@ namespace RasterizationRenderer
             this.vertices = vertices;
             this.tets = tets;
         }
+
+        public override string ToString()
+        {
+            return "Vertices:" + string.Join(",", vertices) + "\nTets:" + string.Join(",", tets);
+        }
     }
 
 }

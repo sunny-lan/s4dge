@@ -49,8 +49,8 @@ static const uint2 edgeTableRows[] = {
 };
 
 // return 0 if val <= 0, else return 1
-int SignOp(int val) {
-    return sign(val) == 1;
+int SignOp(float val) {
+    return (sign(val) == 1);
 }
 
 // Slices the current tetrahedron with the plane z = 0
@@ -148,7 +148,7 @@ void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_
         triangleVertices[groupPointIdx + localPointIndex + pointIdx].pos.w = 1;
 
         // keep the normal as a 4D vector
-        triangleVertices[groupPointIdx + localPointIndex + pointIdx].normal= intersection.points[pointIdx].normal;
+        triangleVertices[groupPointIdx + localPointIndex + pointIdx].normal = intersection.points[pointIdx].normal;
     }
 
     // Set the triangles for the current tetrahedron intersection

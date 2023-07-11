@@ -7,7 +7,6 @@ public class RasterizeHypercube : MonoBehaviour
     TriangleMesh triMesh;
 
     public float zSliceStart, zSliceLength, zSliceInterval;
-    public float vanishingW, nearW;
 
     void Awake()
     {
@@ -23,7 +22,7 @@ public class RasterizeHypercube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval, vanishingW, nearW);
+        tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval);
     }
 
     private void OnEnable()

@@ -29,8 +29,11 @@ public class TriangleMesh : MonoBehaviour
         vertexDataArr = vertexDataArr.Concat(newVertexData).ToArray();
     }
 
-    public void Render()
+    public void Render(Camera camera3D)
     {
+        Matrix4x4 mvp3D = GL.GetGPUProjectionMatrix(camera3D.projectionMatrix, false) * camera3D.worldToCameraMatrix;
+        material.SetMatrix("projectionMatrix", mvp3D);
+
         mesh.Clear();
 
         // Override vertex buffer params so that position, normal take in 4D vectors
