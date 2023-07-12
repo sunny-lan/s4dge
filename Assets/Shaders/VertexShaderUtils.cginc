@@ -45,7 +45,7 @@ float4 applyPerspectiveTransformation(float4 pos) {
 	float3 pProjected3D = mul(pProjectedNoPerspective, 1.0 / pProjectedNoPerspective.w).xyz; // apply perspective division
 
 	// Piggyback w coordinate of 4D point for depth testing
-	return float4(pProjected3D - float3(0.0, 0.0, zSlice), pTransformed4D.w);
+	return float4(pProjected3D, pTransformed4D.w);
 }
 
 #endif // VERTEX_SHADER_H

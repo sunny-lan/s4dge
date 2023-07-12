@@ -31,7 +31,7 @@ namespace RasterizationRenderer
          * 
          * returns: The list of triangle vertices as well as the list of triangles (each point pointing to a vertex)
          */
-        public VariableLengthComputeBuffer.BufferList Render(ComputeBuffer vertexBuffer)
+        public VariableLengthComputeBuffer.BufferList Render(ComputeBuffer vertexBuffer, float zSlice)
         {
             bufferList.PrepareForRender();
 
@@ -39,6 +39,7 @@ namespace RasterizationRenderer
             sliceShader.SetBuffer(sliceShaderKernel, "transformedVertices", vertexBuffer);
             sliceShader.SetBuffer(sliceShaderKernel, "tetsToDraw", tetrahedraBuffer);
             sliceShader.SetInt("numTets", numTets);
+            sliceShader.SetFloat("zSlice", zSlice);
             int numThreadGroups = (int)((numTets + (threadGroupSize - 1)) / threadGroupSize);
             sliceShader.Dispatch(sliceShaderKernel, numThreadGroups, 1, 1);
 

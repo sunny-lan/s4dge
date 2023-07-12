@@ -29,10 +29,12 @@ public class TriangleMesh : MonoBehaviour
         vertexDataArr = vertexDataArr.Concat(newVertexData).ToArray();
     }
 
-    public void Render(Camera camera3D)
+    public void Render(Camera camera3D, LightSource4DManager lightSources)
     {
         Matrix4x4 mvp3D = GL.GetGPUProjectionMatrix(camera3D.projectionMatrix, false) * camera3D.worldToCameraMatrix;
         material.SetMatrix("projectionMatrix", mvp3D);
+
+        PassLightDataToMaterial(lightSources);
 
         mesh.Clear();
 
@@ -67,6 +69,12 @@ public class TriangleMesh : MonoBehaviour
             properties: null
         //properties: blk
         );
+    }
+
+    public void PassLightDataToMaterial(LightSource4DManager lightSources)
+    {
+        material.SetBuffer("lightSources", lightSources.LightSourceBuffer);
+        material.SetInt("numLights", lightSources.Count);
     }
 
     public void Reset()

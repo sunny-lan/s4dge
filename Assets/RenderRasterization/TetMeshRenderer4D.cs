@@ -25,6 +25,8 @@ namespace RasterizationRenderer
         public TriangleMesh triangleMesh;
         private TetMesh4D tetMesh;
 
+        LightSource4DManager lightSourceManager;
+
         public void SetTetMesh(TetMesh4D tetMesh)
         {
             if (tetMesh.vertices.Length > 0 && tetMesh.tets.Length > 0)
@@ -64,7 +66,7 @@ namespace RasterizationRenderer
             if (tetDrawCount > 0)
             {
                 var tetSlicer = new TetSlicer(sliceShaderProgram, tetDrawBuffer, tetDrawCount);
-                VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer);
+                VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, zSlice);
 
                 VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
                 VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
@@ -96,7 +98,7 @@ namespace RasterizationRenderer
                     }
                 }
 
-                triangleMesh.Render(camera4D.camera3D);
+                triangleMesh.Render(camera4D.camera3D, lightSourceManager);
                 triangleMesh.Reset();
             }
         }
@@ -129,6 +131,12 @@ namespace RasterizationRenderer
         void Start()
         {
             camera4D = Camera4D.main;
+
+            lightSourceManager = new(new());
+            foreach (LightSource4D lightSource in FindObjectsOfType<LightSource4D>())
+            {
+                lightSourceManager.Add(lightSource);
+            }
         }
 
         // Update is called once per frame

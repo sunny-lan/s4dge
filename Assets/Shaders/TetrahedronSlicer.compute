@@ -50,7 +50,15 @@ static const uint2 edgeTableRows[] = {
 
 // return 0 if val <= 0, else return 1
 int SignOp(float val) {
-    return (sign(val) == 1);
+    return (sign(val - zSlice) == 1);
+}
+
+float4 LerpVByPZ(float4 v0, float4 v1, float4 p0, float4 p1) {
+    if (p1.z == zSlice && p0.z == zSlice) {
+        return v1;
+    } else {
+        return lerp(v0, v1, abs(p0.z - zSlice) / (abs(p1.z - zSlice) + abs(p0.z - zSlice)));
+    }
 }
 
 // Slices the current tetrahedron with the plane z = 0
@@ -92,12 +100,8 @@ TetIntersection PerformSlice(uint3 globalId) {
                 float4 n0 = v0.normal;
                 float4 n1 = v1.normal;
 
-                if (p1.z == 0 && p0.z == 0) {
-                    ret.points[edgeIdx] = v1;
-                } else {
-                    ret.points[edgeIdx].pos = lerp(p0, p1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
-                    ret.points[edgeIdx].normal = lerp(n0, n1, abs(p0.z) / (abs(p1.z) + abs(p0.z)));
-                }
+                ret.points[edgeIdx].pos = LerpVByPZ(p0, p1, p0, p1);
+                ret.points[edgeIdx].normal= LerpVByPZ(n0, n1, p0, p1);
             }
 
             // Add triangle
