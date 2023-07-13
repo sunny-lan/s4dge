@@ -87,7 +87,8 @@ namespace RasterizationRenderer
         // Generate triangle mesh
         public void Render(float zSliceStart, float zSliceLength, float zSliceInterval)
         {
-            if (vertexShader != null && culler != null)
+            // don't draw unless zSliceInterval is large enough so that unity doesn't freeze when accidentally set to 0
+            if (vertexShader != null && culler != null && zSliceInterval > 0.05)
             {
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
@@ -98,7 +99,7 @@ namespace RasterizationRenderer
                     }
                 }
 
-                triangleMesh.Render(camera4D.camera3D, lightSourceManager);
+                triangleMesh.Render(lightSourceManager);
                 triangleMesh.Reset();
             }
         }

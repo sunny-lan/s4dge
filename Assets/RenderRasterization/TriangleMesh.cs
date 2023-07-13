@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -16,46 +17,42 @@ public class TriangleMesh : MonoBehaviour
     Mesh mesh;
     public Material material;
 
-    float[] vertexDataArr = new float[0];
-    int[] triangleDataArr = new int[0];
+    List<float> vertexData = new();
+    List<int> triangleData = new();
 
     // Appends the vertex data to the triangle mesh
     public void UpdateData(float[] newVertexData, int[] newTriangleData)
     {
         int floatsPerVertex = VertexData.SizeFloats;
-        int curVertexCount = vertexDataArr.Length / floatsPerVertex;
-        triangleDataArr = triangleDataArr.Concat(newTriangleData.Select(idx => idx + curVertexCount)).ToArray();
+        int curVertexCount = vertexData.Count / floatsPerVertex;
+        triangleData = triangleData.Concat(newTriangleData.Select(idx => idx + curVertexCount)).ToList();
 
-        vertexDataArr = vertexDataArr.Concat(newVertexData).ToArray();
+        vertexData = vertexData.Concat(newVertexData).ToList();
     }
 
-    public void Render(Camera camera3D, LightSource4DManager lightSources)
+    public void Render(LightSource4DManager lightSources)
     {
-        Matrix4x4 mvp3D = GL.GetGPUProjectionMatrix(camera3D.projectionMatrix, false) * camera3D.worldToCameraMatrix;
-        material.SetMatrix("projectionMatrix", mvp3D);
-
         PassLightDataToMaterial(lightSources);
 
         mesh.Clear();
 
         // Override vertex buffer params so that position, normal take in 4D vectors
         mesh.SetVertexBufferParams(
-            vertexDataArr.Length / VertexData.SizeFloats,
+            vertexData.Count / VertexData.SizeFloats,
             new[]
             {
-                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, PTS_PER_TET),
-                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, PTS_PER_TET),
+                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 4),
+                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 4),
             }
         );
 
         // Set vertices, normals for the mesh
-        mesh.SetVertexBufferData(vertexDataArr, 0, 0, vertexDataArr.Length);
+        mesh.SetVertexBufferData(vertexData, 0, 0, vertexData.Count);
 
         // Set tetrahedra vertex indices for mesh
-        mesh.SetTriangles(triangleDataArr, 0);
+        mesh.SetTriangles(triangleData, 0, false);
 
         mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
         mesh.RecalculateTangents();
 
         Graphics.DrawMesh(
@@ -79,8 +76,8 @@ public class TriangleMesh : MonoBehaviour
 
     public void Reset()
     {
-        vertexDataArr = new float[0];
-        triangleDataArr = new int[0];
+        vertexData = new();
+        triangleData = new();
     }
 
     // Start is called before the first frame update

@@ -7,6 +7,7 @@ public class LightSource4DManager
 {
     List<LightSource4D> lightSources;
     ComputeBuffer _lightSourceBuffer;
+
     public ComputeBuffer LightSourceBuffer
     {
         get
@@ -38,6 +39,8 @@ public class LightSource4DManager
 
     void UpdateComputeBuffer()
     {
+        var lightSourceArr = lightSources.Select(source => source.data).ToArray();
+
         if (dirty)
         {
             if (_lightSourceBuffer != null)
@@ -45,9 +48,12 @@ public class LightSource4DManager
                 _lightSourceBuffer.Release();
             }
 
-            _lightSourceBuffer = RenderUtils.InitComputeBuffer(LightSource4D.Data.SizeBytes, lightSources.Select(source => source.data).ToArray());
+            _lightSourceBuffer = RenderUtils.InitComputeBuffer(LightSource4D.Data.SizeBytes, lightSourceArr);
 
             dirty = false;
+        } else
+        {
+            RenderUtils.WriteToComputeBuffer(_lightSourceBuffer, lightSourceArr);
         }
     }
 }

@@ -528,7 +528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 0, z: 0, w: 0}
+  localPosition: {x: 0, y: 3, z: 0, w: 0}
   localRotation:
   - 0
   - 0
@@ -583,15 +583,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: zSliceStart
-      value: -1.5
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: zSliceLength
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: zSliceInterval
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: samplingInterval

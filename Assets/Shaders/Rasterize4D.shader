@@ -7,6 +7,7 @@ Shader "Rasterize4D"
         _GlobalLightIntensity ("Light Intensity", Vector) = (1.0, 1.0, 1.0, 1.0)
         _GlobalSpecularColour ("Specular Colour", Color) = (1.0, 1.0, 1.0, 1.0)
         _GlobalShininess ("Shininess", Float) = 0.5
+        _AttenuationFactor("Attenuation Factor", Float) = 0.5
     }
     SubShader
     {
@@ -29,8 +30,7 @@ Shader "Rasterize4D"
             float4 _GlobalLightIntensity;
             fixed4 _GlobalSpecularColour;
             float _GlobalShininess;
-
-            float4x4 projectionMatrix;
+            float _AttenuationFactor;
 
             struct pointLight4D {
                 float4 pos;
@@ -55,10 +55,20 @@ Shader "Rasterize4D"
             v2f vert (appdata v)
             {
                 v2f o;
+
+                // we piggyback the w-coordinate into z fto leverage hardware depth-testing
                 o.vertex = UnityObjectToClipPos(v.vertex.xyw);
-                o.normal = normalize(v.normal);
+
+                o.normal = v.normal;
                 o.vertexOriginal = v.vertex;
                 return o;
+            }
+
+            fixed4 GetLightIntensity(float4 lightDirection)
+            {
+                float lightDistanceSqr = dot(lightDirection, lightDirection);
+    
+                return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * sqrt(lightDistanceSqr)));
             }
 
             // Phong Model from:
@@ -66,7 +76,7 @@ Shader "Rasterize4D"
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 vertex4D = i.vertexOriginal;
-                float4 fragNormal = i.normal;
+                float4 fragNormal = normalize(i.normal);
 
                 fixed4 colour = _GlobalAmbientIntensity * _GlobalDiffuseColour;
 
@@ -83,8 +93,10 @@ Shader "Rasterize4D"
                     phongTerm = cosAngIncidence != 0.0 ? phongTerm : 0.0;
                     phongTerm = pow(phongTerm, _GlobalShininess);
 
-                    colour += (_GlobalDiffuseColour * cosAngIncidence) +
-                        (_GlobalSpecularColour * phongTerm);
+                    float lightIntensity = GetLightIntensity(lightDir);
+
+                    colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) +
+                        (_GlobalSpecularColour * lightIntensity * phongTerm);
                 }
 
                 return colour;

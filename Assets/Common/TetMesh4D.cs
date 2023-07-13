@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -42,6 +43,19 @@ namespace RasterizationRenderer
             public static int SizeBytes
             {
                 get => sizeof(float) * SizeFloats;
+            }
+
+            public static VertexData[] ReadFromFloatArr(float[] arr)
+            {
+                List<VertexData> ret = new();
+                for (int i = 0; i < arr.Length; i += SizeBytes)
+                {
+                    ret.Add(new(
+                        new(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]),
+                        new(arr[i + 4], arr[i + 5], arr[i + 6], arr[i + 7])
+                    ));
+                }
+                return ret.ToArray();
             }
 
             public override string ToString()

@@ -15,6 +15,11 @@ public class LightSource4D : MonoBehaviour
         public Data(Vector4 position) { this.position = position; }
 
         public static int SizeBytes { get => sizeof(float) * 4; }
+
+        public override string ToString()
+        {
+            return "(pos: " + position.ToString() + ")";
+        }
     }
 
     private void Start()
