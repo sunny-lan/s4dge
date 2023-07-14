@@ -17,6 +17,10 @@ public class RayTracedSphere : RayTracedShape
 		if (sphereScriptableObject != null) {
 			radius = sphereScriptableObject.radius;
 			material = sphereScriptableObject.material;
+
+			transform4D.localPosition = sphereScriptableObject.transform4D.localPosition;
+			transform4D.localScale = sphereScriptableObject.transform4D.localScale;
+			
 		}
 	}
 
