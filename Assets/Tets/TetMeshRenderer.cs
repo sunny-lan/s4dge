@@ -11,6 +11,11 @@ public class TetMeshRenderer : RayTracedShape
         base.Awake();
 
         shapeClass = ShapeClass.Tet;
+
+        if (mesh.useTransform) {
+			transform4D.localPosition = mesh.transform4D.localPosition;
+			transform4D.localScale = mesh.transform4D.localScale;
+        }
     }
 }
 
