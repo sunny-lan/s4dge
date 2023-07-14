@@ -36,6 +36,7 @@ namespace RasterizationRenderer
             }
         }
 
+
         public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice)
         {
             Camera camera3D = camera4D.camera3D;
@@ -45,7 +46,6 @@ namespace RasterizationRenderer
                 Matrix4x4.identity,
                 zSlice, camera3D.farClipPlane, camera3D.nearClipPlane
             );
-            var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
 
             int tetDrawCount = 0;
             ComputeBuffer tetDrawBuffer;
@@ -58,6 +58,7 @@ namespace RasterizationRenderer
             }
             else
             {
+                var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
                 tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
                 tetDrawCount = tetDrawBuffer.count / 4;
             }
@@ -72,6 +73,7 @@ namespace RasterizationRenderer
 
                 int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
                 float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
+
                 triangleBuffer.Buffer.GetData(triangleData);
                 triangleVertexBuffer.Buffer.GetData(triangleVertexData);
 

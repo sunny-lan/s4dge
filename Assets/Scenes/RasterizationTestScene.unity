@@ -559,7 +559,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1240992786616724268, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: useCuller
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1240992786616724268, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: modelWorldTransform4D
@@ -583,19 +583,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: zSliceStart
-      value: -0.5
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: zSliceLength
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: zSliceInterval
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: samplingInterval
-      value: 0.5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 8372625504801601057, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_RootOrder
