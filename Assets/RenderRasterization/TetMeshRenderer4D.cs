@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace RasterizationRenderer
 {
-
     public class TetMeshRenderer4D : MonoBehaviour
     {
         public v2.Transform4D modelWorldTransform4D;
@@ -99,6 +98,7 @@ namespace RasterizationRenderer
                     }
                 }
 
+                lightSourceManager.UpdateTransform(camera4D.WorldToCameraTransform);
                 triangleMesh.Render(lightSourceManager);
                 triangleMesh.Reset();
             }

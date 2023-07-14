@@ -559,7 +559,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1240992786616724268, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: useCuller
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1240992786616724268, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: modelWorldTransform4D
