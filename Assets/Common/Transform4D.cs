@@ -15,6 +15,7 @@ namespace v2
         zw
     }
 
+
     /// <summary>
     /// Represents a translation/rotation/scaling in 4D
     /// </summary>
@@ -27,6 +28,15 @@ namespace v2
         [HideInInspector]
         public float[] localRotation = new float[ROTATION_DOF];
         public Vector4 localScale = Vector4.one;
+
+        static int[] rotationOrder = new int[ROTATION_DOF] { // The order of operation for these rotation does not match the order by which we generate them
+            (int)Rot4D.xz,
+            (int)Rot4D.yz, 
+            (int)Rot4D.xy,
+            (int)Rot4D.xw,
+            (int)Rot4D.yw,
+            (int)Rot4D.zw,
+        };
 
         // caches the Transform4D of the parent for performance 
         Transform4D _parent;
@@ -214,13 +224,20 @@ namespace v2
                     new(0, 0, 0, scale.w)
                 )
             };
+            
+            Matrix4x4[] matrices = new Matrix4x4[ROTATION_DOF];
             for (int i = 0; i < 3; ++i)
             {
                 for (int j = i + 1; j < 4; ++j)
                 {
-                    total = RotationMatrix(i, j, allRotations[axisCount]) * total;
+                    matrices[axisCount] = RotationMatrix(i, j, allRotations[axisCount]);
                     axisCount++;
                 }
+            }
+            // Apply our calculated rotation matrices in predefined order
+            for (int i = 0; i < ROTATION_DOF; i++)
+            {
+                total = total * matrices[rotationOrder[i]];
             }
             return total;
         }
@@ -297,6 +314,8 @@ namespace v2
         {
             localEulerAngles3D = Quaternion.LookRotation(worldToLocal3D.GetColumn(2), worldToLocal3D.GetColumn(1)).eulerAngles * Mathf.PI / 180f;
             localRotation[(int)Rot4D.xz] = (Mathf.PI - localRotation[(int)Rot4D.xz]); // Reverse the z forward direction - cameras use OpenGL standard which has -z axis
+            localRotation[(int)Rot4D.yz] =  -localRotation[(int)Rot4D.yz]; // TODO: force flip left/right camera controls, not sure why
+            
             localPosition3D = worldToLocal3D.GetPosition();
             localScale = worldToLocal3D.lossyScale.withW(localScale.w);
         }
