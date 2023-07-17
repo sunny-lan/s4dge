@@ -6,8 +6,10 @@
 struct Hypercube
 {
 	// two opposite points of the hypercube
+	Transform4D inverseTransform;
 	float4 p1;
 	float4 p2;
+	RayTracingMaterial material;
 
 	// Checks the 2 faces of the hypercube on given axis
 	void _check_inside(Ray r, float4 axis, inout float min_t, inout float max_t)

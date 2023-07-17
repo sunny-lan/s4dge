@@ -318,9 +318,16 @@ Shader "Custom/RayTracingHyperCube"
 				HitInfo closestHit = (HitInfo)0;
 				closestHit.dst = 1.#INF;
 
+				Transform4D t4d = {
+					IDENTITY_MATRIX,
+					float4(0,0,0,0)
+				};
+				RayTracingMaterial mat = (RayTracingMaterial)0;
 				Hypercube c = {
+					t4d,
 					{0,0,0,0},
-					{5,5,5,5}
+					{5,5,5,5},
+					mat
 				};
 				HitInfo hitInfo = c.intersection(ray);
 

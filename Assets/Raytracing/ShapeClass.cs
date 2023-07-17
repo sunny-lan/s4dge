@@ -7,5 +7,6 @@ public enum ShapeClass
     Unknown = 0,
     Sphere,
     HyperSphere,
+    HyperCube,
     Tet
 }

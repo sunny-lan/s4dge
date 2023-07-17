@@ -11,6 +11,7 @@ Shader "Custom/RayTracing"
 			#pragma fragment frag
 			#include "UnityCG.cginc"	
 			#include "Assets/Raytracing/Tet.hlsl"
+			#include "Assets/Raytracing/Hypercube.hlsl"
 
 			struct appdata
 			{
@@ -100,6 +101,9 @@ Shader "Custom/RayTracing"
 
 			StructuredBuffer<TetMesh> TetMeshes;
 			int NumTetMeshes;
+
+			StructuredBuffer<Hypercube> HyperCubes;
+			int NumHyperCubes;
 
 			// --- Ray Intersection Functions ---
 		
@@ -391,6 +395,26 @@ Shader "Custom/RayTracing"
 							}
 						}
 
+					}
+				}
+
+				for (int i = 0; i < NumHyperCubes; i++) {
+					Hypercube hypercube = HyperCubes[i];
+					Ray localRay = TransformRay(ray, hypercube.inverseTransform);
+					HitInfo hitInfo = hypercube.intersection(localRay);
+
+					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
+						
+						if (hitInfo.dst < closestHit.dst)
+						{
+							hitInfo.numHits += closestHit.numHits;
+							closestHit = hitInfo;
+							closestHit.material = hypercube.material;
+						}
+						else
+						{
+							closestHit.numHits += hitInfo.numHits;
+						}
 					}
 				}
 
