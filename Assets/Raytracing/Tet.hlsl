@@ -3,7 +3,7 @@
 #pragma exclude_renderers gles
 #define RAY_TETRAHEDRA_INTERSECTION
 
-#include "RayTracingStructs.cginc"
+#include "RayTracingStructs.hlsl"
 
 // A simplex is defined as x,y,z,w>=0 and x+y+z+w=1
 // This is the most basic form of a tetrahedron in 4D
