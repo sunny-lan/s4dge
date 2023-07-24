@@ -59,4 +59,22 @@ inline Ray TransformRay(Ray ray, Transform4D transform)
     localRay.dir = mul(transform.scaleAndRot, ray.dir); // TODO SUS
     return localRay;
 }
+
+
+void _compareHitInfo(inout HitInfo closestHit, in HitInfo hitInfo)
+{
+    if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01)
+    {
+						
+        if (hitInfo.dst < closestHit.dst)
+        {
+            hitInfo.numHits += closestHit.numHits;
+            closestHit = hitInfo;
+        }
+        else
+        {
+            closestHit.numHits += hitInfo.numHits;
+        }
+    }
+}
 #endif

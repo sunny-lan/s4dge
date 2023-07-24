@@ -10,7 +10,7 @@ public class TetMeshRenderer : RayTracedShape
     {
         base.Awake();
 
-        shapeClass = ShapeClass.Tet;
+        shapeClass = ShapeClass.TetMesh;
     }
 }
 
@@ -23,4 +23,6 @@ public struct TetMesh_shaderdata
 
     // Inclusive, exclusive
     public int idxStart, idxEnd;
+
+    public RayTracingMaterial material;
 }

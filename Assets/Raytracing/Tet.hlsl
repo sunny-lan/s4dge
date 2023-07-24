@@ -152,12 +152,4 @@ struct Tet
 	}
 };
 
-#include "Transform4D.hlsl"
-struct TetMesh
-{
-	Transform4D inverseTransform;
-	int stIdx;
-	int edIdx;
-};
-
 #endif

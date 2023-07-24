@@ -37,6 +37,7 @@ inline HitInfo RaySphere(Ray ray, Sphere sphere)
             hitInfo.hitPoint = localRay.origin + localRay.dir * dst;
             hitInfo.numHits = discriminant > 10 ? 2 : 1;
             hitInfo.normal = normalize(hitInfo.hitPoint);
+            hitInfo.material = sphere.material;
         }
     }
     return hitInfo;

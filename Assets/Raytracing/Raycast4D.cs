@@ -162,7 +162,7 @@ public class Raycast4D : MonoBehaviour {
                     );
                     break;
                 }
-                case ShapeClass.Tet: 
+                case ShapeClass.TetMesh: 
                     {
                         TetMeshRenderer meshRenderer = (TetMeshRenderer)shape;
                         if (meshRenderer.mesh?.mesh_Raw == null) continue;
@@ -179,7 +179,8 @@ public class Raycast4D : MonoBehaviour {
                         {
                             inverseTransform = meshRenderer.transform4D.worldToLocalMatrix,
                             idxStart = idxStart,
-                            idxEnd = tets.Count
+                            idxEnd = tets.Count,
+                            material = meshRenderer.material,
                         });
                         break;
                     }
@@ -223,6 +224,8 @@ public class Raycast4D : MonoBehaviour {
         ShaderHelper.Release(hyperSphereBuffer);
         ShaderHelper.Release(hyperCubeBuffer);
         ShaderHelper.Release(tetMeshBuffer);
+        ShaderHelper.Release(vertexBuffer);
+        ShaderHelper.Release(tetBuffer);
     }
 
     public struct Sphere

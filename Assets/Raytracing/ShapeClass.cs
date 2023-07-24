@@ -8,5 +8,5 @@ public enum ShapeClass
     Sphere,
     HyperSphere,
     HyperCube,
-    Tet
+    TetMesh
 }

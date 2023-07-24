@@ -15,6 +15,7 @@ Shader "Custom/RayTracing"
 			#include "Hypercube.hlsl"
 			#include "Sphere.hlsl"
 			#include "HyperSphere.hlsl"
+			#include "TetMesh.hlsl"
 
 			struct appdata
 			{
@@ -84,6 +85,29 @@ Shader "Custom/RayTracing"
 			int NumHyperCubes;
 
 			// --- Ray Intersection Functions ---
+		
+			void RayTetMesh(inout HitInfo closestHit, in TetMesh mesh, in Ray ray)
+			{
+				// Transform ray into local space of object
+				Ray localRay = TransformRay(ray, mesh.inverseTransform);
+	
+				for (int i = mesh.stIdx; i < mesh.edIdx; i++) {
+					Tet t;
+					int4 indices = Tets[i];
+					t.from_points(float4x4(
+						Vertices[indices[0]],
+						Vertices[indices[1]],
+						Vertices[indices[2]],
+						Vertices[indices[3]]
+					)); //TODO cache
+
+					HitInfo hitInfo = t.intersection(localRay);
+					hitInfo.material = mesh.material;
+			
+					_compareHitInfo(closestHit, hitInfo);
+
+				}
+			}
 
 			// Thanks to https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
 			bool RayBoundingBox(Ray ray, float3 boxMin, float3 boxMax)
@@ -189,99 +213,30 @@ Shader "Custom/RayTracing"
 				for (int i = 0; i < NumSpheres; i++) {
 					Sphere sphere = Spheres[i];
 					HitInfo hitInfo = RaySphere(ray, sphere);
-
-					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
-						
-						if (hitInfo.dst < closestHit.dst)
-						{
-							hitInfo.numHits += closestHit.numHits;
-							closestHit = hitInfo;
-							closestHit.material = sphere.material;
-						}
-						else
-						{
-							closestHit.numHits += hitInfo.numHits;
-						}
-					}
+					_compareHitInfo(closestHit, hitInfo);
 				}
 
 				for (int i = 0; i < NumHyperSpheres; i++) {
 					HyperSphere hyperSphere = HyperSpheres[i];
 					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere);
-
-					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
-						
-						if (hitInfo.dst < closestHit.dst)
-						{
-							hitInfo.numHits += closestHit.numHits;
-							closestHit = hitInfo;
-							closestHit.material = hyperSphere.material;
-						}
-						else
-						{
-							closestHit.numHits += hitInfo.numHits;
-						}
-					}
+		
+					_compareHitInfo(closestHit, hitInfo);
 
 				}
 
 				for (int j = 0; j < NumTetMeshes; j++) {
 					TetMesh mesh = TetMeshes[j];
-
-					// Transform ray into local space of object
-					Ray localRay;
-					localRay.origin = mesh.inverseTransform.apply(ray.origin);
-					localRay.dir = mul(mesh.inverseTransform.scaleAndRot,ray.dir); // TODO SUS
+		
+					RayTetMesh(closestHit, mesh, ray);
 					
-					for (int i = mesh.stIdx; i < mesh.edIdx; i++) {
-						Tet t;
-						int4 indices = Tets[i];
-						t.from_points(float4x4(
-							Vertices[indices[0]],
-							Vertices[indices[1]],
-							Vertices[indices[2]],
-							Vertices[indices[3]]
-						)); //TODO cache
-
-						HitInfo hitInfo = t.intersection(localRay);
-
-						if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01) {
-
-							if (hitInfo.dst < closestHit.dst)
-							{
-								hitInfo.numHits += closestHit.numHits;
-								hitInfo.hitPoint = hitInfo.dst * localRay.dir + localRay.origin;
-								closestHit = hitInfo;
-								closestHit.material.colour =
-									tmp_checkerboard(hitInfo.hitPoint);
-							}
-							else
-							{
-								closestHit.numHits += hitInfo.numHits;
-							}
-						}
-
-					}
 				}
 
 				for (int i = 0; i < NumHyperCubes; i++) {
 					Hypercube hypercube = HyperCubes[i];
 					Ray localRay = TransformRay(ray, hypercube.inverseTransform);
 					HitInfo hitInfo = hypercube.intersection(localRay);
-
-					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
-						
-						if (hitInfo.dst < closestHit.dst)
-						{
-							hitInfo.numHits += closestHit.numHits;
-							closestHit = hitInfo;
-							closestHit.material = hypercube.material;
-						}
-						else
-						{
-							closestHit.numHits += hitInfo.numHits;
-						}
-					}
+		
+					_compareHitInfo(closestHit, hitInfo);
 				}
 
 				return closestHit;
