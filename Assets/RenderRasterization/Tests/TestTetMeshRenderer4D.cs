@@ -89,7 +89,7 @@ public class TestTetMeshRenderer4D
         };
 
         RunMeshRendererTest(
-            mesh: rawTetMesh.ToTetMesh(),
+            mesh: rawTetMesh.ToRasterizableTetMesh(),
             zSlice: 0,
             vanishingW: 1e6f,
             nearW: 1,
@@ -143,7 +143,7 @@ public class TestTetMeshRenderer4D
         };
 
         RunMeshRendererTest(
-            mesh: rawTetMesh.ToTetMesh(),
+            mesh: rawTetMesh.ToRasterizableTetMesh(),
             zSlice: 0,
             vanishingW: 1e6f,
             nearW: 1,
