@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// A scene-global component that manages and tracks all the 4D gameobjects within a 4D ray tracing scene.
+/// </summary>
 public class Scene4D : MonoBehaviour
 {
     private static Scene4D _instance; // keep the actual instance private
