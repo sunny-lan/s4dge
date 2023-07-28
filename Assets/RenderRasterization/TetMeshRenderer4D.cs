@@ -1,11 +1,14 @@
 using System.Linq;
 using UnityEngine;
+using v2;
 
 namespace RasterizationRenderer
 {
+    [RequireComponent(typeof(Transform4D))]
+    [RequireComponent(typeof(TriangleMesh))]
     public class TetMeshRenderer4D : MonoBehaviour
     {
-        public v2.Transform4D modelWorldTransform4D;
+        v2.Transform4D modelWorldTransform4D;
         public static readonly int PTS_PER_TET = 4;
         public bool useCuller;
 
@@ -21,7 +24,7 @@ namespace RasterizationRenderer
 
         Camera4D camera4D;
 
-        public TriangleMesh triangleMesh;
+        TriangleMesh triangleMesh;
         private TetMesh4D tetMesh;
 
         LightSource4DManager lightSourceManager;
@@ -140,6 +143,9 @@ namespace RasterizationRenderer
             {
                 lightSourceManager.Add(lightSource);
             }
+
+            modelWorldTransform4D = GetComponent<Transform4D>();
+            triangleMesh = GetComponent<TriangleMesh>();
         }
 
         // Update is called once per frame

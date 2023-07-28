@@ -99,8 +99,8 @@ Shader "Rasterize4D"
                         (_GlobalSpecularColour * lightIntensity * phongTerm);
                 }
 
-                return colour;
-            }
+                    return fixed4(colour.xyz, 1.0);
+                }
             ENDCG
         }
     }

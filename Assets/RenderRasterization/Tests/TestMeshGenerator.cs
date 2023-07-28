@@ -2,8 +2,8 @@ using NUnit.Framework;
 using RasterizationRenderer;
 using System.Linq;
 using UnityEngine;
+using static MeshGeneratorUtils;
 using static RasterizationRenderer.MeshGenerator4D;
-
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 
 public class TestMeshGenerator
