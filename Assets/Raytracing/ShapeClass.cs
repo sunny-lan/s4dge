@@ -1,11 +1,15 @@
 /// <summary>
 /// 4D Shape types
 /// </summary>
-public enum ShapeClass 
+
+namespace RayTracing
 {
-    Unknown = 0,
-    Sphere,
-    HyperSphere,
-    HyperCube,
-    TetMesh
+    public enum ShapeClass
+    {
+        Unknown = 0,
+        Sphere,
+        HyperSphere,
+        HyperCube,
+        TetMesh
+    }
 }

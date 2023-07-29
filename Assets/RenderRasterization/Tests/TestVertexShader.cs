@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using RasterizationRenderer;
+using RenderingCommon;
 using System.Collections;
 using System.Linq;
 using UnityEditor.SceneManagement;

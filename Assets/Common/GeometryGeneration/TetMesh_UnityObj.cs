@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using RenderingCommon;
+using UnityEngine;
 
 /// <summary>
 /// An Unity serializable asset containing all the information describing

@@ -1,0 +1,15 @@
+apiRules:
+- include:
+    uidRegex: 'RasterizationRenderer\.TetMeshRenderer4D'
+- include:
+    uidRegex: 'RasterizationRenderer\.MeshGenerator4D$'
+- include:
+    uidRegex: 'RasterizationRenderer\.MeshGenerator4D\.ParameterBounds'
+- include:
+    uidRegex: 'v2\.Transform4D'
+- exclude:
+    uidRegex: 'RasterizationRenderer\..*'
+- exclude:
+    uidRegex: 'v2\..*'
+- exclude:
+    uidRegex: 'Raytracing\.Scene4D'
