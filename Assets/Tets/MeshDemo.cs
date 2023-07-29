@@ -20,12 +20,11 @@ public class MeshDemo : MonoBehaviour
                 Mathf.Cos(p.y),
                 Mathf.Sin(p.z) + p.x,
                 Mathf.Cos(p.x)* Mathf.Sin(p.y)
-            ), _ => new(), new()
-            {
-                lo=new(-1,-1,-1),
-                hi=new(1,1,1),
-                samplingInterval=0.3f
-            });
+            ), _ => new(), new(
+                lo:new(-1,-1,-1),
+                hi:new(1,1,1),
+                interval:0.3f
+            ));
 
         meshRenderer.mesh = ScriptableObject.CreateInstance<TetMesh_UnityObj>();
         meshRenderer.mesh.mesh_Raw = new()
