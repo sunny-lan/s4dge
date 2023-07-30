@@ -9,16 +9,18 @@ namespace RasterizationRenderer
         VariableLengthComputeBuffer triangleVertices;
         VariableLengthComputeBuffer slicedTriangles;
         VariableLengthComputeBuffer.BufferList bufferList;
-        int numTets;
+        ComputeBuffer numTets;
+        int maxNumTets;
         int sliceShaderKernel;
         uint threadGroupSize;
 
         public static readonly int PTS_PER_TRIANGLE = 3;
 
-        public TetSlicer(ComputeShader sliceShader, ComputeBuffer tetrahedra, int numTets)
+        public TetSlicer(ComputeShader sliceShader, ComputeBuffer tetrahedra, ComputeBuffer numTets, int maxNumTets)
         {
             this.tetrahedraBuffer = tetrahedra;
             this.numTets = numTets;
+            this.maxNumTets = maxNumTets;
             this.sliceShader = sliceShader;
             Construct();
         }
@@ -38,12 +40,10 @@ namespace RasterizationRenderer
             // Run vertex shader to transform points and perform perspective projection
             sliceShader.SetBuffer(sliceShaderKernel, "transformedVertices", vertexBuffer);
             sliceShader.SetBuffer(sliceShaderKernel, "tetsToDraw", tetrahedraBuffer);
-            sliceShader.SetInt("numTets", numTets);
+            sliceShader.SetBuffer(sliceShaderKernel, "numTets", numTets);
             sliceShader.SetFloat("zSlice", zSlice);
-            int numThreadGroups = (int)((numTets + (threadGroupSize - 1)) / threadGroupSize);
+            int numThreadGroups = (int)((maxNumTets + (threadGroupSize - 1)) / threadGroupSize);
             sliceShader.Dispatch(sliceShaderKernel, numThreadGroups, 1, 1);
-
-            bufferList.UpdateBufferLengths();
 
             // return array of tetrahedra that drawTetrahedron says should be drawn
             return bufferList;
@@ -54,8 +54,8 @@ namespace RasterizationRenderer
             sliceShaderKernel = sliceShader.FindKernel("TetrahedronSlicer");
             sliceShader.GetKernelThreadGroupSizes(sliceShaderKernel, out threadGroupSize, out _, out _);
 
-            slicedTriangles = new("slicedTriangles", numTets * 2, sizeof(int) * PTS_PER_TRIANGLE);
-            triangleVertices = new("triangleVertices", numTets * TetMesh4D.PTS_PER_TET, TetMesh4D.VertexData.SizeBytes);
+            slicedTriangles = new("slicedTriangles", maxNumTets * 2, sizeof(int) * PTS_PER_TRIANGLE);
+            triangleVertices = new("triangleVertices", maxNumTets * TetMesh4D.PTS_PER_TET, TetMesh4D.VertexData.SizeBytes);
             bufferList = new(new VariableLengthComputeBuffer[2] { slicedTriangles, triangleVertices }, sliceShader, sliceShaderKernel);
         }
 

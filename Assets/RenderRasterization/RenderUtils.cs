@@ -32,6 +32,14 @@ namespace RasterizationRenderer
             return values;
         }
 
+        public static T[] GetComputeBufferData<T>(VariableLengthComputeBuffer buf) where T : struct
+        {
+            T _ = new();
+            T[] values = new T[buf.Count * buf.Buffer.stride / System.Runtime.InteropServices.Marshal.SizeOf(_)];
+            buf.Buffer.GetData(values);
+            return values;
+        }
+
         public static void PrintComputeBufferData<T>(ComputeBuffer buf, string name) where T : struct
         {
             T[] values = GetComputeBufferData<T>(buf);

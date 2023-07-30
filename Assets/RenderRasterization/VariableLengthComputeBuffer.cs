@@ -93,6 +93,12 @@ namespace RasterizationRenderer
                 RenderUtils.WriteToComputeBuffer(curGlobalAppendIdx, globalAppendIdxInitValues);
             }
 
+            // Call after dispatching shader
+            public ComputeBuffer GetBufferLengths()
+            {
+                return curGlobalAppendIdx;
+            }
+
             public void Dispose()
             {
                 curGlobalAppendIdx.Dispose();
