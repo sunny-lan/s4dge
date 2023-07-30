@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
-
+using static MeshGeneratorUtils;
+using Manifold2D = System.Func<UnityEngine.Vector2, UnityEngine.Vector4>;
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 
 namespace RasterizationRenderer
@@ -33,6 +34,61 @@ namespace RasterizationRenderer
             );
 
             return GenerateTetMesh(sphereGenerator, sphereGenerator, samplingBounds);
+        }
+
+        public static TetMesh4D Generate3TorusMesh(float samplingInterval, float thickness)
+        {
+            static Vector4 Generate2Torus(Vector2 params2D)
+            {
+                float u = params2D.x;
+                float v = params2D.y;
+                return new Vector4(
+                    MathF.Cos(u),
+                    MathF.Sin(u),
+                    MathF.Cos(v),
+                    MathF.Sin(v)
+                );
+            }
+
+            static Vector4 Tangent1(Vector2 params2D)
+            {
+                float u = params2D.x;
+                float v = params2D.y;
+                return new Vector4(
+                    -MathF.Sin(u),
+                    MathF.Cos(u),
+                    0,
+                    0
+                );
+            }
+
+            static Vector4 Tangent2(Vector2 params2D)
+            {
+                float u = params2D.x;
+                float v = params2D.y;
+                return new Vector4(
+                    0,
+                    0,
+                    -MathF.Sin(v),
+                    MathF.Cos(v)
+                );
+            }
+
+            // Bounds are [0, 2pi] for u, v, theta
+            ParameterBounds samplingBounds = new(
+                Vector3.zero, 2 * Mathf.PI * Vector3.one, samplingInterval
+            );
+
+            return GenerateThickenedTetMesh(Generate2Torus, Tangent1, Tangent2, samplingBounds, thickness);
+        }
+
+        // tangent1: partial derivative of each output component of mf2d with respect to 1st variable (u)
+        // tangent2: partial derivative of each output component of mf2d with respect to 2nd variable (v)
+        // returns the position and normal generators for the thickened 3D manifold
+        public static TetMesh4D GenerateThickenedTetMesh(Manifold2D mf2d, Manifold2D tangent1, Manifold2D tangent2, ParameterBounds samplingBounds, float thickenRadius)
+        {
+            var (positionGenerator, normalGenerator) = ManifoldThickener.ThickenManifold2D(mf2d, tangent1, tangent2, thickenRadius);
+            return GenerateTetMesh(positionGenerator, normalGenerator, samplingBounds);
         }
 
         public static TetMesh4D GenerateTetMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
@@ -116,30 +172,30 @@ namespace RasterizationRenderer
                             });
 
 
-                            for (int off = 0; off < 6; ++off)
-                            {
-                                int p0Idx = tetrahedra[tetIdx + off].tetPoints[0];
-                                int p1Idx = tetrahedra[tetIdx + off].tetPoints[1];
-                                int p2Idx = tetrahedra[tetIdx + off].tetPoints[2];
-                                int p3Idx = tetrahedra[tetIdx + off].tetPoints[3];
+                            //for (int off = 0; off < 6; ++off)
+                            //{
+                            //    int p0Idx = tetrahedra[tetIdx + off].tetPoints[0];
+                            //    int p1Idx = tetrahedra[tetIdx + off].tetPoints[1];
+                            //    int p2Idx = tetrahedra[tetIdx + off].tetPoints[2];
+                            //    int p3Idx = tetrahedra[tetIdx + off].tetPoints[3];
 
-                                int normalSign = Math.Sign(meshVertices[p0Idx].normal.w);
+                            //    int normalSign = Math.Sign(meshVertices[p0Idx].normal.w);
 
-                                Vector4 p0Pos = meshVertices[p0Idx].position;
-                                Vector3 v1 = (meshVertices[p1Idx].position - p0Pos);
-                                Vector3 v2 = (meshVertices[p2Idx].position - p0Pos);
-                                Vector3 v3 = (meshVertices[p3Idx].position - p0Pos);
+                            //    Vector4 p0Pos = meshVertices[p0Idx].position;
+                            //    Vector3 v1 = (meshVertices[p1Idx].position - p0Pos);
+                            //    Vector3 v2 = (meshVertices[p2Idx].position - p0Pos);
+                            //    Vector3 v3 = (meshVertices[p3Idx].position - p0Pos);
 
-                                int volumeSign = Math.Sign(Vector3.Dot(v1, Vector3.Cross(v2, v3)));
+                            //    int volumeSign = Math.Sign(Vector3.Dot(v1, Vector3.Cross(v2, v3)));
 
-                                // If the normal for p0 is pointing in the negative w-direction
-                                // The signed volume of the tetrahedron should be negative and vice-versa
-                                if (normalSign != volumeSign)
-                                {
-                                    (tetrahedra[tetIdx + off].tetPoints[2], tetrahedra[tetIdx + off].tetPoints[3]) =
-                                        (tetrahedra[tetIdx + off].tetPoints[3], tetrahedra[tetIdx + off].tetPoints[2]);
-                                }
-                            }
+                            //    // If the normal for p0 is pointing in the negative w-direction
+                            //    // The signed volume of the tetrahedron should be negative and vice-versa
+                            //    if (normalSign != volumeSign)
+                            //    {
+                            //        (tetrahedra[tetIdx + off].tetPoints[2], tetrahedra[tetIdx + off].tetPoints[3]) =
+                            //            (tetrahedra[tetIdx + off].tetPoints[3], tetrahedra[tetIdx + off].tetPoints[2]);
+                            //    }
+                            //}
 
                             tetIdx += tetPerHex;
                         }
@@ -176,52 +232,6 @@ namespace RasterizationRenderer
             }
 
             return hexMesh;
-        }
-
-        public struct ParameterBounds
-        {
-            public Vector3 lo;
-            public Vector3 hi;
-            public float samplingInterval;
-
-            public ParameterBounds(Vector3 lo, Vector3 hi, float interval)
-            {
-                this.lo = lo;
-                this.hi = hi;
-                this.samplingInterval = interval;
-            }
-        }
-
-        public struct Dimension3D
-        {
-            public int x;
-            public int y;
-            public int z;
-
-            public Dimension3D(int x, int y, int z)
-            {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-            }
-        }
-
-        public struct HexMesh4D
-        {
-            // 3D array storing where 3D points in the parametric space map to 4D points
-            public Vector4[,,] vertices;
-            public Vector4[,,] normals;
-
-            public HexMesh4D(int xSize, int ySize, int zSize)
-            {
-                vertices = new Vector4[xSize, ySize, zSize];
-                normals = new Vector4[xSize, ySize, zSize];
-            }
-
-            public readonly Dimension3D GetDimension()
-            {
-                return new(vertices.GetLength(0), vertices.GetLength(1), vertices.GetLength(2));
-            }
         }
     }
 
