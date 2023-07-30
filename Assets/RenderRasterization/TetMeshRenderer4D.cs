@@ -90,6 +90,8 @@ namespace RasterizationRenderer
             // don't draw unless zSliceInterval is large enough so that unity doesn't freeze when accidentally set to 0
             if (vertexShader != null && culler != null && zSliceInterval > 0.05)
             {
+                triangleMesh.Reset();
+
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
                     (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice);
@@ -98,7 +100,6 @@ namespace RasterizationRenderer
 
                 lightSourceManager.UpdateTransform(camera4D.WorldToCameraTransform);
                 triangleMesh.Render(lightSourceManager);
-                triangleMesh.Reset();
             }
         }
 

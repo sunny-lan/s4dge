@@ -568,7 +568,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &987404469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -631,7 +631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e90ec6352b11e047b36bf0ebf30aa97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thickness: 0.2
+  thickness: 0.1
   zSliceStart: -1
   zSliceLength: 2
   zSliceInterval: 0.2
@@ -673,7 +673,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2288248937925208516, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: nearW
