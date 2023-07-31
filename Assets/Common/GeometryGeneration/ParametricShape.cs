@@ -4,6 +4,7 @@ using UnityEngine;
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 using Manifold1D = System.Func<float, UnityEngine.Vector4>;
 using System;
+using System.Collections.Generic;
 
 public struct ParameterBounds3D
 {
@@ -101,5 +102,10 @@ public struct Frame4D
     public static Vector4 operator *(Frame4D lhs, Vector4 rhs)
     {
         return lhs.T * rhs.x + lhs.N * rhs.y + lhs.B * rhs.z + lhs.D * rhs.w;
+    }
+
+    public override string ToString()
+    {
+        return $"{T} {N} {B} {D}";
     }
 }

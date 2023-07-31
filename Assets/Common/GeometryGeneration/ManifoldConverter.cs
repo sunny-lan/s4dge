@@ -15,7 +15,7 @@ public class ManifoldConverter
     /// <param name="frenetFrame">The frenet frame at each point on the line</param>
     /// <param name="sphereDivisions">The number of divisions the construct the sphere from</param>
     /// <returns>The parametric equation for the thickened line</returns>
-    public static ParametricShape3D HyperCylinderify(ParametricShape1D line, Func<float, float> radius, Func<float, Frame4D> frenetFrame, float sphereDivisions = 16)
+    public static ParametricShape3D HyperCylinderify(ParametricShape1D line, Func<float, float> radius, Func<float, Frame4D> frenetFrame, float sphereDivisions = 6)
     {
         return new()
         {
@@ -26,26 +26,26 @@ public class ManifoldConverter
                 float c_r = r * Mathf.Cos(p.y);
                 Vector4 sphere = new(
                     0, //T
-                    c_r * Mathf.Cos(p.x), 
+                    c_r * Mathf.Cos(p.x),
                     c_r * Mathf.Sin(p.x),
                     r * Mathf.Sin(p.y)
                 );
                 return line.Path(p.z) + frenetFrame(p.z) * sphere;
             },
             Bounds = new ParameterBounds3D(
-                lo: new(),
-                hi: new(),
+                lo: new(0, 0, line.Start),
+                hi: new(2 * Mathf.PI, 2 * Mathf.PI, line.End),
                 interval: new Vector3(
                     2 * Mathf.PI / sphereDivisions,
                     2 * Mathf.PI / sphereDivisions,
-                    line.Divisions
+                    (line.End - line.Start) / line.Divisions
                 )
             )
         };
     }
 
 
-    public static ParametricShape3D HyperCylinderify(ParametricShape1D line, Func<float, float> radius, float sphereDivisions = 16)
+    public static ParametricShape3D HyperCylinderify(ParametricShape1D line, Func<float, float> radius, float sphereDivisions = 6)
     {
         return HyperCylinderify(line, radius, line.Path.FrenetFrame(), sphereDivisions);
     }
