@@ -75,7 +75,7 @@ namespace RasterizationRenderer
             }
 
             // Bounds are [0, 2pi] for u, v, theta
-            ParameterBounds samplingBounds = new(
+            ParameterBounds3D samplingBounds = new(
                 Vector3.zero, 2 * Mathf.PI * Vector3.one, samplingInterval
             );
 
@@ -85,13 +85,13 @@ namespace RasterizationRenderer
         // tangent1: partial derivative of each output component of mf2d with respect to 1st variable (u)
         // tangent2: partial derivative of each output component of mf2d with respect to 2nd variable (v)
         // returns the position and normal generators for the thickened 3D manifold
-        public static TetMesh4D GenerateThickenedTetMesh(Manifold2D mf2d, Manifold2D tangent1, Manifold2D tangent2, ParameterBounds samplingBounds, float thickenRadius)
+        public static TetMesh4D GenerateThickenedTetMesh(Manifold2D mf2d, Manifold2D tangent1, Manifold2D tangent2, ParameterBounds3D samplingBounds, float thickenRadius)
         {
             var (positionGenerator, normalGenerator) = ManifoldThickener.ThickenManifold2D(mf2d, tangent1, tangent2, thickenRadius);
             return GenerateTetMesh(positionGenerator, normalGenerator, samplingBounds);
         }
 
-        public static TetMesh4D GenerateTetMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
+        public static TetMesh4D GenerateTetMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds3D samplingBounds)
         {
             var hexMesh = GenerateHexMesh(positionGenerator, normalGenerator, samplingBounds);
             return Generate6TetMeshFromHexMesh(hexMesh);
