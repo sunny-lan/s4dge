@@ -119,6 +119,7 @@ namespace RasterizationRenderer
                     {
                         meshVertices[FlattenCoord3D(x, y, z, hexMeshDimension)].position = hexMesh.vertices[x, y, z];
                         meshVertices[FlattenCoord3D(x, y, z, hexMeshDimension)].normal = hexMesh.normals[x, y, z];
+                        meshVertices[FlattenCoord3D(x, y, z, hexMeshDimension)].worldPosition4D = hexMesh.vertices[x, y, z];
 
                         if (x > 0 && y > 0 && z > 0)
                         {

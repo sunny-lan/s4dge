@@ -2,7 +2,6 @@ using RasterizationRenderer;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using v2;
 
 public class LightSource4DManager
 {
@@ -25,7 +24,7 @@ public class LightSource4DManager
         lightSources.Add(lightSource);
     }
 
-    void UpdateComputeBuffer(Matrix4x4 worldToCameraScaleAndRot, Vector4 worldToCameraTranslation)
+    public void UpdateComputeBuffer()
     {
         var lightSourceArr = lightSources.Select(source => source.data).ToArray();
 
@@ -35,11 +34,6 @@ public class LightSource4DManager
         }
 
         _lightSourceBuffer = RenderUtils.InitComputeBuffer(LightSource4D.Data.SizeBytes,
-            lightSourceArr.Select(light => new LightSource4D.Data(worldToCameraScaleAndRot * light.position + worldToCameraTranslation)).ToArray());
-    }
-
-    public void UpdateTransform(TransformMatrixAffine4D worldToCameraTransform)
-    {
-        UpdateComputeBuffer(worldToCameraTransform.scaleAndRot, worldToCameraTransform.translation);
+            lightSourceArr);
     }
 }

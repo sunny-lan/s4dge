@@ -23,6 +23,7 @@ Shader "Rasterize4D"
             #pragma fragment frag alpha:blend
 
             #include "UnityCG.cginc"
+            #include "VertexShaderUtils.cginc"
 
             // Properties
             float4 _GlobalAmbientIntensity;
@@ -31,6 +32,9 @@ Shader "Rasterize4D"
             fixed4 _GlobalSpecularColour;
             float _GlobalShininess;
             float _AttenuationFactor;
+
+            float4x4 worldToCameraScaleAndRot;
+            float4 worldToCameraTranslation;
 
             struct pointLight4D {
                 float4 pos;
@@ -43,13 +47,14 @@ Shader "Rasterize4D"
             {
                 float4 vertex : POSITION;
                 float4 normal : NORMAL;
+                float4 vertexWorld: TEXCOORD1;
             };
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
                 float4 normal : NORMAL;
-                float4 vertexOriginal : POSITION1;
+                float4 vertexWorld : TEXCOORD1;
             };
 
             v2f vert (appdata v)
@@ -60,7 +65,7 @@ Shader "Rasterize4D"
                 o.vertex = UnityObjectToClipPos(v.vertex.xyw);
 
                 o.normal = v.normal;
-                o.vertexOriginal = v.vertex;
+                o.vertexWorld = v.vertexWorld;
                 return o;
             }
 
@@ -71,22 +76,28 @@ Shader "Rasterize4D"
                 return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * sqrt(lightDistanceSqr)));
             }
 
+            float4 applyWorldToCameraTransform(float4 v) {
+                return applyTranslation(applyScaleAndRot(v, worldToCameraScaleAndRot), worldToCameraTranslation);
+            }
+
             // Phong Model from:
             // https://paroj.github.io/gltut/Illumination/Tut11%20Phong%20Model.html
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 vertex4D = i.vertexOriginal;
-                float4 fragNormal = normalize(i.normal);
+                float4 vertex4D = applyWorldToCameraTransform(i.vertexWorld);
+                float4 fragNormal = normalize(applyWorldToCameraTransform(i.normal));
+                //return fixed4((fragNormal.xyz + fixed3(1.0, 1.0, 1.0)) / fixed3(2.0, 2.0, 2.0), 1.0);
+                //return fixed4(fragNormal.y, 0, 0, 1);
 
                 fixed4 colour = _GlobalAmbientIntensity * _GlobalDiffuseColour;
 
                 for (int i = 0; i < numLights; ++i) {
-                    float4 lightSource = lightSources[i].pos;
+                    float4 lightSource = applyWorldToCameraTransform(lightSources[i].pos);
 
-                    float4 lightDir = lightSource - vertex4D;
+                    float4 lightDir = normalize(lightSource - vertex4D);
                     float cosAngIncidence = clamp(dot(fragNormal, lightDir), 0, 1);
 
-                    float4 viewDir = normalize(vertex4D);
+                    float4 viewDir = normalize(applyWorldToCameraTransform(vertex4D));
                     float4 reflectDir = reflect(-lightDir, fragNormal);
 
                     float phongTerm = clamp(dot(viewDir, reflectDir), 0, 1);
@@ -97,6 +108,7 @@ Shader "Rasterize4D"
 
                     colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) +
                         (_GlobalSpecularColour * lightIntensity * phongTerm);
+                    //colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence);
                 }
 
                     return fixed4(colour.xyz, 1.0);

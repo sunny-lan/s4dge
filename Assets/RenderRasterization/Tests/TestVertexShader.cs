@@ -7,6 +7,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using v2;
 
 public class TestVertexShader
 {
@@ -60,11 +61,12 @@ public class TestVertexShader
     {
         VertexShader vertexTransformer = new(vertexShader, vertices);
         float inf = 1e6f;
-        ComputeBuffer transformedVertexBuffer = vertexTransformer.Render(new v2.TransformMatrixAffine4D
+        TransformMatrixAffine4D transform = new v2.TransformMatrixAffine4D
         {
             scaleAndRot = Matrix4x4.identity,
             translation = Vector4.zero,
-        }, Matrix4x4.identity, 0, inf, 0.0f);
+        };
+        ComputeBuffer transformedVertexBuffer = vertexTransformer.Render(transform, transform, Matrix4x4.identity, 0, inf, 0.0f);
 
         float[] transformedVertexData = new float[vertices.Length * 8];
         transformedVertexBuffer.GetData(transformedVertexData);

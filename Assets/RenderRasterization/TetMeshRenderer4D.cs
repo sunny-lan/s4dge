@@ -46,6 +46,7 @@ namespace RasterizationRenderer
 
             ComputeBuffer vertexBuffer = vertexShader.Render(
                 camera4D.WorldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
+                modelWorldTransform4D.localToWorldMatrix,
                 Matrix4x4.identity,
                 zSlice, camera3D.farClipPlane, camera3D.nearClipPlane
             );
@@ -98,8 +99,7 @@ namespace RasterizationRenderer
                     triangleMesh.UpdateData(vertexData, triangleData);
                 }
 
-                lightSourceManager.UpdateTransform(camera4D.WorldToCameraTransform);
-                triangleMesh.Render(lightSourceManager);
+                triangleMesh.Render(lightSourceManager, camera4D.WorldToCameraTransform);
             }
         }
 
@@ -137,6 +137,7 @@ namespace RasterizationRenderer
             {
                 lightSourceManager.Add(lightSource);
             }
+            lightSourceManager.UpdateComputeBuffer();
 
             modelWorldTransform4D = GetComponent<Transform4D>();
             triangleMesh = GetComponent<TriangleMesh>();

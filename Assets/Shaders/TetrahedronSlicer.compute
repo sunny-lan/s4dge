@@ -100,8 +100,12 @@ TetIntersection PerformSlice(uint3 globalId) {
                 float4 n0 = v0.normal;
                 float4 n1 = v1.normal;
 
+                float4 wp0 = v0.worldPos;
+                float4 wp1 = v1.worldPos;
+
                 ret.points[edgeIdx].pos = LerpVByPZ(p0, p1, p0, p1);
                 ret.points[edgeIdx].normal = normalize(LerpVByPZ(n0, n1, p0, p1));
+                ret.points[edgeIdx].worldPos = LerpVByPZ(wp0, wp1, p0, p1);
             }
 
             // Add triangle

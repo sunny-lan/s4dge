@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using v2;
 using static RasterizationRenderer.TetMesh4D;
 
 public class TriangleMesh : MonoBehaviour
@@ -29,6 +30,7 @@ public class TriangleMesh : MonoBehaviour
             {
                 new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 4),
                 new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 4),
+                new VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexAttributeFormat.Float32, 4),
             }
         );
 
@@ -41,9 +43,11 @@ public class TriangleMesh : MonoBehaviour
         curVertexCount += numNewVertices;
     }
 
-    public void Render(LightSource4DManager lightSources)
+    public void Render(LightSource4DManager lightSources, TransformMatrixAffine4D worldToCameraTransform)
     {
         PassLightDataToMaterial(lightSources);
+        material.SetMatrix("worldToCameraScaleAndRot", worldToCameraTransform.scaleAndRot);
+        material.SetVector("worldToCameraTranslation", worldToCameraTransform.translation);
 
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
