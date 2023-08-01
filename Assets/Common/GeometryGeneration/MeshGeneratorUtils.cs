@@ -66,6 +66,14 @@ public class MeshGeneratorUtils
             {
                 Vector2 mf2DPoint = new(params3D.x, params3D.y);
                 float theta = params3D.z;
+
+                //Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), b(mf2DPoint)), 0);
+                //Assert.AreApproximatelyEqual(Vector4.Dot(b(mf2DPoint), c(mf2DPoint)), 0);
+                //Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), c(mf2DPoint)), 0);
+                //Assert.AreApproximatelyEqual(Vector4.Dot(c(mf2DPoint), normal2(mf2DPoint)), 0);
+                //Assert.AreApproximatelyEqual(Vector4.Dot(b(mf2DPoint), normal2(mf2DPoint)), 0);
+                //Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), normal2(mf2DPoint)), 0);
+
                 return Mathf.Cos(theta) * normal1(mf2DPoint) + Mathf.Sin(theta) * normal2(mf2DPoint);
             }
             Vector4 positionGenerator(Vector3 params3D)

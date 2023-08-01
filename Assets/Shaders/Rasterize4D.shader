@@ -86,8 +86,6 @@ Shader "Rasterize4D"
             {
                 float4 vertex4D = applyWorldToCameraTransform(i.vertexWorld);
                 float4 fragNormal = normalize(applyWorldToCameraTransform(i.normal));
-                //return fixed4((fragNormal.xyw + fixed3(1.0, 1.0, 1.0)) / fixed3(2.0, 2.0, 2.0), 1.0);
-                return fixed4(fragNormal.y, 0, 0, 1);
 
                 fixed4 colour = _GlobalAmbientIntensity * _GlobalDiffuseColour;
 

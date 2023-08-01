@@ -88,9 +88,9 @@ public static class Util
     public static Vector4 CrossProduct4D(Vector4 a, Vector4 b, Vector4 c)
     {
         return new Vector4(
-            a.y * (b.z * c.w - b.w * c.z) - a.z * (b.y * c.w - b.w * c.y) - a.w * (b.y * c.z - b.z * c.y),
-            a.x * (b.z * c.w - b.w * c.z) - a.z * (b.x * c.w - b.w * c.x) - a.w * (b.x * c.z - b.z * c.x),
-            a.x * (b.y * c.w - b.w * c.y) - a.y * (b.x * c.w - b.w * c.x) - a.w * (b.x * c.y - b.y * c.x),
+            a.z * (b.y * c.w - b.w * c.y) - a.y * (b.z * c.w - b.w * c.z) - a.w * (b.y * c.z - b.z * c.y),
+            a.x * (b.z * c.w - b.w * c.z) - a.z * (b.x * c.w - b.w * c.x) + a.w * (b.x * c.z - b.z * c.x),
+            -a.x * (b.y * c.w - b.w * c.y) + a.y * (b.x * c.w - b.w * c.x) - a.w * (b.x * c.y - b.y * c.x),
             a.x * (b.y * c.z - b.z * c.y) - a.y * (b.x * c.z - b.z * c.x) - a.z * (b.x * c.y - b.y * c.x)
         );
     }
