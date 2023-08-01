@@ -18,13 +18,13 @@ public class TetMesh_raw
     /// The vertex array
     /// </summary>
     [SerializeField]
-    public List<TetMesh4D.VertexData> vertices = new();
+    public List<TetMesh4D.VertexData> vertices;
 
     /// <summary>
     /// The index array
     /// </summary>
     [SerializeField]
-    public List<TetMesh4D.Tet4D> tets = new();
+    public List<TetMesh4D.Tet4D> tets;
 
     /// <summary>
     /// Add a single tetrahedron into this mesh
@@ -50,5 +50,17 @@ public class TetMesh_raw
     public TetMesh4D ToRasterizableTetMesh()
     {
         return new TetMesh4D(vertices.ToArray(), tets.ToArray());
+    }
+
+    public TetMesh_raw()
+    {
+        vertices = new();
+        tets = new();
+    }
+
+    public TetMesh_raw(TetMesh4D m)
+    {
+        vertices = m.vertices.ToList();
+        tets = m.tets.ToList();
     }
 }

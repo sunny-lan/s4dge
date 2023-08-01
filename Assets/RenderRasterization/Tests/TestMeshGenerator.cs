@@ -27,7 +27,7 @@ public class TestMeshGenerator
         };
 
         // Bounds are [(0, pi), (0, pi), (0, 2pi)]
-        ParameterBounds samplingBounds = new(
+        ParameterBounds3D samplingBounds = new(
             Vector3.zero, Vector3.one, 1.0f
         );
 

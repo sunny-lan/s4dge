@@ -4,20 +4,6 @@ using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 
 public class MeshGeneratorUtils
 {
-    public struct ParameterBounds
-    {
-        public Vector3 lo;
-        public Vector3 hi;
-        public float samplingInterval;
-
-        public ParameterBounds(Vector3 lo, Vector3 hi, float interval)
-        {
-            this.lo = lo;
-            this.hi = hi;
-            this.samplingInterval = interval;
-        }
-    }
-
     public struct Dimension3D
     {
         public int x;

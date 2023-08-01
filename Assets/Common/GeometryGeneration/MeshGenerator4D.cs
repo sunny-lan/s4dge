@@ -29,7 +29,7 @@ namespace RasterizationRenderer
             };
 
             // Bounds are [(0, pi), (0, pi), (0, 2pi)]
-            ParameterBounds samplingBounds = new(
+            ParameterBounds3D samplingBounds = new(
                 Vector3.zero, Mathf.PI * (Vector3.one + Vector3.forward), samplingInterval
             );
 
@@ -75,7 +75,7 @@ namespace RasterizationRenderer
             }
 
             // Bounds are [0, 2pi] for u, v, theta
-            ParameterBounds samplingBounds = new(
+            ParameterBounds3D samplingBounds = new(
                 Vector3.zero, 2 * Mathf.PI * Vector3.one, samplingInterval
             );
 
@@ -85,13 +85,13 @@ namespace RasterizationRenderer
         // tangent1: partial derivative of each output component of mf2d with respect to 1st variable (u)
         // tangent2: partial derivative of each output component of mf2d with respect to 2nd variable (v)
         // returns the position and normal generators for the thickened 3D manifold
-        public static TetMesh4D GenerateThickenedTetMesh(Manifold2D mf2d, Manifold2D tangent1, Manifold2D tangent2, ParameterBounds samplingBounds, float thickenRadius)
+        public static TetMesh4D GenerateThickenedTetMesh(Manifold2D mf2d, Manifold2D tangent1, Manifold2D tangent2, ParameterBounds3D samplingBounds, float thickenRadius)
         {
             var (positionGenerator, normalGenerator) = ManifoldThickener.ThickenManifold2D(mf2d, tangent1, tangent2, thickenRadius);
             return GenerateTetMesh(positionGenerator, normalGenerator, samplingBounds);
         }
 
-        public static TetMesh4D GenerateTetMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
+        public static TetMesh4D GenerateTetMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds3D samplingBounds)
         {
             var hexMesh = GenerateHexMesh(positionGenerator, normalGenerator, samplingBounds);
             return Generate6TetMeshFromHexMesh(hexMesh);
@@ -207,23 +207,23 @@ namespace RasterizationRenderer
             return new TetMesh4D(meshVertices, tetrahedra);
         }
 
-        public static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
+        public static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds3D samplingBounds)
         {
-            int xSize = (int)(Mathf.Ceil((samplingBounds.hi.x - samplingBounds.lo.x) / samplingBounds.samplingInterval)) + 1;
-            int ySize = (int)(Mathf.Ceil((samplingBounds.hi.y - samplingBounds.lo.y) / samplingBounds.samplingInterval)) + 1;
-            int zSize = (int)(Mathf.Ceil((samplingBounds.hi.z - samplingBounds.lo.z) / samplingBounds.samplingInterval)) + 1;
+            int xSize = (int)(Mathf.Floor((samplingBounds.hi.x - samplingBounds.lo.x) / samplingBounds.samplingInterval.x)) + 1;
+            int ySize = (int)(Mathf.Floor((samplingBounds.hi.y - samplingBounds.lo.y) / samplingBounds.samplingInterval.y)) + 1;
+            int zSize = (int)(Mathf.Floor((samplingBounds.hi.z - samplingBounds.lo.z) / samplingBounds.samplingInterval.z)) + 1;
             HexMesh4D hexMesh = new HexMesh4D(xSize, ySize, zSize);
 
             // sample parametric equations positionGenerator, normalGenerator at intervals to generate a hexahedral (cube) Mesh
             for (int xSample = 0; xSample < xSize; ++xSample)
             {
-                float u = samplingBounds.lo.x + xSample * samplingBounds.samplingInterval;
+                float u = samplingBounds.lo.x + xSample * samplingBounds.samplingInterval.x;
                 for (int ySample = 0; ySample < ySize; ++ySample)
                 {
-                    float v = samplingBounds.lo.y + ySample * samplingBounds.samplingInterval;
+                    float v = samplingBounds.lo.y + ySample * samplingBounds.samplingInterval.y;
                     for (int zSample = 0; zSample < zSize; ++zSample)
                     {
-                        float t = samplingBounds.lo.z + zSample * samplingBounds.samplingInterval;
+                        float t = samplingBounds.lo.z + zSample * samplingBounds.samplingInterval.z;
 
                         Vector3 sampledParams = new(u, v, t);
                         hexMesh.vertices[xSample, ySample, zSample] = positionGenerator(sampledParams);
@@ -233,6 +233,39 @@ namespace RasterizationRenderer
             }
 
             return hexMesh;
+        }
+
+
+        public struct Dimension3D
+        {
+            public int x;
+            public int y;
+            public int z;
+
+            public Dimension3D(int x, int y, int z)
+            {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+        }
+
+        public struct HexMesh4D
+        {
+            // 3D array storing where 3D points in the parametric space map to 4D points
+            public Vector4[,,] vertices;
+            public Vector4[,,] normals;
+
+            public HexMesh4D(int xSize, int ySize, int zSize)
+            {
+                vertices = new Vector4[xSize, ySize, zSize];
+                normals = new Vector4[xSize, ySize, zSize];
+            }
+
+            public readonly Dimension3D GetDimension()
+            {
+                return new(vertices.GetLength(0), vertices.GetLength(1), vertices.GetLength(2));
+            }
         }
     }
 
