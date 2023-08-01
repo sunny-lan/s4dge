@@ -173,30 +173,30 @@ namespace RasterizationRenderer
                             });
 
 
-                            for (int off = 0; off < 6; ++off)
-                            {
-                                int p0Idx = tetrahedra[tetIdx + off].tetPoints[0];
-                                int p1Idx = tetrahedra[tetIdx + off].tetPoints[1];
-                                int p2Idx = tetrahedra[tetIdx + off].tetPoints[2];
-                                int p3Idx = tetrahedra[tetIdx + off].tetPoints[3];
+                            //for (int off = 0; off < 6; ++off)
+                            //{
+                            //    int p0Idx = tetrahedra[tetIdx + off].tetPoints[0];
+                            //    int p1Idx = tetrahedra[tetIdx + off].tetPoints[1];
+                            //    int p2Idx = tetrahedra[tetIdx + off].tetPoints[2];
+                            //    int p3Idx = tetrahedra[tetIdx + off].tetPoints[3];
 
-                                int normalSign = Math.Sign(meshVertices[p0Idx].normal.w);
+                            //    int normalSign = Math.Sign(meshVertices[p0Idx].normal.w);
 
-                                Vector4 p0Pos = meshVertices[p0Idx].position;
-                                Vector3 v1 = (meshVertices[p1Idx].position - p0Pos);
-                                Vector3 v2 = (meshVertices[p2Idx].position - p0Pos);
-                                Vector3 v3 = (meshVertices[p3Idx].position - p0Pos);
+                            //    Vector4 p0Pos = meshVertices[p0Idx].position;
+                            //    Vector3 v1 = (meshVertices[p1Idx].position - p0Pos);
+                            //    Vector3 v2 = (meshVertices[p2Idx].position - p0Pos);
+                            //    Vector3 v3 = (meshVertices[p3Idx].position - p0Pos);
 
-                                int volumeSign = Math.Sign(Vector3.Dot(v1, Vector3.Cross(v2, v3)));
+                            //    int volumeSign = Math.Sign(Vector3.Dot(v1, Vector3.Cross(v2, v3)));
 
-                                // If the normal for p0 is pointing in the negative w-direction
-                                // The signed volume of the tetrahedron should be negative and vice-versa
-                                if (normalSign != volumeSign)
-                                {
-                                    (tetrahedra[tetIdx + off].tetPoints[2], tetrahedra[tetIdx + off].tetPoints[3]) =
-                                        (tetrahedra[tetIdx + off].tetPoints[3], tetrahedra[tetIdx + off].tetPoints[2]);
-                                }
-                            }
+                            //    // If the normal for p0 is pointing in the negative w-direction
+                            //    // The signed volume of the tetrahedron should be negative and vice-versa
+                            //    if (normalSign != volumeSign)
+                            //    {
+                            //        (tetrahedra[tetIdx + off].tetPoints[2], tetrahedra[tetIdx + off].tetPoints[3]) =
+                            //            (tetrahedra[tetIdx + off].tetPoints[3], tetrahedra[tetIdx + off].tetPoints[2]);
+                            //    }
+                            //}
 
                             tetIdx += tetPerHex;
                         }

@@ -34,7 +34,7 @@ bool backFaceCull(uint3 id) {
 [numthreads(64,1,1)]
 void Culler4D (uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    tetsToDrawManager.Init(threadId, 0);
+    tetsToDrawManager.Init(globalId, threadId, 0);
     GroupMemoryBarrierWithGroupSync();
 
     bool shouldDraw = backFaceCull(globalId);

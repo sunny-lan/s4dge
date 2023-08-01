@@ -95,8 +95,8 @@ TetIntersection PerformSlice(uint3 globalId) {
 [numthreads(64,1,1)]
 void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    slicedTrianglesManager.Init(threadId, 0);
-    triangleVerticesManager.Init(threadId, 1);
+    slicedTrianglesManager.Init(globalId, threadId, 0);
+    triangleVerticesManager.Init(globalId, threadId, 1);
     GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
 
     TetIntersection intersection = PerformSlice(globalId);

@@ -21,7 +21,12 @@ struct VLComputeBuffer {
     // FUNCTIONS
 
     // The first thread in a group initializes the append index
-    void Init(uint3 threadId, uint bufferId) {
+    void Init(uint3 globalId, uint3 threadId, uint bufferId) {
+        [branch]
+        if (globalId.x == 0) {
+            curGlobalAppendIdx[bufferId] = 0;
+        }
+
         [branch]
         if (threadId.x == 0) {
             mCurLocalAppendIdx = 0;
