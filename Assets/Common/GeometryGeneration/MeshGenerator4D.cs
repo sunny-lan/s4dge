@@ -209,9 +209,9 @@ namespace RasterizationRenderer
 
         public static HexMesh4D GenerateHexMesh(Manifold3D positionGenerator, Manifold3D normalGenerator, ParameterBounds samplingBounds)
         {
-            int xSize = (int)(Mathf.Floor((samplingBounds.hi.x - samplingBounds.lo.x) / samplingBounds.samplingInterval)) + 1;
-            int ySize = (int)(Mathf.Floor((samplingBounds.hi.y - samplingBounds.lo.y) / samplingBounds.samplingInterval)) + 1;
-            int zSize = (int)(Mathf.Floor((samplingBounds.hi.z - samplingBounds.lo.z) / samplingBounds.samplingInterval)) + 1;
+            int xSize = (int)(Mathf.Ceil((samplingBounds.hi.x - samplingBounds.lo.x) / samplingBounds.samplingInterval)) + 1;
+            int ySize = (int)(Mathf.Ceil((samplingBounds.hi.y - samplingBounds.lo.y) / samplingBounds.samplingInterval)) + 1;
+            int zSize = (int)(Mathf.Ceil((samplingBounds.hi.z - samplingBounds.lo.z) / samplingBounds.samplingInterval)) + 1;
             HexMesh4D hexMesh = new HexMesh4D(xSize, ySize, zSize);
 
             // sample parametric equations positionGenerator, normalGenerator at intervals to generate a hexahedral (cube) Mesh

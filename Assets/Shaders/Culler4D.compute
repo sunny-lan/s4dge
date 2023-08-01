@@ -12,16 +12,18 @@ groupshared VLComputeBuffer tetsToDrawManager;
 RWStructuredBuffer<Tet4D> tetsToDraw;
 uint tetCount;
 
-// Set draw flags so that only "front-facing" tetrahedra are drawn
 bool backFaceCull(uint3 id) {
     if (id.x >= tetCount) {
         return false;
     }
+
     Tet4D tetrahedron = tetrahedra[id.x];
     float4 p0 = transformedVertices[tetrahedron.vertexIndices[0]].pos;
     float4 p1 = transformedVertices[tetrahedron.vertexIndices[1]].pos;
     float4 p2 = transformedVertices[tetrahedron.vertexIndices[2]].pos;
     float4 p3 = transformedVertices[tetrahedron.vertexIndices[3]].pos;
+
+    // Only draw tetrahedron if it is "front-facing"
     float3 v1 = p1.xyz - p0.xyz;
     float3 v2 = p2.xyz - p0.xyz;
     float3 v3 = p3.xyz - p0.xyz;
