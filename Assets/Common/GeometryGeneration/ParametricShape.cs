@@ -30,6 +30,7 @@ public struct ParametricShape1D
 public struct ParametricShape3D
 {
     public Manifold3D Equation;
+    public Manifold3D Normal;
     public ParameterBounds3D Bounds;
 }
 

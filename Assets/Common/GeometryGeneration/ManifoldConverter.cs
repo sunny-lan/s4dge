@@ -32,6 +32,18 @@ public class ManifoldConverter
                 );
                 return line.Path(p.z) + frenetFrame(p.z) * sphere;
             },
+            Normal = p =>
+            {
+                float r = radius(p.z);
+                float c_r = r * Mathf.Cos(p.y);
+                Vector4 sphere = new(
+                    0, //T
+                    c_r * Mathf.Cos(p.x),
+                    c_r * Mathf.Sin(p.x),
+                    r * Mathf.Sin(p.y)
+                );
+                return frenetFrame(p.z) * sphere;
+            },
             Bounds = new ParameterBounds3D(
                 lo: new(0, 0, line.Start),
                 hi: new(2 * Mathf.PI, 2 * Mathf.PI, line.End),
