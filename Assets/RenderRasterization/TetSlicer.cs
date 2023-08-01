@@ -9,20 +9,16 @@ namespace RasterizationRenderer
         VariableLengthComputeBuffer triangleVertices;
         VariableLengthComputeBuffer slicedTriangles;
         VariableLengthComputeBuffer.BufferList bufferList;
-        ComputeBuffer numTets;
         int maxNumTets;
         int sliceShaderKernel;
         uint threadGroupSize;
 
         public static readonly int PTS_PER_TRIANGLE = 3;
 
-        public TetSlicer(ComputeShader sliceShader, ComputeBuffer tetrahedra, ComputeBuffer numTets, int maxNumTets)
+        public TetSlicer(ComputeShader sliceShader, int maxNumTets)
         {
-            this.tetrahedraBuffer = tetrahedra;
-            this.numTets = numTets;
-            this.maxNumTets = maxNumTets;
             this.sliceShader = sliceShader;
-            Construct();
+            OnEnable(maxNumTets);
         }
 
         /*
@@ -33,7 +29,7 @@ namespace RasterizationRenderer
          * 
          * returns: The list of triangle vertices as well as the list of triangles (each point pointing to a vertex)
          */
-        public VariableLengthComputeBuffer.BufferList Render(ComputeBuffer vertexBuffer, float zSlice)
+        public VariableLengthComputeBuffer.BufferList Render(ComputeBuffer vertexBuffer, ComputeBuffer tetrahedraBuffer, ComputeBuffer numTets, float zSlice)
         {
             bufferList.PrepareForRender();
 
@@ -49,8 +45,10 @@ namespace RasterizationRenderer
             return bufferList;
         }
 
-        private void Construct()
+        public void OnEnable(int maxNumTets)
         {
+            this.maxNumTets = maxNumTets;
+
             sliceShaderKernel = sliceShader.FindKernel("TetrahedronSlicer");
             sliceShader.GetKernelThreadGroupSizes(sliceShaderKernel, out threadGroupSize, out _, out _);
 
@@ -59,7 +57,7 @@ namespace RasterizationRenderer
             bufferList = new(new VariableLengthComputeBuffer[2] { slicedTriangles, triangleVertices }, sliceShader, sliceShaderKernel);
         }
 
-        public void Dispose()
+        public void OnDisable()
         {
             if (slicedTriangles != null) { slicedTriangles.Dispose(); slicedTriangles = null; }
             if (triangleVertices != null) { triangleVertices.Dispose(); triangleVertices = null; }

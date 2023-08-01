@@ -74,8 +74,8 @@ public class TestTetSlicer
         var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
         tetBuffer = RenderUtils.InitComputeBuffer(sizeof(int) * TetMesh4D.PTS_PER_TET, tetrahedraUnpacked);
         ComputeBuffer tetsLengthBuffer = RenderUtils.InitComputeBuffer(sizeof(int), new int[1] { tets.Length });
-        TetSlicer slicer = new(sliceShader, tetBuffer, tetsLengthBuffer, tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET);
-        var slicedTriangles = slicer.Render(vertexBuffer, 0);
+        TetSlicer slicer = new(sliceShader, tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET);
+        var slicedTriangles = slicer.Render(vertexBuffer, tetBuffer, tetsLengthBuffer, 0);
 
         int[] slicedTriBuffer = new int[expectedTris.Length];
         float[] slicedTriVertexBuffer = new float[expectedVertices.Length];
@@ -100,7 +100,7 @@ public class TestTetSlicer
         Assert.AreEqual(slicedTriangles.Buffers[0].Count, expectedTris.Length / 3);
         Assert.AreEqual(slicedTriangles.Buffers[1].Count, expectedVertices.Length / 8);
 
-        slicer.Dispose();
+        slicer.OnDisable();
 
         vertexBuffer.Dispose();
         vertexBuffer = null;

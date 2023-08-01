@@ -22,6 +22,8 @@ namespace RasterizationRenderer
 
         Culler4D culler;
 
+        TetSlicer tetSlicer;
+
         Camera4D camera4D;
 
         TriangleMesh triangleMesh;
@@ -36,6 +38,7 @@ namespace RasterizationRenderer
                 this.tetMesh = tetMesh;
                 vertexShader = new(vertexShaderProgram, tetMesh.vertices);
                 culler = new(cullShaderProgram, tetMesh.tets);
+                tetSlicer = new(sliceShaderProgram, tetMesh.tets.Length);
             }
         }
 
@@ -67,8 +70,7 @@ namespace RasterizationRenderer
                 numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length });
             }
 
-            var tetSlicer = new TetSlicer(sliceShaderProgram, tetDrawBuffer, numTetsBuffer, tetMesh.tets.Length);
-            VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, zSlice);
+            VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, tetDrawBuffer, numTetsBuffer, zSlice);
             trianglesToDraw.UpdateBufferLengths();
 
             VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
@@ -79,8 +81,6 @@ namespace RasterizationRenderer
 
             triangleBuffer.Buffer.GetData(triangleData);
             triangleVertexBuffer.Buffer.GetData(triangleVertexData);
-
-            tetSlicer.Dispose();
 
             return (triangleData, triangleVertexData);
         }
@@ -113,6 +113,10 @@ namespace RasterizationRenderer
             {
                 culler.OnEnable(tetMesh.tets);
             }
+            if (tetSlicer != null)
+            {
+                tetSlicer.OnEnable(tetMesh.tets.Length);
+            }
         }
 
         private void OnDisable()
@@ -124,6 +128,10 @@ namespace RasterizationRenderer
             if (culler != null)
             {
                 culler.OnDisable();
+            }
+            if (tetSlicer != null)
+            {
+                tetSlicer.OnDisable();
             }
         }
 
