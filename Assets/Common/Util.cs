@@ -107,6 +107,12 @@ public static class Util
         return Matrix4x4.identity.Subtract( MultiplyTranspose(u+v / (1 + Vector4.Dot(u, v)), u+v));
     }
 
+    /// <summary>
+    /// Multiplies column vector by row vector, resulting in a matrix
+    /// </summary>
+    /// <param name="col"></param>
+    /// <param name="row"></param>
+    /// <returns></returns>
     public static Matrix4x4 MultiplyTranspose(Vector4 col, Vector4 row)
     {
         Matrix4x4 res = new();
@@ -123,7 +129,12 @@ public static class Util
         return res;
     }
 
-
+    /// <summary>
+    /// Finds 3 other vectors orthogonal to given vector.
+    /// </summary>
+    /// <param name="t"></param>
+    /// <param name="epsilon"></param>
+    /// <returns>Matrix containing 4 orthogonal vectors as columns. Column 0 contains the given vector</returns>
     public static Matrix4x4 Orthogonal(Vector4 t, float epsilon = 0.01f)
     {
         Matrix4x4 res = new();
@@ -145,6 +156,11 @@ public static class Util
         return res;
     }
 
+    /// <summary>
+    /// Given 4 linearly independent vectors, return 4 orthogonal vectors
+    /// </summary>
+    /// <param name="m">Matrix containing a vector per column</param>
+    /// <returns>Matrix containing orthogonal vectors</returns>
     public static Matrix4x4 GramSchmidt(Matrix4x4 m)
     {
         for (int i = 0; i < 4; i++)
