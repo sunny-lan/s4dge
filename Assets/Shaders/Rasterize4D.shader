@@ -7,6 +7,7 @@ Shader "Rasterize4D"
         _GlobalLightIntensity ("Light Intensity", Vector) = (1.0, 1.0, 1.0, 1.0)
         _GlobalSpecularColour ("Specular Colour", Color) = (1.0, 1.0, 1.0, 1.0)
         _GlobalShininess ("Shininess", Float) = 0.5
+        _Opacity ("Opacity", Float) = 1.0
         _AttenuationFactor("Attenuation Factor", Float) = 0.5
     }
     SubShader
@@ -31,6 +32,7 @@ Shader "Rasterize4D"
             float4 _GlobalLightIntensity;
             fixed4 _GlobalSpecularColour;
             float _GlobalShininess;
+            float _Opacity;
             float _AttenuationFactor;
 
             float4x4 worldToCameraScaleAndRot;
@@ -69,20 +71,20 @@ Shader "Rasterize4D"
                 return o;
             }
 
-            fixed4 GetLightIntensity(float4 lightDirection)
+            fixed4 GetLightIntensity(float4 lightDirection, bool sqr)
             {
                 float lightDistanceSqr = dot(lightDirection, lightDirection);
     
-                return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * sqrt(lightDistanceSqr)));
-                // return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * lightDistanceSqr));
+                return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * (sqr ? lightDistanceSqr : sqrt(lightDistanceSqr))));
             }
+
 
             float4 applyWorldToCameraTransform(float4 v) {
                 return applyTranslation(applyScaleAndRot(v, worldToCameraScaleAndRot), worldToCameraTranslation);
             }
 
-            // Phong Model from:
-            // https://paroj.github.io/gltut/Illumination/Tut11%20Phong%20Model.html
+            // Blinn-Phong Model from:
+            // https://paroj.github.io/gltut/Illumination/Tut11%20BlinnPhong%20Model.html
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 vertex4D = applyWorldToCameraTransform(i.vertexWorld);
@@ -98,19 +100,20 @@ Shader "Rasterize4D"
                     float cosAngIncidence = clamp(dot(fragNormal, lightDir), 0, 1);
 
                     float4 viewDir = normalize(-vertex4D);
-                    float4 reflectDir = reflect(-lightDir, fragNormal);
+                    float4 halfAngle = normalize(lightDir + viewDir);
 
-                    float phongTerm = clamp(dot(viewDir, reflectDir), 0, 1);
-                    phongTerm = cosAngIncidence != 0.0 ? phongTerm : 0.0;
-                    phongTerm = pow(phongTerm, _GlobalShininess);
+                    float blinnTerm = clamp(dot(fragNormal, halfAngle), 0, 1.0);
+                    blinnTerm = cosAngIncidence != 0.0 ? blinnTerm : 0.0;
+                    blinnTerm = pow(blinnTerm, _GlobalShininess);
 
-                    float lightIntensity = GetLightIntensity(lightVec);
+                    float lightIntensity = GetLightIntensity(lightVec, false);
+                    float lightIntensitySqr = GetLightIntensity(lightVec, true);
 
                     colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence);
-                    colour += (_GlobalSpecularColour * lightIntensity * phongTerm);
+                    colour += (_GlobalSpecularColour * lightIntensitySqr * blinnTerm);
                 }
 
-                return fixed4(colour.xyz, 1.0);
+                return fixed4(colour.xyz, _Opacity);
             }
             ENDCG
         }
