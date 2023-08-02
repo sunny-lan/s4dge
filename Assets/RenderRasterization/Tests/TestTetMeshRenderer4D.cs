@@ -38,7 +38,8 @@ public class TestTetMeshRenderer4D
     void RunMeshRendererTest(TetMesh4D mesh, float zSlice, float vanishingW, float nearW, int[] expectedTris, float[] expectedVertices)
     {
         renderer.SetTetMesh(mesh);
-        (int[] triangleData, float[] vertexData) = renderer.GenerateTriangleMesh(zSlice);
+        var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = renderer.TransformAndCullVertices();
+        (int[] triangleData, float[] vertexData) = renderer.GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
         Debug.Log("triangles: " + string.Join(",", triangleData));
         Debug.Log("vertices: " + string.Join(",", vertexData));
 

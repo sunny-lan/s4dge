@@ -43,7 +43,26 @@ namespace RasterizationRenderer
         }
 
 
-        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice)
+        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, ComputeBuffer vertexBuffer, ComputeBuffer tetDrawBuffer, ComputeBuffer numTetsBuffer)
+        {
+            
+
+            VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, tetDrawBuffer, numTetsBuffer, zSlice);
+            trianglesToDraw.UpdateBufferLengths();
+
+            VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
+            VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
+
+            int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
+            float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
+
+            triangleBuffer.Buffer.GetData(triangleData);
+            triangleVertexBuffer.Buffer.GetData(triangleVertexData);
+
+            return (triangleData, triangleVertexData);
+        }
+
+        public (ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices()
         {
             Camera camera3D = camera4D.camera3D;
 
@@ -51,7 +70,7 @@ namespace RasterizationRenderer
                 camera4D.WorldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
                 modelWorldTransform4D.localToWorldMatrix,
                 Matrix4x4.identity,
-                zSlice, camera3D.farClipPlane, camera3D.nearClipPlane
+                camera3D.farClipPlane, camera3D.nearClipPlane
             );
 
             ComputeBuffer tetDrawBuffer;
@@ -70,19 +89,7 @@ namespace RasterizationRenderer
                 numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length });
             }
 
-            VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, tetDrawBuffer, numTetsBuffer, zSlice);
-            trianglesToDraw.UpdateBufferLengths();
-
-            VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
-            VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
-
-            int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
-            float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
-
-            triangleBuffer.Buffer.GetData(triangleData);
-            triangleVertexBuffer.Buffer.GetData(triangleVertexData);
-
-            return (triangleData, triangleVertexData);
+            return (vertexBuffer, tetDrawBuffer, numTetsBuffer);
         }
 
         // Generate triangle mesh
@@ -93,9 +100,11 @@ namespace RasterizationRenderer
             {
                 triangleMesh.Reset();
 
+                var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices();
+
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
-                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice);
+                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
                     triangleMesh.UpdateData(vertexData, triangleData);
                 }
 
