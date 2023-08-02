@@ -1,6 +1,3 @@
-
-using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
-using Manifold1D = System.Func<float, UnityEngine.Vector4>;
 using System;
 using UnityEngine;
 
@@ -15,7 +12,7 @@ public class ManifoldConverter
     /// <param name="frenetFrame">The frenet frame at each point on the line</param>
     /// <param name="sphereDivisions">The number of divisions the construct the sphere from</param>
     /// <returns>The parametric equation for the thickened line</returns>
-    public static ParametricShape3D HyperCylinderify(ParametricShape1D line, Func<float, float> radius, Func<float, Frame4D> frenetFrame, float sphereDivisions = 6)
+    public static ParametricShape3D HyperCylinderify(ParametricShape1D line, Func<float, float> radius, Func<float, Matrix4x4> frenetFrame, float sphereDivisions = 6)
     {
         return new()
         {
@@ -34,7 +31,7 @@ public class ManifoldConverter
             },
             Normal = p =>
             {
-                float r = radius(p.z);
+                float r = radius(p.z);                                                                                                                                                                                                                                                                     
                 float c_r = r * Mathf.Cos(p.y);
                 Vector4 sphere = new(
                     0, //T
@@ -59,6 +56,6 @@ public class ManifoldConverter
 
     public static ParametricShape3D HyperCylinderify(ParametricShape1D line, Func<float, float> radius, float sphereDivisions = 6)
     {
-        return HyperCylinderify(line, radius, line.Path.FrenetFrame(), sphereDivisions);
+        return HyperCylinderify(line, radius, line.ParallelTransport(), sphereDivisions);
     }
 }

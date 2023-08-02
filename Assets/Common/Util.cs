@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 
 public static class Util
@@ -94,4 +95,81 @@ public static class Util
             a.x * (b.y * c.z - b.z * c.y) - a.y * (b.x * c.z - b.z * c.x) - a.z * (b.x * c.y - b.y * c.x)
         );
     }
+
+    /// <summary>
+    /// Finds the minimum rotation matrix between two unit vectors
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <returns></returns>
+    public static Matrix4x4 RotationBetween(Vector4 u, Vector4 v)
+    {
+        return Matrix4x4.identity.Subtract( MultiplyTranspose(u+v / (1 + Vector4.Dot(u, v)), u+v));
+    }
+
+    public static Matrix4x4 MultiplyTranspose(Vector4 col, Vector4 row)
+    {
+        Matrix4x4 res = new();
+        for (int i = 0; i < 4; i++)
+            res.SetColumn(i, row[i] * col);
+        return res;
+    }
+
+    public static Matrix4x4 Subtract(this Matrix4x4 m, Matrix4x4 s)
+    {
+        var res= new Matrix4x4();
+        for (int i = 0; i < 4; i++)
+            res.SetRow(i, m.GetRow(i)-s.GetRow(i));
+        return res;
+    }
+
+
+    public static Matrix4x4 Orthogonal(Vector4 t, float epsilon = 0.01f)
+    {
+        Matrix4x4 res = new();
+        res.SetColumn(0, t);
+        for (int i = 1; i < 4; i++)
+        {
+            Vector4 res1;
+            do
+            {
+                Vector4 v = res1 = Random();
+                for (int j = 0; j < i; j++)
+                {
+                    res1 -= Vector4.Project(v, res.GetColumn(j));
+                }
+            } while (res1.magnitude < epsilon);
+
+            res.SetColumn(1, res1.normalized);
+        }
+        return res;
+    }
+
+    public static Matrix4x4 GramSchmidt(Matrix4x4 m)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            Vector4 res1 = m.GetColumn(i);
+            for (int j = 0; j < i; j++)
+            {
+                res1 -= Vector4.Project(res1, m.GetColumn(j));
+            }
+
+            m.SetColumn(i, res1.normalized);
+        }
+        return m;
+    }
+
+
+    public static Vector4 Random()
+    {
+        return new(
+            UnityEngine.Random.value,
+            UnityEngine.Random.value,
+            UnityEngine.Random.value,
+            UnityEngine.Random.value
+        );
+    }
 }
+
+

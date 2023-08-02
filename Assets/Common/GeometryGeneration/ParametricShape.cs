@@ -4,7 +4,6 @@ using UnityEngine;
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 using Manifold1D = System.Func<float, UnityEngine.Vector4>;
 using System;
-using System.Collections.Generic;
 
 public struct ParameterBounds3D
 {
@@ -92,6 +91,41 @@ public static class ParametricUtils
                 B = b,
                 D = d,
             };
+        };
+    }
+
+    public static Matrix4x4[] GetFrames(this ParametricShape1D p)
+    {
+        Matrix4x4[] res = new Matrix4x4[Mathf.CeilToInt(p.Divisions) + 1];
+        Matrix4x4 curFrame = Matrix4x4.identity;
+
+        for (int i = 0; i <= p.Divisions; i++)
+        {
+            float s = i * (p.End - p.Start) / p.Divisions + p.Start;
+            float s1 = (i+1) * (p.End - p.Start) / p.Divisions + p.Start;
+            Vector4 tangent = p.Path(s1) - p.Path(s);
+
+            Vector4 prev = curFrame.GetColumn(0);
+
+            Matrix4x4 rot = Util.RotationBetween(tangent, prev);
+            curFrame = rot * curFrame;
+            curFrame.SetColumn(0, tangent);
+
+            curFrame = Util.GramSchmidt(curFrame);
+            res[i] = curFrame;
+        }
+
+        return res;
+    }
+
+    public static Func<float, Matrix4x4> ParallelTransport(this ParametricShape1D p)
+    {
+        var frames = GetFrames(p);
+        return s =>
+        {
+            int idx = Mathf.RoundToInt((s - p.Start)*p.Divisions/(p.End-p.Start));
+            idx = Math.Clamp(idx, 0, frames.Length - 1);
+            return frames[idx]; 
         };
     }
 }

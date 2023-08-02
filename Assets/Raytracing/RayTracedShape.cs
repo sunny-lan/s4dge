@@ -30,6 +30,12 @@ public abstract class RayTracedShape : MonoBehaviour
         transform4D = GetComponent<Transform4D>();
     }
 
+
+    protected void OnDisable()
+    {
+        OnDestroy();
+    }
+
     protected void OnDestroy()
     {
         if (Scene4D.Instance != null) // Check that scene was not also destroyed
@@ -38,7 +44,7 @@ public abstract class RayTracedShape : MonoBehaviour
         }
     }
 
-    void Start()
+    protected void OnEnable()
     {
         Scene4D.Instance.Register(this);
     }

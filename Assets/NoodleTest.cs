@@ -19,25 +19,22 @@ public class NoodleTestEditor : Editor
         {
             var line = new ParametricShape1D()
             {
-                Divisions = 8,
-                End = 1,
+                Divisions = 10,
+                End = 2*Mathf.PI,
                 Start = 0,
                 Path = s =>
                 {
-                    Vector4 st = new(0, 0, 0, 0), ed = new(4, 0, 0, 0);
-                    return s * st + (1 - s) * ed;
+                    return new(
+                        2*Mathf.Sin(s),
+                        2*Mathf.Cos(s),
+                        0,0
+                    );
                 }
             };
 
-            var converted = ManifoldConverter.HyperCylinderify(line, s => 1, s => new Frame4D()
-            {
-                T = new(1, 0, 0, 0),
-                B = new(0, 1, 0, 0),
-                N = new(0, 0, 1, 0),
-                D = new(0, 0, 0, 1),
-            });
+            var converted = ManifoldConverter.HyperCylinderify(line, s => 1);
 
-            var mesh = MeshGenerator4D.GenerateTetMesh(converted.Equation, _ => new(), converted.Bounds);
+            var mesh = MeshGenerator4D.GenerateTetMesh(converted.Equation, converted.Normal, converted.Bounds);
 
             renderer.mesh = ScriptableObject.CreateInstance<TetMesh_UnityObj>();
             renderer.mesh.mesh_Raw = new(mesh);
