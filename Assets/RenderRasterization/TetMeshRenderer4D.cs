@@ -62,12 +62,12 @@ namespace RasterizationRenderer
             return (triangleData, triangleVertexData);
         }
 
-        public (ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices()
+        public (ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices(TransformMatrixAffine4D worldToCameraTransform)
         {
             Camera camera3D = camera4D.camera3D;
 
             ComputeBuffer vertexBuffer = vertexShader.Render(
-                camera4D.WorldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
+                worldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
                 modelWorldTransform4D.localToWorldMatrix,
                 Matrix4x4.identity,
                 camera3D.farClipPlane, camera3D.nearClipPlane
@@ -100,7 +100,7 @@ namespace RasterizationRenderer
             {
                 triangleMesh.Reset();
 
-                var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices();
+                var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices(camera4D.WorldToCameraTransform);
 
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
