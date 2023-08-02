@@ -6,6 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
+using v2;
 
 public class TestTetMeshRenderer4D
 {
@@ -38,7 +39,7 @@ public class TestTetMeshRenderer4D
     void RunMeshRendererTest(TetMesh4D mesh, float zSlice, float vanishingW, float nearW, int[] expectedTris, float[] expectedVertices)
     {
         renderer.SetTetMesh(mesh);
-        var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = renderer.TransformAndCullVertices();
+        var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = renderer.TransformAndCullVertices(TransformMatrixAffine4D.identity);
         (int[] triangleData, float[] vertexData) = renderer.GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
         Debug.Log("triangles: " + string.Join(",", triangleData));
         Debug.Log("vertices: " + string.Join(",", vertexData));
