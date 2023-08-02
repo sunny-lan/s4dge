@@ -74,6 +74,7 @@ Shader "Rasterize4D"
                 float lightDistanceSqr = dot(lightDirection, lightDirection);
     
                 return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * sqrt(lightDistanceSqr)));
+                // return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * lightDistanceSqr));
             }
 
             float4 applyWorldToCameraTransform(float4 v) {
@@ -85,27 +86,28 @@ Shader "Rasterize4D"
             fixed4 frag (v2f i) : SV_Target
             {
                 float4 vertex4D = applyWorldToCameraTransform(i.vertexWorld);
-                float4 fragNormal = normalize(applyWorldToCameraTransform(i.normal));
+                float4 fragNormal = normalize(i.normal);
 
                 fixed4 colour = _GlobalAmbientIntensity * _GlobalDiffuseColour;
 
                 for (int i = 0; i < numLights; ++i) {
                     float4 lightSource = applyWorldToCameraTransform(lightSources[i].pos);
 
-                    float4 lightDir = normalize(lightSource - vertex4D);
+                    float4 lightVec = lightSource - vertex4D;
+                    float4 lightDir = normalize(lightVec);
                     float cosAngIncidence = clamp(dot(fragNormal, lightDir), 0, 1);
 
-                    float4 viewDir = normalize(applyWorldToCameraTransform(vertex4D));
+                    float4 viewDir = normalize(-vertex4D);
                     float4 reflectDir = reflect(-lightDir, fragNormal);
 
                     float phongTerm = clamp(dot(viewDir, reflectDir), 0, 1);
                     phongTerm = cosAngIncidence != 0.0 ? phongTerm : 0.0;
                     phongTerm = pow(phongTerm, _GlobalShininess);
 
-                    float lightIntensity = GetLightIntensity(lightDir);
+                    float lightIntensity = GetLightIntensity(lightVec);
 
-                    colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) +
-                        (_GlobalSpecularColour * lightIntensity * phongTerm);
+                    colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence);
+                    colour += (_GlobalSpecularColour * lightIntensity * phongTerm);
                 }
 
                 return fixed4(colour.xyz, 1.0);

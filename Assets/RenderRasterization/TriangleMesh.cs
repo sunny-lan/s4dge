@@ -70,6 +70,7 @@ public class TriangleMesh : MonoBehaviour
 
     public void PassLightDataToMaterial(LightSource4DManager lightSources)
     {
+        lightSources.UpdateComputeBuffer();
         material.SetBuffer("lightSources", lightSources.LightSourceBuffer);
         material.SetInt("numLights", lightSources.Count);
     }

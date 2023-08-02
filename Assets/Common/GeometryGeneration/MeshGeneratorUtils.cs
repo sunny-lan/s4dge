@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 using Manifold2D = System.Func<UnityEngine.Vector2, UnityEngine.Vector4>;
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 
@@ -53,12 +54,12 @@ public class MeshGeneratorUtils
                 Vector2 mf2DPoint = new(params3D.x, params3D.y);
                 float theta = params3D.z;
 
-                //Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), b(mf2DPoint)), 0);
-                //Assert.AreApproximatelyEqual(Vector4.Dot(b(mf2DPoint), c(mf2DPoint)), 0);
-                //Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), c(mf2DPoint)), 0);
-                //Assert.AreApproximatelyEqual(Vector4.Dot(c(mf2DPoint), normal2(mf2DPoint)), 0);
-                //Assert.AreApproximatelyEqual(Vector4.Dot(b(mf2DPoint), normal2(mf2DPoint)), 0);
-                //Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), normal2(mf2DPoint)), 0);
+                // Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), b(mf2DPoint)), 0);
+                // Assert.AreApproximatelyEqual(Vector4.Dot(b(mf2DPoint), c(mf2DPoint)), 0);
+                // Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), c(mf2DPoint)), 0);
+                // Assert.AreApproximatelyEqual(Vector4.Dot(c(mf2DPoint), normal2(mf2DPoint)), 0);
+                // Assert.AreApproximatelyEqual(Vector4.Dot(b(mf2DPoint), normal2(mf2DPoint)), 0);
+                // Assert.AreApproximatelyEqual(Vector4.Dot(a(mf2DPoint), normal2(mf2DPoint)), 0);
 
                 return Mathf.Cos(theta) * normal1(mf2DPoint) + Mathf.Sin(theta) * normal2(mf2DPoint);
             }
