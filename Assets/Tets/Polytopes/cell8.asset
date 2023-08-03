@@ -1,0 +1,193 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a94be4a37fae7f4abba15360c0d4324, type: 3}
+  m_Name: cell8
+  m_EditorClassIdentifier: 
+  mesh_Raw:
+    vertices:
+    - position: {x: 0, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 0, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 0, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+    tets:
+    - tetPoints: 00000000040000000600000001000000
+    - tetPoints: 00000000020000000100000006000000
+    - tetPoints: 02000000030000000100000006000000
+    - tetPoints: 04000000050000000100000006000000
+    - tetPoints: 01000000070000000600000005000000
+    - tetPoints: 01000000030000000600000007000000
+    - tetPoints: 080000000c0000000e00000009000000
+    - tetPoints: 080000000a000000090000000e000000
+    - tetPoints: 0a0000000b000000090000000e000000
+    - tetPoints: 0c0000000d000000090000000e000000
+    - tetPoints: 090000000f0000000e0000000d000000
+    - tetPoints: 090000000b0000000e0000000f000000
+    - tetPoints: 10000000140000001600000011000000
+    - tetPoints: 10000000120000001100000016000000
+    - tetPoints: 12000000130000001100000016000000
+    - tetPoints: 14000000150000001100000016000000
+    - tetPoints: 11000000170000001600000015000000
+    - tetPoints: 11000000130000001600000017000000
+    - tetPoints: 180000001c0000001e00000019000000
+    - tetPoints: 180000001a000000190000001e000000
+    - tetPoints: 1a0000001b000000190000001e000000
+    - tetPoints: 1c0000001d000000190000001e000000
+    - tetPoints: 190000001f0000001e0000001d000000
+    - tetPoints: 190000001b0000001e0000001f000000
+    - tetPoints: 20000000240000002600000021000000
+    - tetPoints: 20000000220000002100000026000000
+    - tetPoints: 22000000230000002100000026000000
+    - tetPoints: 24000000250000002100000026000000
+    - tetPoints: 21000000270000002600000025000000
+    - tetPoints: 21000000230000002600000027000000
+    - tetPoints: 280000002c0000002e00000029000000
+    - tetPoints: 280000002a000000290000002e000000
+    - tetPoints: 2a0000002b000000290000002e000000
+    - tetPoints: 2c0000002d000000290000002e000000
+    - tetPoints: 290000002f0000002e0000002d000000
+    - tetPoints: 290000002b0000002e0000002f000000
+    - tetPoints: 30000000340000003600000031000000
+    - tetPoints: 30000000320000003100000036000000
+    - tetPoints: 32000000330000003100000036000000
+    - tetPoints: 34000000350000003100000036000000
+    - tetPoints: 31000000370000003600000035000000
+    - tetPoints: 31000000330000003600000037000000
+    - tetPoints: 380000003c0000003e00000039000000
+    - tetPoints: 380000003a000000390000003e000000
+    - tetPoints: 3a0000003b000000390000003e000000
+    - tetPoints: 3c0000003d000000390000003e000000
+    - tetPoints: 390000003f0000003e0000003d000000
+    - tetPoints: 390000003b0000003e0000003f000000
