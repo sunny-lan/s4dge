@@ -22,7 +22,7 @@ public class LightSource4D : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void Awake()
     {
         transform4D = GetComponent<Transform4D>();
     }

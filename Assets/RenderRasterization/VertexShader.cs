@@ -23,22 +23,25 @@ namespace RasterizationRenderer
 
         /*
          * modelViewRotation4D, modelViewTranslation4D: transformation of 4D object
-         * zSlice: z-coordinate of slicing plane for camera
          * vanishingW: camera clip plane - vanishing point at (0, 0, 0, vanishingW)
          * nearW: camera viewport plane at w = nearW
          */
-        public ComputeBuffer Render(TransformMatrixAffine4D modelViewTransform4D, Matrix4x4 modelViewProjection3D, float zSlice, float vanishingW, float nearW)
+        public ComputeBuffer Render(TransformMatrixAffine4D modelViewTransform4D,
+            TransformMatrixAffine4D modelWorldTransform4D,
+            Matrix4x4 modelViewProjection3D,
+            float vanishingW, float nearW)
         {
             if (inputVertices != null && transformedVertices != null)
             {
                 // Run vertex shader to transform points and perform perspective projection
 
                 // Set uniform variables
+                vertexShader.SetVector("modelWorldTranslation4D", modelWorldTransform4D.translation);
+                vertexShader.SetMatrix("modelWorldScaleAndRot4D", modelWorldTransform4D.scaleAndRot);
+                vertexShader.SetVector("modelViewTranslation4D", modelViewTransform4D.translation);
                 vertexShader.SetMatrix("modelViewScaleAndRot4D", modelViewTransform4D.scaleAndRot);
                 vertexShader.SetMatrix("modelViewScaleAndRotInv4D", modelViewTransform4D.inverse.scaleAndRot);
                 vertexShader.SetMatrix("modelViewProjection3D", modelViewProjection3D);
-                vertexShader.SetVector("modelViewTranslation4D", modelViewTransform4D.translation);
-                vertexShader.SetFloat("zSlice", zSlice);
                 vertexShader.SetFloat("vanishingW", vanishingW);
                 vertexShader.SetFloat("nearW", nearW);
                 vertexShader.SetInt("vertexCount", inputVertices.count);

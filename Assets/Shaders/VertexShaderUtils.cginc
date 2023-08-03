@@ -3,6 +3,9 @@
 
 // UNIFORM VARIABLES
 
+float4x4 modelWorldScaleAndRot4D;
+float4 modelWorldTranslation4D;
+
 float4x4 modelViewScaleAndRot4D;
 float4x4 modelViewScaleAndRotInv4D;
 float4 modelViewTranslation4D;
@@ -18,22 +21,17 @@ float nearW; // camera viewport plane at w = nearW
 struct VertexData {
 	float4 pos: POSITION;
 	float4 normal: NORMAL;
+	float4 worldPos: POSITION1;
 };
 
 // FUNCTIONS
 
-VertexData applyScaleAndRot(VertexData v, float4x4 scaleAndRot, float4x4 scaleAndRotInv) {
-	VertexData transformed;
-	transformed.pos = mul(scaleAndRot, v.pos);
-	transformed.normal = mul(scaleAndRotInv, v.normal); // transpose of transform matrix is equal to the inverse
-	return transformed;
+float4 applyScaleAndRot(float4 v, float4x4 scaleAndRot) {
+	return mul(scaleAndRot, v);
 }
 
-VertexData applyTranslation(VertexData v, float4 translation) {
-	VertexData transformed;
-	transformed.pos = v.pos + translation;
-	transformed.normal = v.normal;
-	return transformed;
+float4 applyTranslation(float4 v, float4 translation) {
+	return v + translation;
 }
 
 float4 applyPerspectiveTransformation(float4 pos) {

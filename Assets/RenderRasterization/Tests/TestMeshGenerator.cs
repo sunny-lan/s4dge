@@ -2,8 +2,8 @@ using NUnit.Framework;
 using RasterizationRenderer;
 using System.Linq;
 using UnityEngine;
+using static MeshGeneratorUtils;
 using static RasterizationRenderer.MeshGenerator4D;
-
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 
 public class TestMeshGenerator
@@ -27,7 +27,7 @@ public class TestMeshGenerator
         };
 
         // Bounds are [(0, pi), (0, pi), (0, 2pi)]
-        ParameterBounds samplingBounds = new(
+        ParameterBounds3D samplingBounds = new(
             Vector3.zero, Vector3.one, 1.0f
         );
 

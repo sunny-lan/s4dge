@@ -12,6 +12,9 @@ using Unity.Mathematics;
 // Video that this shader is based on and hopefully we can adopt
 // https://www.youtube.com/watch?v=Qz0KTGYJtUk
 
+/// <summary>
+/// A 4D renderer based on ray tracing techniques
+/// </summary>
 [ExecuteAlways, ImageEffectAllowedInSceneView]
 [RequireComponent(typeof(Transform4D))]
 [RequireComponent(typeof(Scene4D))]

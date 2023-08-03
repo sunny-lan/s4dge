@@ -1,9 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+/// <summary>
+/// A hypersphere that can be attached to a 4D gameobject in a raytracing scene
+/// </summary>
 public class RayTracedHyperSphere : RayTracedShape
 {
+	/// <summary>
+	/// The radius of the hypersphere
+	/// </summary>
 	public float radius;
 
 	protected new void Awake()

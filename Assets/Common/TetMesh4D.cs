@@ -29,15 +29,27 @@ namespace RasterizationRenderer
             [SerializeField]
             public Vector4 normal;
 
+            // world position without 3D projection for lighting calculations
+            [SerializeField]
+            public Vector4 worldPosition4D;
+
             public VertexData(Vector4 position, Vector4 normal)
             {
                 this.position = position;
                 this.normal = normal;
+                this.worldPosition4D = Vector4.zero;
+            }
+
+            public VertexData(Vector4 position, Vector4 normal, Vector4 worldPosition4D)
+            {
+                this.position = position;
+                this.normal = normal;
+                this.worldPosition4D = worldPosition4D;
             }
 
             public static int SizeFloats
             {
-                get => 8;
+                get => 12;
             }
 
             public static int SizeBytes
@@ -52,7 +64,8 @@ namespace RasterizationRenderer
                 {
                     ret.Add(new(
                         new(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]),
-                        new(arr[i + 4], arr[i + 5], arr[i + 6], arr[i + 7])
+                        new(arr[i + 4], arr[i + 5], arr[i + 6], arr[i + 7]),
+                        new(arr[i + 8], arr[i + 9], arr[i + 10], arr[i + 11])
                     ));
                 }
                 return ret.ToArray();

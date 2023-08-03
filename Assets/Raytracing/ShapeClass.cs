@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+/// <summary>
+/// 4D Shape types
+/// </summary>
 public enum ShapeClass 
 {
     Unknown = 0,

@@ -1,11 +1,14 @@
 using System.Linq;
 using UnityEngine;
+using v2;
 
 namespace RasterizationRenderer
 {
+    [RequireComponent(typeof(Transform4D))]
+    [RequireComponent(typeof(TriangleMesh))]
     public class TetMeshRenderer4D : MonoBehaviour
     {
-        public v2.Transform4D modelWorldTransform4D;
+        v2.Transform4D modelWorldTransform4D;
         public static readonly int PTS_PER_TET = 4;
         public bool useCuller;
 
@@ -19,9 +22,11 @@ namespace RasterizationRenderer
 
         Culler4D culler;
 
+        TetSlicer tetSlicer;
+
         Camera4D camera4D;
 
-        public TriangleMesh triangleMesh;
+        TriangleMesh triangleMesh;
         private TetMesh4D tetMesh;
 
         LightSource4DManager lightSourceManager;
@@ -33,56 +38,58 @@ namespace RasterizationRenderer
                 this.tetMesh = tetMesh;
                 vertexShader = new(vertexShaderProgram, tetMesh.vertices);
                 culler = new(cullShaderProgram, tetMesh.tets);
+                tetSlicer = new(sliceShaderProgram, tetMesh.tets.Length);
             }
         }
 
 
-        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice)
+        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, ComputeBuffer vertexBuffer, ComputeBuffer tetDrawBuffer, ComputeBuffer numTetsBuffer)
+        {
+            
+
+            VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, tetDrawBuffer, numTetsBuffer, zSlice);
+            trianglesToDraw.UpdateBufferLengths();
+
+            VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
+            VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
+
+            int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
+            float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
+
+            triangleBuffer.Buffer.GetData(triangleData);
+            triangleVertexBuffer.Buffer.GetData(triangleVertexData);
+
+            return (triangleData, triangleVertexData);
+        }
+
+        public (ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices()
         {
             Camera camera3D = camera4D.camera3D;
 
             ComputeBuffer vertexBuffer = vertexShader.Render(
                 camera4D.WorldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
+                modelWorldTransform4D.localToWorldMatrix,
                 Matrix4x4.identity,
-                zSlice, camera3D.farClipPlane, camera3D.nearClipPlane
+                camera3D.farClipPlane, camera3D.nearClipPlane
             );
 
-            int tetDrawCount = 0;
             ComputeBuffer tetDrawBuffer;
+            ComputeBuffer numTetsBuffer;
 
             if (useCuller)
             {
-                VariableLengthComputeBuffer tetrahedraToDraw = culler.Render(vertexBuffer);
-                tetDrawCount = tetrahedraToDraw.Count;
-                tetDrawBuffer = tetrahedraToDraw.Buffer;
+                VariableLengthComputeBuffer.BufferList tetrahedraToDraw = culler.Render(vertexBuffer);
+                tetDrawBuffer = tetrahedraToDraw.Buffers[0].Buffer;
+                numTetsBuffer = tetrahedraToDraw.GetBufferLengths();
             }
             else
             {
                 var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
                 tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
-                tetDrawCount = tetDrawBuffer.count / 4;
+                numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length });
             }
 
-            if (tetDrawCount > 0)
-            {
-                var tetSlicer = new TetSlicer(sliceShaderProgram, tetDrawBuffer, tetDrawCount);
-                VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, zSlice);
-
-                VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
-                VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
-
-                int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
-                float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
-
-                triangleBuffer.Buffer.GetData(triangleData);
-                triangleVertexBuffer.Buffer.GetData(triangleVertexData);
-
-                tetSlicer.Dispose();
-
-                return (triangleData, triangleVertexData);
-            }
-
-            return (null, null);
+            return (vertexBuffer, tetDrawBuffer, numTetsBuffer);
         }
 
         // Generate triangle mesh
@@ -91,18 +98,17 @@ namespace RasterizationRenderer
             // don't draw unless zSliceInterval is large enough so that unity doesn't freeze when accidentally set to 0
             if (vertexShader != null && culler != null && zSliceInterval > 0.05)
             {
+                triangleMesh.Reset();
+
+                var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices();
+
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
-                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice);
-                    if (triangleData != null && vertexData != null)
-                    {
-                        triangleMesh.UpdateData(vertexData, triangleData);
-                    }
+                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
+                    triangleMesh.UpdateData(vertexData, triangleData);
                 }
 
-                lightSourceManager.UpdateTransform(camera4D.WorldToCameraTransform);
-                triangleMesh.Render(lightSourceManager);
-                triangleMesh.Reset();
+                triangleMesh.Render(lightSourceManager, camera4D.WorldToCameraTransform);
             }
         }
 
@@ -116,6 +122,10 @@ namespace RasterizationRenderer
             {
                 culler.OnEnable(tetMesh.tets);
             }
+            if (tetSlicer != null)
+            {
+                tetSlicer.OnEnable(tetMesh.tets.Length);
+            }
         }
 
         private void OnDisable()
@@ -127,6 +137,10 @@ namespace RasterizationRenderer
             if (culler != null)
             {
                 culler.OnDisable();
+            }
+            if (tetSlicer != null)
+            {
+                tetSlicer.OnDisable();
             }
         }
 
@@ -140,6 +154,10 @@ namespace RasterizationRenderer
             {
                 lightSourceManager.Add(lightSource);
             }
+            lightSourceManager.UpdateComputeBuffer();
+
+            modelWorldTransform4D = GetComponent<Transform4D>();
+            triangleMesh = GetComponent<TriangleMesh>();
         }
 
         // Update is called once per frame

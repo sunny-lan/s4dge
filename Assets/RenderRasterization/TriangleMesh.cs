@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
+using v2;
 using static RasterizationRenderer.TetMesh4D;
 
 public class TriangleMesh : MonoBehaviour
@@ -16,68 +15,71 @@ public class TriangleMesh : MonoBehaviour
 
     Mesh mesh;
     public Material material;
+    int curVertexCount = 0;
 
-    List<float> vertexData = new();
-    List<int> triangleData = new();
-
-    // Appends the vertex data to the triangle mesh
     public void UpdateData(float[] newVertexData, int[] newTriangleData)
     {
-        int floatsPerVertex = VertexData.SizeFloats;
-        int curVertexCount = vertexData.Count / floatsPerVertex;
-        triangleData = triangleData.Concat(newTriangleData.Select(idx => idx + curVertexCount)).ToList();
-
-        vertexData = vertexData.Concat(newVertexData).ToList();
-    }
-
-    public void Render(LightSource4DManager lightSources)
-    {
-        PassLightDataToMaterial(lightSources);
-
-        mesh.Clear();
+        int numNewVertices = newVertexData.Length / VertexData.SizeFloats;
+        int curSubmesh = mesh.subMeshCount;
+        ++mesh.subMeshCount;
 
         // Override vertex buffer params so that position, normal take in 4D vectors
         mesh.SetVertexBufferParams(
-            vertexData.Count / VertexData.SizeFloats,
+            curVertexCount + numNewVertices,
             new[]
             {
                 new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 4),
                 new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 4),
+                new VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexAttributeFormat.Float32, 4),
             }
         );
 
         // Set vertices, normals for the mesh
-        mesh.SetVertexBufferData(vertexData, 0, 0, vertexData.Count);
+        mesh.SetVertexBufferData(newVertexData, 0, curVertexCount * VertexData.SizeFloats, newVertexData.Length);
 
         // Set tetrahedra vertex indices for mesh
-        mesh.SetTriangles(triangleData, 0, false);
+        mesh.SetTriangles(newTriangleData, curSubmesh, false, curVertexCount);
+
+        curVertexCount += numNewVertices;
+    }
+
+    public void Render(LightSource4DManager lightSources, TransformMatrixAffine4D worldToCameraTransform)
+    {
+        PassLightDataToMaterial(lightSources);
+        material.SetMatrix("worldToCameraScaleAndRot", worldToCameraTransform.scaleAndRot);
+        material.SetVector("worldToCameraTranslation", worldToCameraTransform.translation);
 
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
 
-        Graphics.DrawMesh(
-            mesh: mesh,
-            matrix: Matrix4x4.identity,
-            material: material,
-            layer: gameObject.layer,
-            //camera: GetComponent<Camera>(),
-            camera: null,
-            submeshIndex: 0,
-            properties: null
-        //properties: blk
-        );
+        for (int i = 0; i < mesh.subMeshCount; ++i)
+        {
+            Graphics.DrawMesh(
+                mesh: mesh,
+                matrix: Matrix4x4.identity,
+                material: material,
+                layer: gameObject.layer,
+                //camera: GetComponent<Camera>(),
+                camera: null,
+                submeshIndex: i,
+                properties: null
+            //properties: blk
+            );
+        }
     }
 
     public void PassLightDataToMaterial(LightSource4DManager lightSources)
     {
+        lightSources.UpdateComputeBuffer();
         material.SetBuffer("lightSources", lightSources.LightSourceBuffer);
         material.SetInt("numLights", lightSources.Count);
     }
 
     public void Reset()
     {
-        vertexData = new();
-        triangleData = new();
+        mesh.Clear();
+        curVertexCount = 0;
+        mesh.subMeshCount = 0;
     }
 
     // Start is called before the first frame update
