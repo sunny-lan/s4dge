@@ -18,6 +18,7 @@ public class RasterizeHypersphere : MonoBehaviour
     private void Start()
     {
         tetMeshRenderer.SetTetMesh(MeshGenerator4D.GenerateHypersphereMesh(samplingInterval));
+        tetMeshRenderer.MeshInit();
     }
 
     // Update is called once per frame

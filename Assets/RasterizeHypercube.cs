@@ -16,7 +16,8 @@ public class RasterizeHypercube : MonoBehaviour
 
     private void Start()
     {
-        tetMeshRenderer.SetTetMesh(HypercubeGenerator.GenerateHypercube());
+        tetMeshRenderer.SetTetMesh(HypercubeGenerator.GenerateHypercube()); 
+        tetMeshRenderer.MeshInit();
     }
 
     // Update is called once per frame

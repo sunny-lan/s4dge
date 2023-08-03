@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -99,28 +100,23 @@ namespace RasterizationRenderer
         // Updates the mesh based on the vertices, tetrahedra
         public TetMesh4D(VertexData[] vertices, Tet4D[] tets)
         {
-            //mesh.Clear();
-
-            //// Override vertex buffer params so that position, normal take in 4D vectors
-            //mesh.SetVertexBufferParams(
-            //    vertices.Length,
-            //    new[]
-            //    {
-            //    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, PTS_PER_TET),
-            //    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, PTS_PER_TET),
-            //    }
-            //);
-
-            //// Set vertices, normals for the mesh
-            //mesh.SetVertexBufferData(vertices, 0, 0, vertices.Length);
-
-            //// Set tetrahedra vertex indices for mesh
-            //mesh.SetIndices(tets.SelectMany(tet => tet.tetPoints).ToArray(), MeshTopology.Quads, 0);
 
             MeshGeneratorUtils.MakeTetsForwardFacing(tets, vertices);
-
             this.vertices = vertices;
             this.tets = tets;
+        }
+
+        public void AppendTets(VertexData[] vertices, Tet4D[] tets)
+        {
+            int curVertexCount = this.vertices.Length;
+            this.vertices = this.vertices.Concat(vertices).ToArray();
+
+            // adds curVertexCount to each tet index
+            this.tets = this.tets.Concat(
+                tets.Select(tet => new Tet4D(
+                    tet.tetPoints.Select(idx => idx + curVertexCount).ToArray()
+                ))
+            ).ToArray();
         }
 
         public override string ToString()

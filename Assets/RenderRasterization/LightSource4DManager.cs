@@ -24,16 +24,18 @@ public class LightSource4DManager
         lightSources.Add(lightSource);
     }
 
+    public static int LightSourceDataSizeBytes { get => sizeof(float) * 4; }
+
     public void UpdateComputeBuffer()
     {
-        var lightSourceArr = lightSources.Select(source => source.data).ToArray();
+        var lightSourceArr = lightSources.Select(source => source.LightToWorldTransform.translation).ToArray();
 
         if (_lightSourceBuffer != null)
         {
             _lightSourceBuffer.Release();
         }
 
-        _lightSourceBuffer = RenderUtils.InitComputeBuffer(LightSource4D.Data.SizeBytes,
+        _lightSourceBuffer = RenderUtils.InitComputeBuffer(LightSourceDataSizeBytes,
             lightSourceArr);
     }
 }

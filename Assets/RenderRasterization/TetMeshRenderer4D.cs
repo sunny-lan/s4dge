@@ -27,7 +27,13 @@ namespace RasterizationRenderer
         Camera4D camera4D;
 
         TriangleMesh triangleMesh;
-        private TetMesh4D tetMesh;
+
+        TetMesh4D _tetMesh;
+        public TetMesh4D tetMesh
+        {
+            get { return _tetMesh; }
+            internal set { _tetMesh = value; }
+        }
 
         LightSource4DManager lightSourceManager;
 
@@ -36,10 +42,26 @@ namespace RasterizationRenderer
             if (tetMesh.vertices.Length > 0 && tetMesh.tets.Length > 0)
             {
                 this.tetMesh = tetMesh;
-                vertexShader = new(vertexShaderProgram, tetMesh.vertices);
-                culler = new(cullShaderProgram, tetMesh.tets);
-                tetSlicer = new(sliceShaderProgram, tetMesh.tets.Length);
             }
+        }
+
+        public void AppendTetMesh(TetMesh4D tetMesh)
+        {
+            this.tetMesh ??= new(new TetMesh4D.VertexData[0], new TetMesh4D.Tet4D[0]);
+
+            this.tetMesh.AppendTets(tetMesh.vertices, tetMesh.tets);
+        }
+
+        public void MeshInit()
+        {
+            // dispose of allocated resources if reiniting
+            vertexShader?.OnDisable();
+            culler?.OnDisable();
+            tetSlicer?.OnDisable();
+
+            vertexShader = new(vertexShaderProgram, tetMesh.vertices);
+            culler = new(cullShaderProgram, tetMesh.tets);
+            tetSlicer = new(sliceShaderProgram, tetMesh.tets.Length);
         }
 
 
@@ -93,7 +115,7 @@ namespace RasterizationRenderer
         }
 
         // Generate triangle mesh
-        public void Render(float zSliceStart, float zSliceLength, float zSliceInterval)
+        public void Render(float zSliceStart, float zSliceLength, float zSliceInterval, RenderTexture target = null)
         {
             // don't draw unless zSliceInterval is large enough so that unity doesn't freeze when accidentally set to 0
             if (vertexShader != null && culler != null && zSliceInterval > 0.05)
@@ -108,7 +130,13 @@ namespace RasterizationRenderer
                     triangleMesh.UpdateData(vertexData, triangleData);
                 }
 
-                triangleMesh.Render(lightSourceManager, camera4D.WorldToCameraTransform);
+                if (target == null)
+                {
+                    triangleMesh.Render(lightSourceManager, camera4D.WorldToCameraTransform);
+                } else
+                {
+                    triangleMesh.RenderToRenderTexture(target);
+                }
             }
         }
 

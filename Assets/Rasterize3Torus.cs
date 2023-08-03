@@ -19,6 +19,7 @@ public class Rasterize3Torus : MonoBehaviour
     private void Start()
     {
         tetMeshRenderer.SetTetMesh(MeshGenerator4D.Generate3TorusMesh(samplingInterval, thickness));
+        tetMeshRenderer.MeshInit();
     }
 
     // Update is called once per frame
