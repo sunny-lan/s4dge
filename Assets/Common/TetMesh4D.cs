@@ -117,6 +117,8 @@ namespace RasterizationRenderer
             //// Set tetrahedra vertex indices for mesh
             //mesh.SetIndices(tets.SelectMany(tet => tet.tetPoints).ToArray(), MeshTopology.Quads, 0);
 
+            MeshGeneratorUtils.MakeTetsForwardFacing(tets, vertices);
+
             this.vertices = vertices;
             this.tets = tets;
         }

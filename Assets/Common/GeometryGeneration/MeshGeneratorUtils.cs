@@ -1,3 +1,5 @@
+using RasterizationRenderer;
+using System;
 using UnityEngine;
 using UnityEngine.Assertions;
 using Manifold2D = System.Func<UnityEngine.Vector2, UnityEngine.Vector4>;
@@ -90,6 +92,32 @@ public class MeshGeneratorUtils
             };
 
             return (a, b, c);
+        }
+    }
+
+    public static void MakeTetsForwardFacing(TetMesh4D.Tet4D[] tets, TetMesh4D.VertexData[] meshVertices)
+    {
+        for (int idx = 0; idx < tets.Length; ++idx)
+        {
+            int p0Idx = tets[idx].tetPoints[0];
+            int p1Idx = tets[idx].tetPoints[1];
+            int p2Idx = tets[idx].tetPoints[2];
+            int p3Idx = tets[idx].tetPoints[3];
+
+            Vector4 p0Pos = meshVertices[p0Idx].position;
+            Vector3 v1 = (meshVertices[p1Idx].position - p0Pos);
+            Vector3 v2 = (meshVertices[p2Idx].position - p0Pos);
+            Vector3 v3 = (meshVertices[p3Idx].position - p0Pos);
+
+            int volumeSign = Math.Sign(Vector3.Dot(v1, Vector3.Cross(v2, v3)));
+
+            // If the normal for p0 is pointing in the negative w-direction
+            // The signed volume of the tetrahedron should be negative and vice-versa
+            if (volumeSign < 0)
+            {
+                (tets[idx].tetPoints[2], tets[idx].tetPoints[3]) =
+                    (tets[idx].tetPoints[3], tets[idx].tetPoints[2]);
+            }
         }
     }
 }

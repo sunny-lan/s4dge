@@ -15,7 +15,7 @@ void vert (uint3 id : SV_DispatchThreadID)
         transformed4D.pos = applyTranslation(applyScaleAndRot(vertices[id.x].pos, modelViewScaleAndRot4D), modelViewTranslation4D);
         transformed4D.pos = applyPerspectiveTransformation(transformed4D.pos);
         transformed4D.normal = applyScaleAndRot(vertices[id.x].normal, modelViewScaleAndRot4D);
-        transformed4D.worldPos = applyTranslation(applyScaleAndRot(vertices[id.x].worldPos, modelWorldScaleAndRot4D), modelWorldTranslation4D);
+        transformed4D.worldPos = applyTranslation(applyScaleAndRot(vertices[id.x].pos, modelWorldScaleAndRot4D), modelWorldTranslation4D);
         transformedVertices[id.x] = transformed4D;
     }
 }
