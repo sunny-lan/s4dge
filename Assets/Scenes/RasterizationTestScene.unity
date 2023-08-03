@@ -447,11 +447,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: zSliceStart
-      value: -5
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: zSliceLength
-      value: 10
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: zSliceInterval
@@ -526,6 +526,7 @@ GameObject:
   - component: {fileID: 497203115}
   - component: {fileID: 497203117}
   - component: {fileID: 497203116}
+  - component: {fileID: 497203118}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -666,6 +667,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec312187a1d8c404d90dc055e130a7b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &497203118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497203112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a179bbae6ab365f49a11ca73e61e27a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shadowMapMaterial: {fileID: 2100000, guid: bef671bee7fd3af45a8397341cf3dd0f, type: 2}
+  zSliceStart: -1
+  zSliceLength: 2
+  zSliceInterval: 0.2
 --- !u!1 &987404468
 GameObject:
   m_ObjectHideFlags: 0

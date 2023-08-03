@@ -68,6 +68,27 @@ public class TriangleMesh : MonoBehaviour
         }
     }
 
+    public void RenderToRenderTexture(RenderTexture tex)
+    {
+        mesh.RecalculateBounds();
+        mesh.RecalculateTangents();
+
+        CommandBuffer cmdBuf = new();
+        cmdBuf.Clear();
+        cmdBuf.SetRenderTarget(tex);
+        cmdBuf.ClearRenderTarget(true, true, Color.clear);
+        for (int i = 0; i < mesh.subMeshCount; ++i)
+        {
+            cmdBuf.DrawMesh(
+                mesh: mesh,
+                matrix: Matrix4x4.identity,
+                material: material,
+                submeshIndex: i
+            );
+        }
+        Graphics.ExecuteCommandBuffer(cmdBuf);
+    }
+
     public void PassLightDataToMaterial(LightSource4DManager lightSources)
     {
         lightSources.UpdateComputeBuffer();
