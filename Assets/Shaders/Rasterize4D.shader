@@ -9,6 +9,7 @@ Shader "Rasterize4D"
         _GlobalShininess ("Shininess", Float) = 0.5
         _Opacity ("Opacity", Float) = 1.0
         _AttenuationFactor("Attenuation Factor", Float) = 0.5
+        //_ShadowMap("Shadow Map", 2D) = "white" {}
     }
     SubShader
     {
@@ -39,11 +40,15 @@ Shader "Rasterize4D"
             float4 worldToCameraTranslation;
 
             struct pointLight4D {
-                float4 pos;
+                Transform4D lightToWorldTransform;
+                Transform4D worldToLightTransform;
             };
 
             StructuredBuffer<pointLight4D> lightSources;
             int numLights;
+
+            sampler2D _ShadowMap;
+            float4 _ShadowMap_ST;
 
             struct appdata
             {
@@ -83,17 +88,29 @@ Shader "Rasterize4D"
                 return applyTranslation(applyScaleAndRot(v, worldToCameraScaleAndRot), worldToCameraTranslation);
             }
 
+            float4 applyTransform(float4 v, Transform4D transform) {
+                return applyTranslation(applyScaleAndRot(v, transform.scaleAndRot), transform.translation);
+            }
+
             // Blinn-Phong Model from:
             // https://paroj.github.io/gltut/Illumination/Tut11%20BlinnPhong%20Model.html
             fixed4 frag (v2f i) : SV_Target
             {
+                float4 lightSpaceVertex = UnityObjectToClipPos(
+                    applyPerspectiveTransformation(
+                        applyTransform(i.vertexWorld, lightSources[0].worldToLightTransform)
+                    ).xyw
+                );
+                fixed4 sampledDepth = tex2D(_ShadowMap, lightSpaceVertex.xy); 
+                //return fixed4(sampledDepth.x, 0, 0, 1);
+
                 float4 vertex4D = applyWorldToCameraTransform(i.vertexWorld);
                 float4 fragNormal = normalize(i.normal);
 
                 fixed4 colour = _GlobalAmbientIntensity * _GlobalDiffuseColour;
 
-                for (int i = 0; i < numLights; ++i) {
-                    float4 lightSource = applyWorldToCameraTransform(lightSources[i].pos);
+                for (int idx = 0; idx < numLights; ++idx) {
+                    float4 lightSource = applyWorldToCameraTransform(lightSources[idx].lightToWorldTransform.translation);
 
                     float4 lightVec = lightSource - vertex4D;
                     float4 lightDir = normalize(lightVec);
@@ -109,8 +126,19 @@ Shader "Rasterize4D"
                     float lightIntensity = GetLightIntensity(lightVec, false);
                     float lightIntensitySqr = GetLightIntensity(lightVec, true);
 
-                    colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence);
-                    colour += (_GlobalSpecularColour * lightIntensitySqr * blinnTerm);
+                    float4 lightSpaceVertex = applyPerspectiveTransformation(
+                        applyTransform(i.vertexWorld, lightSources[0].worldToLightTransform)
+                    );
+                    float3 lightClipSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
+                    fixed sampledDepth = tex2D(_ShadowMap, lightClipSpaceVertex.xy).x;
+                    float actualDepth = lightClipSpaceVertex.z;
+                    //int shadowMultiplier = ((actualDepth <= (sampledDepth + 1e-3)) && (all(abs(lightSpaceVertex.xyz) < float3(1, 1, 1))));
+                    //int shadowMultiplier = (all(abs(lightClipSpaceVertex.xy) < float2(1, 1)) && actualDepth >= 0);
+                    int shadowMultiplier = (actualDepth <= (sampledDepth + 1e-3));
+                    //int shadowMultiplier = 1;
+
+                    colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) * shadowMultiplier;
+                    colour += (_GlobalSpecularColour * lightIntensitySqr * blinnTerm) * shadowMultiplier;
                 }
 
                 return fixed4(colour.xyz, _Opacity);

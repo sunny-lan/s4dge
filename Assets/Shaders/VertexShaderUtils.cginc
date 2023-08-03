@@ -24,6 +24,11 @@ struct VertexData {
 	float4 worldPos: POSITION1;
 };
 
+struct Transform4D {
+	float4x4 scaleAndRot;
+	float4 translation;
+};
+
 // FUNCTIONS
 
 float4 applyScaleAndRot(float4 v, float4x4 scaleAndRot) {

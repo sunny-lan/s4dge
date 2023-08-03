@@ -5,16 +5,15 @@ Shader "ShadowMapGenerator4D"
     }
     SubShader
     {
-        Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
+        Tags { "RenderType"="Opaque" }
         LOD 100
 
         Pass
         {
             Cull Off
-            Blend SrcAlpha OneMinusSrcAlpha
             CGPROGRAM
-            #pragma vertex vert alpha
-            #pragma fragment frag alpha:blend
+            #pragma vertex vert
+            #pragma fragment frag
 
             #include "UnityCG.cginc"
             #include "VertexShaderUtils.cginc"
@@ -41,7 +40,7 @@ Shader "ShadowMapGenerator4D"
             }
             fixed4 frag (v2f i) : SV_Target
             {
-                return fixed4(1, 1, 0, 1);
+                return fixed4(i.vertex.z, 0, 0, 1);
             }
             ENDCG
         }

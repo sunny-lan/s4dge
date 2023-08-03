@@ -1,3 +1,4 @@
+using Codice.Client.Common.GameUI;
 using UnityEngine;
 using UnityEngine.Rendering;
 using v2;
@@ -43,9 +44,9 @@ public class TriangleMesh : MonoBehaviour
         curVertexCount += numNewVertices;
     }
 
-    public void Render(LightSource4DManager lightSources, TransformMatrixAffine4D worldToCameraTransform)
+    public void Render(LightSource4DManager lightSources, TransformMatrixAffine4D worldToCameraTransform, float farClipPlane, float nearClipPlane)
     {
-        PassLightDataToMaterial(lightSources);
+        PassLightDataToMaterial(lightSources, farClipPlane, nearClipPlane);
         material.SetMatrix("worldToCameraScaleAndRot", worldToCameraTransform.scaleAndRot);
         material.SetVector("worldToCameraTranslation", worldToCameraTransform.translation);
 
@@ -68,32 +69,34 @@ public class TriangleMesh : MonoBehaviour
         }
     }
 
-    public void RenderToRenderTexture(RenderTexture tex)
+    public void RenderToRenderTexture(RenderTexture rt)
     {
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
 
-        CommandBuffer cmdBuf = new();
-        cmdBuf.Clear();
-        cmdBuf.SetRenderTarget(tex);
-        cmdBuf.ClearRenderTarget(true, true, Color.clear);
-        for (int i = 0; i < mesh.subMeshCount; ++i)
-        {
-            cmdBuf.DrawMesh(
-                mesh: mesh,
-                matrix: Matrix4x4.identity,
-                material: material,
-                submeshIndex: i
-            );
-        }
-        Graphics.ExecuteCommandBuffer(cmdBuf);
+        Matrix4x4 projectionMatrix = Camera.main.projectionMatrix;
+        RenderTexture prevRT = RenderTexture.active;
+        RenderTexture.active = rt;
+        material.SetPass(0);
+        GL.PushMatrix();
+        GL.LoadProjectionMatrix(projectionMatrix);
+        GL.Clear(true, true, Color.red);
+        Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
+        GL.PopMatrix();
+        RenderTexture.active = prevRT;
     }
 
-    public void PassLightDataToMaterial(LightSource4DManager lightSources)
+    public void PassLightDataToMaterial(LightSource4DManager lightSources, float farClipPlane, float nearClipPlane)
     {
         lightSources.UpdateComputeBuffer();
         material.SetBuffer("lightSources", lightSources.LightSourceBuffer);
         material.SetInt("numLights", lightSources.Count);
+        material.SetFloat("vanishingW", farClipPlane);
+        material.SetFloat("nearW", nearClipPlane);
+        material.SetMatrix("modelViewProjection3D", Matrix4x4.identity);
+
+        Texture shadowMap = lightSources.LightSources[0].ShadowMap;
+        material.SetTexture("_ShadowMap", shadowMap);
     }
 
     public void Reset()

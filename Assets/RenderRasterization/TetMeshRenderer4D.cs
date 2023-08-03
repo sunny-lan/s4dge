@@ -24,8 +24,6 @@ namespace RasterizationRenderer
 
         TetSlicer tetSlicer;
 
-        Camera4D camera4D;
-
         TriangleMesh triangleMesh;
 
         TetMesh4D _tetMesh;
@@ -47,9 +45,16 @@ namespace RasterizationRenderer
 
         public void AppendTetMesh(TetMesh4D tetMesh)
         {
-            this.tetMesh ??= new(new TetMesh4D.VertexData[0], new TetMesh4D.Tet4D[0]);
-
+            if (this.tetMesh == null)
+            {
+                Clear();
+            }
             this.tetMesh.AppendTets(tetMesh.vertices, tetMesh.tets);
+        }
+
+        public void Clear()
+        {
+            this.tetMesh = new(new TetMesh4D.VertexData[0], new TetMesh4D.Tet4D[0]);
         }
 
         public void MeshInit()
@@ -84,9 +89,10 @@ namespace RasterizationRenderer
             return (triangleData, triangleVertexData);
         }
 
-        public (ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices(TransformMatrixAffine4D worldToCameraTransform)
+        public (ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices(
+            TransformMatrixAffine4D worldToCameraTransform, float farClipPlane, float nearClipPlane)
         {
-            Camera camera3D = camera4D.camera3D;
+            Camera camera3D = Camera4D.main.camera3D;
 
             ComputeBuffer vertexBuffer = vertexShader.Render(
                 worldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
@@ -115,27 +121,31 @@ namespace RasterizationRenderer
         }
 
         // Generate triangle mesh
-        public void Render(float zSliceStart, float zSliceLength, float zSliceInterval, RenderTexture target = null)
+        public void RenderToTriangleMesh(float zSliceStart, float zSliceLength, float zSliceInterval,
+            TransformMatrixAffine4D worldToCameraTransform, float farClipPlane, float nearClipPlane,
+            TriangleMesh overrideOutputMesh = null, bool renderTriangleMeshToScreen = true, bool clear = true)
         {
             // don't draw unless zSliceInterval is large enough so that unity doesn't freeze when accidentally set to 0
             if (vertexShader != null && culler != null && zSliceInterval > 0.05)
             {
-                triangleMesh.Reset();
+                TriangleMesh renderMesh = overrideOutputMesh ?? triangleMesh;
 
-                var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices(camera4D.WorldToCameraTransform);
+                if (clear)
+                {
+                    renderMesh.Reset();
+                }
+
+                var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices(worldToCameraTransform, farClipPlane, nearClipPlane);
 
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
                     (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
-                    triangleMesh.UpdateData(vertexData, triangleData);
+                    renderMesh.UpdateData(vertexData, triangleData);
                 }
 
-                if (target == null)
+                if (renderTriangleMeshToScreen)
                 {
-                    triangleMesh.Render(lightSourceManager, camera4D.WorldToCameraTransform);
-                } else
-                {
-                    triangleMesh.RenderToRenderTexture(target);
+                    renderMesh.Render(lightSourceManager, worldToCameraTransform, farClipPlane, nearClipPlane);
                 }
             }
         }
@@ -175,8 +185,6 @@ namespace RasterizationRenderer
         // Start is called before the first frame update
         void Start()
         {
-            camera4D = Camera4D.main;
-
             lightSourceManager = new(new());
             foreach (LightSource4D lightSource in FindObjectsOfType<LightSource4D>())
             {

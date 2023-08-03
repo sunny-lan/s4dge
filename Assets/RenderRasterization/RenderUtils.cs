@@ -100,5 +100,34 @@ namespace RasterizationRenderer
 
             return (vertices, tris);
         }
+
+        public static Texture2D Texture2DFromRenderTexture(RenderTexture renderTexture)
+        {
+            RenderTexture oldRt = RenderTexture.active;
+            RenderTexture.active = renderTexture;
+            Texture2D tex = new(Screen.width, Screen.height);
+            tex.ReadPixels(new(0, 0, tex.width, tex.height), 0, 0);
+            tex.Apply();
+            RenderTexture.active = oldRt;
+            return tex;
+        }
+
+        public static void PrintTexture(Texture2D tex, int mipLevel = 0)
+        {
+            string str = "";
+            for (int i = 0; i < tex.width / (1 << mipLevel); i++)
+            {
+                for (int j = 0; j < tex.height / (1 << mipLevel); j++)
+                {
+                    Color col = tex.GetPixel(i, j, mipLevel);
+                    if (col != Color.clear)
+                    {
+                        str += string.Format("({0}, {1}): {2}", i, j, col);
+                    }
+                }
+                str += "\n";
+            }
+            Debug.Log(str);
+        }
     }
 }
