@@ -10,48 +10,48 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a94be4a37fae7f4abba15360c0d4324, type: 3}
-  m_Name: cell16
+  m_Name: cell8even
   m_EditorClassIdentifier: 
   mesh_Raw:
     vertices:
-    - position: {x: 1, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 0}
+    - position: {x: -1, y: -1, z: 1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 0}
+    - position: {x: -1, y: 1, z: -1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 1}
+    - position: {x: -1, y: 1, z: 1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: -1, y: 0, z: 0, w: 0}
+    - position: {x: -1, y: -1, z: -1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: -1, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: -1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: -1, w: 0}
+    - position: {x: 1, y: -1, z: 1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: -1}
+    - position: {x: 1, y: -1, z: -1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     tets:
     - tetPoints: 00000000010000000300000002000000
-    - tetPoints: 00000000010000000700000002000000
+    - tetPoints: 00000000010000000200000007000000
     - tetPoints: 00000000010000000600000003000000
-    - tetPoints: 00000000010000000600000007000000
+    - tetPoints: 00000000010000000700000006000000
     - tetPoints: 00000000050000000200000003000000
-    - tetPoints: 00000000050000000200000007000000
-    - tetPoints: 00000000050000000300000006000000
-    - tetPoints: 00000000050000000700000006000000
+    - tetPoints: 00000000050000000700000002000000
+    - tetPoints: 00000000050000000600000003000000
+    - tetPoints: 00000000050000000600000007000000
     - tetPoints: 04000000010000000200000003000000
-    - tetPoints: 04000000010000000200000007000000
-    - tetPoints: 04000000010000000300000006000000
-    - tetPoints: 04000000010000000700000006000000
-    - tetPoints: 04000000050000000300000002000000
-    - tetPoints: 04000000050000000700000002000000
-    - tetPoints: 04000000050000000600000003000000
+    - tetPoints: 04000000010000000700000002000000
+    - tetPoints: 04000000010000000600000003000000
+    - tetPoints: 04000000010000000600000007000000
+    - tetPoints: 04000000050000000200000003000000
+    - tetPoints: 04000000050000000200000007000000
+    - tetPoints: 04000000050000000300000006000000
     - tetPoints: 04000000050000000600000007000000

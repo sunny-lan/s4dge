@@ -16,17 +16,67 @@ MonoBehaviour:
     vertices:
     - position: {x: 2, y: 0, z: 0, w: 0}
       normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     - position: {x: 0, y: 2, z: 0, w: 0}
       normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     - position: {x: 0, y: 0, z: 2, w: 0}
       normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     - position: {x: 0, y: 0, z: 0, w: 2}
       normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 2, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 2, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 2, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     - position: {x: 1.618034, y: 1.618034, z: 1.618034, w: 1.618034}
       normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 2, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 2, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 2}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1.618034, y: 1.618034, z: 1.618034, w: 1.618034}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 2, y: 0, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 2, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 2}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1.618034, y: 1.618034, z: 1.618034, w: 1.618034}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 2, z: 0, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 2, w: 0}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 0, y: 0, z: 0, w: 2}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1.618034, y: 1.618034, z: 1.618034, w: 1.618034}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     tets:
-    - tetPoints: 00000000010000000200000003000000
-    - tetPoints: 00000000010000000200000004000000
-    - tetPoints: 00000000010000000300000004000000
-    - tetPoints: 00000000020000000300000004000000
-    - tetPoints: 01000000020000000300000004000000
+    - tetPoints: 00000000010000000300000002000000
+    - tetPoints: 04000000050000000600000007000000
+    - tetPoints: 08000000090000000a0000000b000000
+    - tetPoints: 0c0000000d0000000f0000000e000000
+    - tetPoints: 10000000110000001200000013000000

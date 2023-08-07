@@ -14,244 +14,84 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mesh_Raw:
     vertices:
-    - position: {x: 0, y: 0, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     - position: {x: 1, y: 1, z: 1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: -1, y: -1, z: 1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 1}
+    - position: {x: -1, y: 1, z: -1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 0}
+    - position: {x: -1, y: 1, z: 1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 1}
+    - position: {x: -1, y: -1, z: -1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: -1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 1}
+    - position: {x: 1, y: -1, z: 1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 0}
+    - position: {x: 1, y: -1, z: -1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 1}
+    - position: {x: -1, y: 1, z: 1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 0}
+    - position: {x: 1, y: -1, z: 1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 1}
+    - position: {x: 1, y: 1, z: -1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 1}
+    - position: {x: 1, y: -1, z: -1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 0}
+    - position: {x: -1, y: 1, z: -1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 1}
+    - position: {x: -1, y: -1, z: 1, w: -1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 1, w: 0}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 0, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 0, y: 1, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 0, z: 1, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 0, w: 1}
-      normal: {x: 0, y: 0, z: 0, w: 0}
-      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
-    - position: {x: 1, y: 1, z: 1, w: 1}
+    - position: {x: -1, y: -1, z: -1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     tets:
-    - tetPoints: 00000000040000000600000001000000
-    - tetPoints: 00000000020000000100000006000000
-    - tetPoints: 02000000030000000100000006000000
-    - tetPoints: 04000000050000000600000001000000
-    - tetPoints: 01000000070000000500000006000000
-    - tetPoints: 01000000030000000700000006000000
-    - tetPoints: 080000000c0000000e00000009000000
-    - tetPoints: 080000000a000000090000000e000000
-    - tetPoints: 0a0000000b000000090000000e000000
-    - tetPoints: 0c0000000d0000000e00000009000000
-    - tetPoints: 090000000f0000000d0000000e000000
-    - tetPoints: 090000000b0000000f0000000e000000
-    - tetPoints: 10000000140000001600000011000000
-    - tetPoints: 10000000120000001100000016000000
-    - tetPoints: 12000000130000001100000016000000
-    - tetPoints: 14000000150000001600000011000000
-    - tetPoints: 11000000170000001500000016000000
-    - tetPoints: 11000000130000001700000016000000
-    - tetPoints: 180000001c0000001e00000019000000
-    - tetPoints: 180000001a000000190000001e000000
-    - tetPoints: 1a0000001b000000190000001e000000
-    - tetPoints: 1c0000001d0000001e00000019000000
-    - tetPoints: 190000001f0000001d0000001e000000
-    - tetPoints: 190000001b0000001f0000001e000000
-    - tetPoints: 20000000240000002600000021000000
-    - tetPoints: 20000000220000002100000026000000
-    - tetPoints: 22000000230000002100000026000000
-    - tetPoints: 24000000250000002600000021000000
-    - tetPoints: 21000000270000002500000026000000
-    - tetPoints: 21000000230000002700000026000000
-    - tetPoints: 280000002c0000002e00000029000000
-    - tetPoints: 280000002a000000290000002e000000
-    - tetPoints: 2a0000002b000000290000002e000000
-    - tetPoints: 2c0000002d0000002e00000029000000
-    - tetPoints: 290000002f0000002d0000002e000000
-    - tetPoints: 290000002b0000002f0000002e000000
-    - tetPoints: 30000000340000003600000031000000
-    - tetPoints: 30000000320000003100000036000000
-    - tetPoints: 32000000330000003100000036000000
-    - tetPoints: 34000000350000003600000031000000
-    - tetPoints: 31000000370000003500000036000000
-    - tetPoints: 31000000330000003700000036000000
-    - tetPoints: 380000003c0000003e00000039000000
-    - tetPoints: 380000003a000000390000003e000000
-    - tetPoints: 3a0000003b000000390000003e000000
-    - tetPoints: 3c0000003d0000003e00000039000000
-    - tetPoints: 390000003f0000003d0000003e000000
-    - tetPoints: 390000003b0000003f0000003e000000
+    - tetPoints: 00000000010000000300000002000000
+    - tetPoints: 00000000010000000200000007000000
+    - tetPoints: 00000000010000000600000003000000
+    - tetPoints: 00000000010000000700000006000000
+    - tetPoints: 00000000050000000200000003000000
+    - tetPoints: 00000000050000000700000002000000
+    - tetPoints: 00000000050000000600000003000000
+    - tetPoints: 00000000050000000600000007000000
+    - tetPoints: 04000000010000000200000003000000
+    - tetPoints: 04000000010000000700000002000000
+    - tetPoints: 04000000010000000600000003000000
+    - tetPoints: 04000000010000000600000007000000
+    - tetPoints: 04000000050000000200000003000000
+    - tetPoints: 04000000050000000200000007000000
+    - tetPoints: 04000000050000000300000006000000
+    - tetPoints: 04000000050000000600000007000000
+    - tetPoints: 08000000090000000a0000000b000000
+    - tetPoints: 08000000090000000f0000000a000000
+    - tetPoints: 08000000090000000e0000000b000000
+    - tetPoints: 08000000090000000e0000000f000000
+    - tetPoints: 080000000d0000000a0000000b000000
+    - tetPoints: 080000000d0000000a0000000f000000
+    - tetPoints: 080000000d0000000b0000000e000000
+    - tetPoints: 080000000d0000000e0000000f000000
+    - tetPoints: 0c000000090000000a0000000b000000
+    - tetPoints: 0c000000090000000a0000000f000000
+    - tetPoints: 0c000000090000000b0000000e000000
+    - tetPoints: 0c000000090000000e0000000f000000
+    - tetPoints: 0c0000000d0000000b0000000a000000
+    - tetPoints: 0c0000000d0000000a0000000f000000
+    - tetPoints: 0c0000000d0000000e0000000b000000
+    - tetPoints: 0c0000000d0000000f0000000e000000
