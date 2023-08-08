@@ -16,7 +16,6 @@ public class TriangleMesh : MonoBehaviour
     Mesh mesh;
     public Material material;
     int curVertexCount = 0;
-
     public void UpdateData(float[] newVertexData, int[] newTriangleData)
     {
         int numNewVertices = newVertexData.Length / VertexData.SizeFloats;
@@ -59,32 +58,59 @@ public class TriangleMesh : MonoBehaviour
                 matrix: Matrix4x4.identity,
                 material: material,
                 layer: gameObject.layer,
-                //camera: GetComponent<Camera>(),
                 camera: Camera4D.main.camera3D,
-                //camera: null,
                 submeshIndex: i,
                 properties: null
-            //properties: blk
             );
         }
     }
 
-    public void RenderToRenderTexture(RenderTexture rt, Color clearColour)
+    public void RenderToRenderTexture(RenderTexture rt, Color clearColour, Material overrideMaterial = null, bool clearTexture = true)
+    {
+        mesh.RecalculateBounds();
+        mesh.RecalculateTangents();
+
+        Matrix4x4 projectionMatrix = Camera4D.main.camera3D.projectionMatrix;
+        RenderTexture prevRT = RenderTexture.active;
+        RenderTexture.active = rt;
+
+        Material renderMaterial = material;
+        if (overrideMaterial != null)
+        {
+            renderMaterial = overrideMaterial;
+        }
+        renderMaterial.SetPass(0);
+
+        GL.PushMatrix();
+        GL.LoadProjectionMatrix(projectionMatrix);
+        if (clearTexture)
+        {
+            GL.Clear(true, true, clearColour);
+        }
+        for (int i = 0; i < mesh.subMeshCount; i++)
+        {
+            Graphics.DrawMeshNow(mesh, Matrix4x4.identity, i);
+        }
+        GL.PopMatrix();
+        RenderTexture.active = prevRT;
+    }
+
+    public void RenderToRenderTextureCmdBuf(RenderTexture rt, Color clearColour)
     {
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
 
         Matrix4x4 projectionMatrix = Camera.main.projectionMatrix;
-        Debug.Log("Projection matrix: " + projectionMatrix);
-        RenderTexture prevRT = RenderTexture.active;
-        RenderTexture.active = rt;
-        material.SetPass(0);
-        GL.PushMatrix();
-        GL.LoadProjectionMatrix(projectionMatrix);
-        GL.Clear(true, true, clearColour);
-        Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
-        GL.PopMatrix();
-        RenderTexture.active = prevRT;
+        CommandBuffer cmdBuf = new();
+        cmdBuf.Clear();
+        cmdBuf.SetRenderTarget(rt);
+        cmdBuf.SetProjectionMatrix(projectionMatrix);
+        cmdBuf.ClearRenderTarget(true, true, clearColour);
+        for (int i = 0; i < mesh.subMeshCount; i++)
+        {
+            cmdBuf.DrawMesh(mesh, Matrix4x4.identity, material, i);
+        }
+        Graphics.ExecuteCommandBuffer(cmdBuf);
     }
 
     public void PassLightDataToMaterial(LightSource4DManager lightSources, float farClipPlane, float nearClipPlane)
@@ -96,8 +122,8 @@ public class TriangleMesh : MonoBehaviour
         material.SetFloat("nearW", nearClipPlane);
         material.SetMatrix("modelViewProjection3D", Matrix4x4.identity);
 
-        Texture shadowMap = lightSources.LightSources[0].ShadowMap;
-        material.SetTexture("_ShadowMap", shadowMap);
+        RenderTexture shadowMap = lightSources.LightSources[0].ShadowMap;
+        material.SetTexture("_ShadowMap", shadowMap, RenderTextureSubElement.Color);
     }
 
     public void Reset()

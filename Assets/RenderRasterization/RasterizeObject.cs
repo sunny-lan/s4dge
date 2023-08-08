@@ -30,7 +30,7 @@ namespace RasterizationRenderer
         // Update is called once per frame
         public void DrawFrame()
         {
-            tetMeshRenderer.RenderToTriangleMesh(zSliceStart, zSliceLength, zSliceInterval,
+            tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval,
                 camera4D.WorldToCameraTransform, camera4D.camera3D.farClipPlane, camera4D.camera3D.nearClipPlane);
         }
 

@@ -28,6 +28,7 @@ Shader "ShadowMapGenerator4D"
             struct v2f
             {
                 float4 vertex : SV_POSITION;
+                float depth: DEPTH1;
             };
 
             v2f vert (appdata v)
@@ -36,11 +37,12 @@ Shader "ShadowMapGenerator4D"
 
                 // we piggyback the w-coordinate into z to leverage hardware depth-testing
                 o.vertex = UnityObjectToClipPos(v.vertex.xyw);
+                o.depth = o.vertex.z / o.vertex.w;
                 return o;
             }
             fixed4 frag (v2f i) : SV_Target
             {
-                return fixed4(i.vertex.z, 0, 0, 1);
+                return fixed4(i.depth, 0, 0, 1);
             }
             ENDCG
         }

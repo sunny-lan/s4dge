@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 using v2;
 
 namespace RasterizationRenderer
@@ -14,9 +13,9 @@ namespace RasterizationRenderer
 
         public TransformMatrixAffine4D WorldToLightTransform { get => transform4D.worldToLocalMatrix; }
 
-        public Texture ShadowMap { get => shadowMapGenerator.ShadowMap; }
+        public RenderTexture ShadowMap { get => shadowMapGenerator.ShadowMap; }
 
-        public ShaderData Data { get => new(LightToWorldTransform, WorldToLightTransform);  }
+        public ShaderData Data { get => new(LightToWorldTransform, WorldToLightTransform); }
 
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct ShaderData
@@ -34,7 +33,7 @@ namespace RasterizationRenderer
                 WorldToLightTranslation = WorldToLightTransform.translation;
             }
 
-            public static int SizeFloats { get => 2 * 20;  }
+            public static int SizeFloats { get => 2 * 20; }
 
             public static int SizeBytes { get => SizeFloats * sizeof(float); }
         }

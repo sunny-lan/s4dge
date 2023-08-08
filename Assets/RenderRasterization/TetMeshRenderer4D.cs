@@ -33,7 +33,7 @@ namespace RasterizationRenderer
             internal set { _tetMesh = value; }
         }
 
-        LightSource4DManager lightSourceManager;
+        public LightSource4DManager lightSourceManager;
 
         public void SetTetMesh(TetMesh4D tetMesh)
         {
@@ -72,8 +72,6 @@ namespace RasterizationRenderer
 
         public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, ComputeBuffer vertexBuffer, ComputeBuffer tetDrawBuffer, ComputeBuffer numTetsBuffer)
         {
-            
-
             VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, tetDrawBuffer, numTetsBuffer, zSlice);
             trianglesToDraw.UpdateBufferLengths();
 
@@ -98,7 +96,7 @@ namespace RasterizationRenderer
                 worldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
                 modelWorldTransform4D.localToWorldMatrix,
                 Matrix4x4.identity,
-                camera3D.farClipPlane, camera3D.nearClipPlane
+                farClipPlane, nearClipPlane
             );
 
             ComputeBuffer tetDrawBuffer;
@@ -121,14 +119,18 @@ namespace RasterizationRenderer
         }
 
         // Generate triangle mesh
-        public void RenderToTriangleMesh(float zSliceStart, float zSliceLength, float zSliceInterval,
+        public void Render(float zSliceStart, float zSliceLength, float zSliceInterval,
             TransformMatrixAffine4D worldToCameraTransform, float farClipPlane, float nearClipPlane,
-            TriangleMesh overrideOutputMesh = null, bool renderTriangleMeshToScreen = true, bool clear = true)
+            TriangleMesh overrideOutputMesh = null, Material overrideMaterial = null, RenderTexture outputTexture = null, bool clear = true)
         {
             // don't draw unless zSliceInterval is large enough so that unity doesn't freeze when accidentally set to 0
             if (vertexShader != null && culler != null && zSliceInterval > 0.05)
             {
-                TriangleMesh renderMesh = overrideOutputMesh ?? triangleMesh;
+                TriangleMesh renderMesh = triangleMesh;
+                if (overrideOutputMesh != null)
+                {
+                    renderMesh = overrideOutputMesh;
+                }
 
                 if (clear)
                 {
@@ -140,12 +142,18 @@ namespace RasterizationRenderer
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
                     (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
+                    //RenderUtils.PrintTriMeshData(vertexData, triangleData);
                     renderMesh.UpdateData(vertexData, triangleData);
                 }
 
-                if (renderTriangleMeshToScreen)
+
+                if (outputTexture == null)
                 {
                     renderMesh.Render(lightSourceManager, worldToCameraTransform, farClipPlane, nearClipPlane);
+                }
+                else
+                {
+                    renderMesh.RenderToRenderTexture(outputTexture, Color.clear, overrideMaterial, false);
                 }
             }
         }

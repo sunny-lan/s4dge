@@ -9,7 +9,6 @@ Shader "Rasterize4D"
         _GlobalShininess ("Shininess", Float) = 0.5
         _Opacity ("Opacity", Float) = 1.0
         _AttenuationFactor("Attenuation Factor", Float) = 0.5
-        //_ShadowMap("Shadow Map", 2D) = "white" {}
     }
     SubShader
     {
@@ -49,6 +48,7 @@ Shader "Rasterize4D"
                 float4 normal : NORMAL;
                 float4 vertexWorld : TEXCOORD1;
                 float4 lightSpaceVertex: TEXCOORD2;
+                float lightSpaceDepth: DEPTH1;
             };
 
             /*
@@ -63,9 +63,6 @@ Shader "Rasterize4D"
             float _Opacity;
             float _AttenuationFactor;
 
-            sampler2D _ShadowMap;
-            float4 _ShadowMap_ST;
-
             /*
             * Uniform variables
             */
@@ -75,6 +72,9 @@ Shader "Rasterize4D"
 
             StructuredBuffer<pointLight4D> lightSources;
             int numLights;
+
+            sampler2D _ShadowMap;
+            float4 _ShadowMap_ST;
 
             /*
             * Helper Functions
@@ -104,10 +104,14 @@ Shader "Rasterize4D"
 
                 o.normal = v.normal;
                 o.vertexWorld = v.vertexWorld;
+
                 float4 lightSpaceVertex = applyPerspectiveTransformation(
                     applyTransform(v.vertexWorld, lightSources[0].worldToLightTransform)
                 );
-                o.lightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
+                float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
+                o.lightSpaceVertex = clipLightSpaceVertex;
+                o.lightSpaceDepth = o.lightSpaceVertex.z / o.lightSpaceVertex.w;
+
                 return o;
             }
 
@@ -115,14 +119,6 @@ Shader "Rasterize4D"
             // https://paroj.github.io/gltut/Illumination/Tut11%20BlinnPhong%20Model.html
             fixed4 frag (v2f i) : SV_Target
             {
-                float4 lightSpaceVertex = UnityObjectToClipPos(
-                    applyPerspectiveTransformation(
-                        applyTransform(i.vertexWorld, lightSources[0].worldToLightTransform)
-                    ).xyw
-                );
-                fixed4 sampledDepth = tex2D(_ShadowMap, lightSpaceVertex.xy); 
-                //return fixed4(sampledDepth.x, 0, 0, 1);
-
                 float4 vertex4D = applyWorldToCameraTransform(i.vertexWorld);
                 float4 fragNormal = normalize(i.normal);
 
@@ -145,19 +141,21 @@ Shader "Rasterize4D"
                     float lightIntensity = GetLightIntensity(lightVec, false);
                     float lightIntensitySqr = GetLightIntensity(lightVec, true);
 
-                    float4 lightSpaceVertex = applyPerspectiveTransformation(
-                        applyTransform(i.vertexWorld, lightSources[idx].worldToLightTransform)
-                    );
-                    float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
-                    fixed sampledDepth = tex2D(_ShadowMap, clipLightSpaceVertex.xy).x;
-                    float actualDepth = clipLightSpaceVertex.z;
+                    //float4 lightSpaceVertex = applyPerspectiveTransformation(
+                    //    applyTransform(i.vertexWorld, lightSources[idx].worldToLightTransform)
+                    //);
+                    //float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
+                    float4 screenPos = ComputeScreenPos (i.lightSpaceVertex);
+                    fixed4 sampledDepth = tex2Dproj(_ShadowMap, screenPos).x; 
+                    float actualDepth = i.lightSpaceDepth;
 
-                    //fixed sampledDepth = tex2D(_ShadowMap, i.lightSpaceVertex.xy).x;
-                    //float actualDepth = i.lightSpaceVertex.z;
-                    //int shadowMultiplier = ((actualDepth <= (sampledDepth + 1e-3)) && (all(abs(lightSpaceVertex.xyz) < float3(1, 1, 1))));
-                    //int shadowMultiplier = (all(abs(lightClipSpaceVertex.xy) < float2(1, 1)) && actualDepth >= 0);
-                    int shadowMultiplier = (actualDepth <= (sampledDepth + 1e-5));
-                    //int shadowMultiplier = 1;
+                    float4 clipLightSpaceVertex = i.lightSpaceVertex / i.lightSpaceVertex.w;
+                    int shadowMultiplier = (actualDepth >= 0 && 
+                        clipLightSpaceVertex.x >= -1 && clipLightSpaceVertex.x <= 1
+                        && clipLightSpaceVertex.y >= -1 && clipLightSpaceVertex.y <= 1
+                        && clipLightSpaceVertex.z >= -1 && clipLightSpaceVertex.z <= 1
+                        && actualDepth >= (sampledDepth - 5e-3)
+                    );
 
                     colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) * shadowMultiplier;
                     colour += (_GlobalSpecularColour * lightIntensitySqr * blinnTerm) * shadowMultiplier;

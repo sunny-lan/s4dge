@@ -5,14 +5,16 @@ using v2;
 
 namespace RasterizationRenderer
 {
-    [RequireComponent(typeof(TriangleMesh))]
     public class ShadowMapGenerator : MonoBehaviour
     {
-        TriangleMesh triangleMesh;
-        RenderTexture _shadowMap;
+        public Material shadowGenerateMaterial;
+
         List<TetMeshRenderer4D> sceneTetMeshRenderers;
         bool shadowsEnabled;
-        public Texture ShadowMap
+
+        RenderTexture newShadowMap;
+        RenderTexture _shadowMap;
+        public RenderTexture ShadowMap
         {
             get => _shadowMap;
         }
@@ -25,14 +27,16 @@ namespace RasterizationRenderer
             sceneTetMeshRenderers = FindObjectsByType<TetMeshRenderer4D>(FindObjectsSortMode.InstanceID).ToList();
         }
 
-        public void ClearShadowMap(Color colour)
+        public RenderTexture GetClearedShadowMap(Color colour)
         {
-            RenderTexture rt = new(Screen.width, Screen.height, 0);
+            RenderTexture shadowMap = new(Screen.width, Screen.height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+
             RenderTexture prevRT = RenderTexture.active;
-            RenderTexture.active = rt;
+            RenderTexture.active = shadowMap;
             GL.Clear(true, true, colour);
             RenderTexture.active = prevRT;
-            _shadowMap = rt;
+
+            return shadowMap;
         }
 
         public void UpdateShadowMap(TransformMatrixAffine4D worldToLightTransform, bool enableShadows)
@@ -41,40 +45,41 @@ namespace RasterizationRenderer
             {
                 if (shadowsEnabled)
                 {
-                    // Fill the shadow map with max depth if shadows are disabled
-                    ClearShadowMap(Color.red);
+                    // Fill the shadow map with min depth (farthest from camera) if shadows are disabled
+                    if (_shadowMap != null)
+                    {
+                        _shadowMap.Release();
+                    }
+                    _shadowMap = GetClearedShadowMap(Color.clear);
                     shadowsEnabled = false;
                 }
             }
             else
             {
-                _shadowMap?.Release();
+                if (_shadowMap != null)
+                {
+                    _shadowMap.Release();
+                }
+                _shadowMap = newShadowMap;
 
                 if (sceneTetMeshRenderers == null)
                 {
                     UpdateTetMeshList();
                 }
 
-                triangleMesh.Reset();
                 Camera cam3D = Camera4D.main.camera3D;
+                newShadowMap = GetClearedShadowMap(Color.clear);
                 foreach (var tetMeshRenderer in sceneTetMeshRenderers)
                 {
-                    tetMeshRenderer.RenderToTriangleMesh(zSliceStart, zSliceLength, zSliceInterval,
+                    tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval,
                         worldToCameraTransform: worldToLightTransform,
                         farClipPlane: cam3D.farClipPlane,
                         nearClipPlane: cam3D.nearClipPlane,
-                        overrideOutputMesh: triangleMesh,
-                        renderTriangleMeshToScreen: false,
-                        clear: false
+                        overrideMaterial: shadowGenerateMaterial,
+                        outputTexture: newShadowMap,
+                        clear: true
                     );
                 }
-
-                RenderTexture shadowMap = new(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-                triangleMesh.RenderToRenderTexture(shadowMap, Color.red);
-                _shadowMap = shadowMap;
-
-                Texture2D tex = RenderUtils.Texture2DFromRenderTexture(shadowMap);
-                RenderUtils.PrintTexture(tex, Color.red, 4);
 
                 shadowsEnabled = true;
             }
@@ -83,8 +88,9 @@ namespace RasterizationRenderer
         // Start is called before the first frame update
         void Start()
         {
-            triangleMesh = GetComponent<TriangleMesh>();
             shadowsEnabled = true;
+            _shadowMap = null;
+            newShadowMap = null;
         }
     }
 }

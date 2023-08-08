@@ -17,17 +17,21 @@ public class RasterizeCamera : MonoBehaviour
     {
         if (!showShadowMap)
         {
+            bool shadowMapsNonNull = true;
             // generate shadow maps
             foreach (var lightSource in FindObjectsByType<LightSource4D>(FindObjectsSortMode.InstanceID))
             {
                 lightSource.UpdateShadowMap(enableShadows);
+                shadowMapsNonNull = shadowMapsNonNull && (lightSource.ShadowMap != null);
             }
 
-
-            // draw each object
-            foreach (var rasterizeObject in FindObjectsByType<RasterizeObject>(FindObjectsSortMode.InstanceID))
+            if (shadowMapsNonNull)
             {
-                rasterizeObject.DrawFrame();
+                // draw each object
+                foreach (var rasterizeObject in FindObjectsByType<RasterizeObject>(FindObjectsSortMode.InstanceID))
+                {
+                    rasterizeObject.DrawFrame();
+                }
             }
         }
     }
@@ -39,8 +43,12 @@ public class RasterizeCamera : MonoBehaviour
             foreach (var lightSource in FindObjectsByType<LightSource4D>(FindObjectsSortMode.InstanceID))
             {
                 lightSource.UpdateShadowMap(true);
-                //RenderUtils.PrintTexture(lightSource.ShadowMap, 6);
-                GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), lightSource.ShadowMap);
+                //GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), lightSource.ShadowMap);
+            }
+
+            foreach (var rasterizeObject in FindObjectsByType<RasterizeObject>(FindObjectsSortMode.InstanceID))
+            {
+                rasterizeObject.DrawFrame();
             }
         }
     }
