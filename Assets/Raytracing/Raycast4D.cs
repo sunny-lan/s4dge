@@ -171,12 +171,13 @@ public class Raycast4D : MonoBehaviour {
                         if (meshRenderer.mesh?.mesh_Raw == null) continue;
 
                         int idxStart = tets.Count;
+                        int vertexStart = vertices.Count; // index of first vertex of this mesh
                         vertices.AddRange<Vector4>(meshRenderer.mesh.mesh_Raw.vertices.Select(vertex=>vertex.position));
-                        tets.AddRange<int4>(meshRenderer.mesh.mesh_Raw.tets.Select(x=>new int4(
-                            x.tetPoints[0],
-                            x.tetPoints[1],
-                            x.tetPoints[2],
-                            x.tetPoints[3]
+                        tets.AddRange<int4>(meshRenderer.mesh.mesh_Raw.tets.Select(x=>new int4( // Indices in tets are relative to their own vertices - will always start at 0
+                            vertexStart + x.tetPoints[0],
+                            vertexStart + x.tetPoints[1],
+                            vertexStart + x.tetPoints[2],
+                            vertexStart + x.tetPoints[3]
                         )));
                         tetMeshes.Add(new()
                         {

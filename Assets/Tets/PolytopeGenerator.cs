@@ -52,7 +52,7 @@ public class PolytopeGenerator : MonoBehaviour
                                 for (int l = k + 1; l < 5; l++)
                                 {
                                     Vector4 normal = Util.CrossProduct4D(pos[j] - pos[i], pos[k] - pos[i], pos[l] - pos[i]);
-                                    normal = Vector4.zero;
+                                    normal.Normalize();
                                     v.Add(new TetMesh4D.VertexData(pos[i], normal));
                                     v.Add(new TetMesh4D.VertexData(pos[j], normal));
                                     v.Add(new TetMesh4D.VertexData(pos[k], normal));
