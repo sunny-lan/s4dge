@@ -1,8 +1,5 @@
-using RasterizationRenderer;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using UnityEngine;
 using v2;
 
@@ -11,7 +8,7 @@ namespace RasterizationRenderer
     [RequireComponent(typeof(TriangleMesh))]
     public class ShadowMapGenerator : MonoBehaviour
     {
-        public TriangleMesh triangleMesh;
+        TriangleMesh triangleMesh;
         RenderTexture _shadowMap;
         List<TetMeshRenderer4D> sceneTetMeshRenderers;
         bool shadowsEnabled;
@@ -73,8 +70,11 @@ namespace RasterizationRenderer
                 }
 
                 RenderTexture shadowMap = new(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
-                triangleMesh.RenderToRenderTexture(shadowMap);
+                triangleMesh.RenderToRenderTexture(shadowMap, Color.red);
                 _shadowMap = shadowMap;
+
+                Texture2D tex = RenderUtils.Texture2DFromRenderTexture(shadowMap);
+                RenderUtils.PrintTexture(tex, Color.red, 4);
 
                 shadowsEnabled = true;
             }

@@ -101,7 +101,7 @@ namespace RasterizationRenderer
         public TetMesh4D(VertexData[] vertices, Tet4D[] tets)
         {
 
-            MeshGeneratorUtils.MakeTetsForwardFacing(tets, vertices);
+            //MeshGeneratorUtils.MakeTetsForwardFacing(tets, vertices);
             this.vertices = vertices;
             this.tets = tets;
         }

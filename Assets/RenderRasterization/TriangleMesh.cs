@@ -1,4 +1,3 @@
-using Codice.Client.Common.GameUI;
 using UnityEngine;
 using UnityEngine.Rendering;
 using v2;
@@ -61,7 +60,8 @@ public class TriangleMesh : MonoBehaviour
                 material: material,
                 layer: gameObject.layer,
                 //camera: GetComponent<Camera>(),
-                camera: null,
+                camera: Camera4D.main.camera3D,
+                //camera: null,
                 submeshIndex: i,
                 properties: null
             //properties: blk
@@ -69,18 +69,19 @@ public class TriangleMesh : MonoBehaviour
         }
     }
 
-    public void RenderToRenderTexture(RenderTexture rt)
+    public void RenderToRenderTexture(RenderTexture rt, Color clearColour)
     {
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
 
         Matrix4x4 projectionMatrix = Camera.main.projectionMatrix;
+        Debug.Log("Projection matrix: " + projectionMatrix);
         RenderTexture prevRT = RenderTexture.active;
         RenderTexture.active = rt;
         material.SetPass(0);
         GL.PushMatrix();
         GL.LoadProjectionMatrix(projectionMatrix);
-        GL.Clear(true, true, Color.red);
+        GL.Clear(true, true, clearColour);
         Graphics.DrawMeshNow(mesh, Matrix4x4.identity);
         GL.PopMatrix();
         RenderTexture.active = prevRT;

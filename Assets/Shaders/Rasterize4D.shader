@@ -27,28 +27,14 @@ Shader "Rasterize4D"
             #include "UnityCG.cginc"
             #include "VertexShaderUtils.cginc"
 
-            // Properties
-            float4 _GlobalAmbientIntensity;
-            fixed4 _GlobalDiffuseColour;
-            float4 _GlobalLightIntensity;
-            fixed4 _GlobalSpecularColour;
-            float _GlobalShininess;
-            float _Opacity;
-            float _AttenuationFactor;
-
-            float4x4 worldToCameraScaleAndRot;
-            float4 worldToCameraTranslation;
+            /*
+            * Struct definitions
+            */
 
             struct pointLight4D {
                 Transform4D lightToWorldTransform;
                 Transform4D worldToLightTransform;
             };
-
-            StructuredBuffer<pointLight4D> lightSources;
-            int numLights;
-
-            sampler2D _ShadowMap;
-            float4 _ShadowMap_ST;
 
             struct appdata
             {
@@ -62,7 +48,52 @@ Shader "Rasterize4D"
                 float4 vertex : SV_POSITION;
                 float4 normal : NORMAL;
                 float4 vertexWorld : TEXCOORD1;
+                float4 lightSpaceVertex: TEXCOORD2;
             };
+
+            /*
+            * Properties
+            */
+
+            float4 _GlobalAmbientIntensity;
+            fixed4 _GlobalDiffuseColour;
+            float4 _GlobalLightIntensity;
+            fixed4 _GlobalSpecularColour;
+            float _GlobalShininess;
+            float _Opacity;
+            float _AttenuationFactor;
+
+            sampler2D _ShadowMap;
+            float4 _ShadowMap_ST;
+
+            /*
+            * Uniform variables
+            */
+
+            float4x4 worldToCameraScaleAndRot;
+            float4 worldToCameraTranslation;
+
+            StructuredBuffer<pointLight4D> lightSources;
+            int numLights;
+
+            /*
+            * Helper Functions
+            */
+
+            fixed4 GetLightIntensity(float4 lightDirection, bool sqr)
+            {
+                float lightDistanceSqr = dot(lightDirection, lightDirection);
+    
+                return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * (sqr ? lightDistanceSqr : sqrt(lightDistanceSqr))));
+            }
+
+            float4 applyWorldToCameraTransform(float4 v) {
+                return applyTranslation(applyScaleAndRot(v, worldToCameraScaleAndRot), worldToCameraTranslation);
+            }
+
+            /*
+            * Main shader functions
+            */
 
             v2f vert (appdata v)
             {
@@ -73,23 +104,11 @@ Shader "Rasterize4D"
 
                 o.normal = v.normal;
                 o.vertexWorld = v.vertexWorld;
+                float4 lightSpaceVertex = applyPerspectiveTransformation(
+                    applyTransform(v.vertexWorld, lightSources[0].worldToLightTransform)
+                );
+                o.lightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
                 return o;
-            }
-
-            fixed4 GetLightIntensity(float4 lightDirection, bool sqr)
-            {
-                float lightDistanceSqr = dot(lightDirection, lightDirection);
-    
-                return _GlobalLightIntensity * (1 / (1.0 + _AttenuationFactor * (sqr ? lightDistanceSqr : sqrt(lightDistanceSqr))));
-            }
-
-
-            float4 applyWorldToCameraTransform(float4 v) {
-                return applyTranslation(applyScaleAndRot(v, worldToCameraScaleAndRot), worldToCameraTranslation);
-            }
-
-            float4 applyTransform(float4 v, Transform4D transform) {
-                return applyTranslation(applyScaleAndRot(v, transform.scaleAndRot), transform.translation);
             }
 
             // Blinn-Phong Model from:
@@ -127,14 +146,17 @@ Shader "Rasterize4D"
                     float lightIntensitySqr = GetLightIntensity(lightVec, true);
 
                     float4 lightSpaceVertex = applyPerspectiveTransformation(
-                        applyTransform(i.vertexWorld, lightSources[0].worldToLightTransform)
+                        applyTransform(i.vertexWorld, lightSources[idx].worldToLightTransform)
                     );
-                    float3 lightClipSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
-                    fixed sampledDepth = tex2D(_ShadowMap, lightClipSpaceVertex.xy).x;
-                    float actualDepth = lightClipSpaceVertex.z;
+                    float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
+                    fixed sampledDepth = tex2D(_ShadowMap, clipLightSpaceVertex.xy).x;
+                    float actualDepth = clipLightSpaceVertex.z;
+
+                    //fixed sampledDepth = tex2D(_ShadowMap, i.lightSpaceVertex.xy).x;
+                    //float actualDepth = i.lightSpaceVertex.z;
                     //int shadowMultiplier = ((actualDepth <= (sampledDepth + 1e-3)) && (all(abs(lightSpaceVertex.xyz) < float3(1, 1, 1))));
                     //int shadowMultiplier = (all(abs(lightClipSpaceVertex.xy) < float2(1, 1)) && actualDepth >= 0);
-                    int shadowMultiplier = (actualDepth <= (sampledDepth + 1e-3));
+                    int shadowMultiplier = (actualDepth <= (sampledDepth + 1e-5));
                     //int shadowMultiplier = 1;
 
                     colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) * shadowMultiplier;
