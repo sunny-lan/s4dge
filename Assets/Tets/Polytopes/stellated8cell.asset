@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a94be4a37fae7f4abba15360c0d4324, type: 3}
-  m_Name: cell8even
+  m_Name: stellated8cell
   m_EditorClassIdentifier: 
   mesh_Raw:
     vertices:
@@ -38,6 +38,30 @@ MonoBehaviour:
     - position: {x: 1, y: -1, z: -1, w: 1}
       normal: {x: 0, y: 0, z: 0, w: 0}
       worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: -1, y: 1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: -1, z: 1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: -1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: 1, z: 1, w: -1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: 1, y: -1, z: -1, w: -1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: -1, y: 1, z: -1, w: -1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: -1, y: -1, z: 1, w: -1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
+    - position: {x: -1, y: -1, z: -1, w: 1}
+      normal: {x: 0, y: 0, z: 0, w: 0}
+      worldPosition4D: {x: 0, y: 0, z: 0, w: 0}
     tets:
     - tetPoints: 00000000010000000300000002000000
     - tetPoints: 00000000010000000200000007000000
@@ -55,3 +79,19 @@ MonoBehaviour:
     - tetPoints: 04000000050000000200000007000000
     - tetPoints: 04000000050000000300000006000000
     - tetPoints: 04000000050000000600000007000000
+    - tetPoints: 08000000090000000a0000000b000000
+    - tetPoints: 08000000090000000f0000000a000000
+    - tetPoints: 08000000090000000e0000000b000000
+    - tetPoints: 08000000090000000e0000000f000000
+    - tetPoints: 080000000d0000000a0000000b000000
+    - tetPoints: 080000000d0000000a0000000f000000
+    - tetPoints: 080000000d0000000b0000000e000000
+    - tetPoints: 080000000d0000000e0000000f000000
+    - tetPoints: 0c000000090000000a0000000b000000
+    - tetPoints: 0c000000090000000a0000000f000000
+    - tetPoints: 0c000000090000000b0000000e000000
+    - tetPoints: 0c000000090000000e0000000f000000
+    - tetPoints: 0c0000000d0000000b0000000a000000
+    - tetPoints: 0c0000000d0000000a0000000f000000
+    - tetPoints: 0c0000000d0000000e0000000b000000
+    - tetPoints: 0c0000000d0000000f0000000e000000

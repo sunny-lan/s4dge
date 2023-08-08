@@ -10,8 +10,6 @@ public class PolytopeGenerator : MonoBehaviour
     public enum Polytope {
         cell5,
         cell8,
-        cell8odd,
-        cell8even,
         cell16,
         cell24,
         cell120,
@@ -70,76 +68,7 @@ public class PolytopeGenerator : MonoBehaviour
                 case Polytope.cell8:
                 {
                     TetMesh_raw mesh = new();
-                    TetMesh4D.VertexData[] cell16even = { // Vertices have to be ordered such that the corresponding negative coordinate is at index +4
-                        new TetMesh4D.VertexData(new Vector4(1,1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,1,-1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,1,1,-1), Vector4.zero),
-                        
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,-1,1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,-1,-1,1), Vector4.zero),
-                    };
-                    mesh.vertices.AddRange(cell16even);
-                    Set16CellTets(mesh, 0);
-                    
-                    TetMesh4D.VertexData[] cell16odd = {
-                        new TetMesh4D.VertexData(new Vector4(-1,1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,-1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,1,-1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,1,1,-1), Vector4.zero),
-
-                        new TetMesh4D.VertexData(new Vector4(1,-1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,-1,1), Vector4.zero),
-                    };
-                    mesh.vertices.AddRange(cell16odd);
-                    Set16CellTets(mesh, 8);
-
-                    v = mesh.vertices.ToList();
-                    t = mesh.tets.ToList();
-                    break;
-                }
-                case Polytope.cell8odd:
-                {
-                    TetMesh_raw mesh = new();
-                    TetMesh4D.VertexData[] cell16odd = {
-                        new TetMesh4D.VertexData(new Vector4(-1,1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,-1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,1,-1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,1,1,-1), Vector4.zero),
-
-                        new TetMesh4D.VertexData(new Vector4(1,-1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,-1,1), Vector4.zero),
-                    };
-                    mesh.vertices.AddRange(cell16odd);
-                    Set16CellTets(mesh, 0);
-
-                    v = mesh.vertices.ToList();
-                    t = mesh.tets.ToList();
-                    break;
-                }
-                case Polytope.cell8even:
-                {
-                    TetMesh_raw mesh = new();
-                    TetMesh4D.VertexData[] cell16even = { // Vertices have to be ordered such that the corresponding negative coordinate is at index +4
-                        new TetMesh4D.VertexData(new Vector4(1,1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,1,-1,1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(-1,1,1,-1), Vector4.zero),
-                        
-                        new TetMesh4D.VertexData(new Vector4(-1,-1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,1,-1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,-1,1,-1), Vector4.zero),
-                        new TetMesh4D.VertexData(new Vector4(1,-1,-1,1), Vector4.zero),
-                    };
-                    mesh.vertices.AddRange(cell16even);
-                    Set16CellTets(mesh, 0);
-
+                    HypercubeGenerator.GenerateHypercubeTmp(mesh);
                     v = mesh.vertices.ToList();
                     t = mesh.tets.ToList();
                     break;
@@ -153,11 +82,11 @@ public class PolytopeGenerator : MonoBehaviour
                 }
                 case Polytope.cell24:
                 {
-                    TetMesh4D centerCube = HypercubeGenerator.GenerateHypercube(); // center tesseract at radius 0.5, centered at (0.5,0.5,0.5,0.5)
+                    TetMesh_raw centerCube = GenerateStellated8Cell(); // center tesseract at radius 1 centered 0,0,0,0
                     v = centerCube.vertices.ToList();
                     t = centerCube.tets.ToList();
 
-                    TetMesh_raw outer16 = Generate16Cell(1, 0.5f, v.Count); // outer 16 cell centered at (0.5,0.5,0.5,0.5), radius 1
+                    TetMesh_raw outer16 = Generate16Cell(2, 0, v.Count); // outer 16 cell radius 2 centered 0,0,0,0
                     v.AddRange(outer16.vertices);
                     t.AddRange(outer16.tets);
                     break;
@@ -175,17 +104,50 @@ public class PolytopeGenerator : MonoBehaviour
         }
     }
 
+    TetMesh_raw GenerateStellated8Cell()
+    {
+        TetMesh_raw mesh = new();
+        TetMesh4D.VertexData[] cell16even = { // Vertices have to be ordered such that the corresponding negative coordinate is at index +4
+            new TetMesh4D.VertexData(new Vector4(1,1,1,1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(-1,-1,1,1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(-1,1,-1,1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(-1,1,1,-1), Vector4.zero),
+            
+            new TetMesh4D.VertexData(new Vector4(-1,-1,-1,-1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(1,1,-1,-1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(1,-1,1,-1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(1,-1,-1,1), Vector4.zero),
+        };
+        mesh.vertices.AddRange(cell16even);
+        Set16CellTets(mesh, 0);
+        
+        TetMesh4D.VertexData[] cell16odd = {
+            new TetMesh4D.VertexData(new Vector4(-1,1,1,1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(1,-1,1,1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(1,1,-1,1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(1,1,1,-1), Vector4.zero),
+
+            new TetMesh4D.VertexData(new Vector4(1,-1,-1,-1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(-1,1,-1,-1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(-1,-1,1,-1), Vector4.zero),
+            new TetMesh4D.VertexData(new Vector4(-1,-1,-1,1), Vector4.zero),
+        };
+        mesh.vertices.AddRange(cell16odd);
+        Set16CellTets(mesh, 8);
+        return mesh;
+    }
+
     TetMesh_raw Generate16Cell(float radius, float offset, int startIndex)
     {
         TetMesh_raw mesh = new();
 
-        float[] vals = {radius + offset, -radius + offset};
+        float[] vals = {radius, -radius};
         foreach (float i in vals)
         {
             for (int j = 0; j < 4; j++)
             {
-                Vector4 pos = Vector4.zero;
-                pos[j] = i;
+                Vector4 pos = new Vector4(offset, offset, offset, offset);
+                pos[j] += i;
                 TetMesh4D.VertexData vertex = new TetMesh4D.VertexData(pos, Vector4.zero);
                 mesh.vertices.Add(vertex);
             }
