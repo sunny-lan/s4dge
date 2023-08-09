@@ -40,6 +40,7 @@ Shader "Custom/RayTracing"
 			int MaxBounceCount;
 			int NumRaysPerPixel;
 			int Frame;
+			int UseRayTracedLighting;
 
 			// Camera Settings
 			float DefocusStrength;
@@ -423,70 +424,68 @@ Shader "Custom/RayTracing"
 			}
 
 			//! His version
-			// HitInfo CalculateRayCollision(Ray ray)
-			// {
-			// 	HitInfo closestHit = (HitInfo)0;
-			// 	// We haven't hit anything yet, so 'closest' hit is infinitely far away
-			// 	closestHit.dst = 1.#INF;
+			/*HitInfo CalculateRayCollision(Ray ray)
+			{
+				HitInfo closestHit = (HitInfo)0;
+				// We haven't hit anything yet, so 'closest' hit is infinitely far away
+				closestHit.dst = 1.#INF;
 
-			// 	// Raycast against all spheres and keep info about the closest hit
-			// 	for (int i = 0; i < NumSpheres; i ++)
-			// 	{
-			// 		Sphere sphere = Spheres[i];
-			// 		HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
+				// Raycast against all spheres and keep info about the closest hit
+				for (int i = 0; i < NumSpheres; i ++)
+				{
+					Sphere sphere = Spheres[i];
+					HitInfo hitInfo = RaySphere(ray, sphere.position, sphere.radius);
 
-			// 		if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
-			// 		{
-			// 			closestHit = hitInfo;
-			// 			closestHit.material = sphere.material;
-			// 		}
-			// 	}
+					if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
+					{
+						closestHit = hitInfo;
+						closestHit.material = sphere.material;
+					}
+				}
 
-			// 	// Raycast against all meshes and keep info about the closest hit
-			// 	for (int meshIndex = 0; meshIndex < NumMeshes; meshIndex ++)
-			// 	{
-			// 		MeshInfo meshInfo = AllMeshInfo[meshIndex];
-			// 		if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
-			// 			continue;
-			// 		}
+				// Raycast against all meshes and keep info about the closest hit
+				for (int meshIndex = 0; meshIndex < NumMeshes; meshIndex ++)
+				{
+					MeshInfo meshInfo = AllMeshInfo[meshIndex];
+					if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
+						continue;
+					}
 
-			// 		for (uint i = 0; i < meshInfo.numTriangles; i ++) {
-			// 			int triIndex = meshInfo.firstTriangleIndex + i;
-			// 			Triangle tri = Triangles[triIndex];
-			// 			HitInfo hitInfo = RayTriangle(ray, tri);
+					for (uint i = 0; i < meshInfo.numTriangles; i ++) {
+						int triIndex = meshInfo.firstTriangleIndex + i;
+						Triangle tri = Triangles[triIndex];
+						HitInfo hitInfo = RayTriangle(ray, tri);
 	
-			// 			if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
-			// 			{
-			// 				closestHit = hitInfo;
-			// 				closestHit.material = meshInfo.material;
-			// 			}
-			// 		}
-			// 	}
+						if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
+						{
+							closestHit = hitInfo;
+							closestHit.material = meshInfo.material;
+						}
+					}
+				}
 
-			// 	return closestHit;
-			// }
+				return closestHit;
+			}
 
-			// float3 TraceOld(Ray ray, inout uint rngState)
-			// {
-			// 	float3 rayColour = 1;
+			float3 TraceOld(Ray ray, inout uint rngState)
+			{
+				float3 rayColour = 1;
 
-			// 	for(int i = 0; i <=MaxBounceCount; i++)
-			// 	{
-			// 		HitInfo hitInfo = CalculateRayCollision(ray);
-			// 		if (hitInfo.didHit)
-			// 		{
-			// 			ray.origin = hitInfo.hitPoint;
-			// 			ray.dir = RandomHemisphereDirection(hitInfo.normal, rngState);
+				for(int i = 0; i <=MaxBounceCount; i++)
+				{
+					HitInfo hitInfo = CalculateRayCollision(ray);
+					if (hitInfo.didHit)
+					{
+						ray.origin = hitInfo.hitPoint;
+						ray.dir = RandomHemisphereDirection(hitInfo.normal, rngState);
 
-			// 			RayTracingMaterial material = hitInfo.material;
-			// 			rayColour = *= material.colour;
-			// 		}else{
-			// 			rayColour *= material.colour;
-			// 		}
-
-
-			// 	}
-			// }
+						RayTracingMaterial material = hitInfo.material;
+						rayColour = *= material.colour;
+					}else{
+						rayColour *= material.colour;
+					}
+				}
+			}*/
 
 
 			float3 Trace(Ray ray, inout uint rngState)
@@ -536,32 +535,62 @@ Shader "Custom/RayTracing"
 			{
 
 			
-				// return float4(2, 0, 0, 0); // Red
-				// return float4(ray.dir3D(), 0); // Multicolor lol
-				// return RaySphere(ray, 0, 1).didHit; // Singular sphere
 			
 				// Random 
-				uint2 numPixels = _ScreenParams.xy;
-				uint2 pixelCoord = i.uv * numPixels;
-				uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;
-				uint rngState = pixelIndex;
+				if(UseRayTracedLighting)
+				{ // Boon Lighting, need to make better
+					uint2 numPixels = _ScreenParams.xy;
+					uint2 pixelCoord = i.uv * numPixels;
+					uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;
+					uint rngState = pixelIndex;
 
 
-				float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
-				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 0));
-				viewPoint = viewPoint + CamTranslation;
+					float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
+					float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 0));
+					viewPoint = viewPoint + CamTranslation;
 
-				Ray ray;
-				ray.origin = CamTranslation;
-				ray.dir = normalize(viewPoint - ray.origin);
+					Ray ray;
+					ray.origin = CamTranslation;
+					ray.dir = normalize(viewPoint - ray.origin);
 
-				float3 totalIncomingLight = 0;
+					float3 totalIncomingLight = 0;
 
-				for (int rayIndex = 0; rayIndex < NumRaysPerPixel; rayIndex++){
-					totalIncomingLight += Trace(ray, rngState);
+					for (int rayIndex = 0; rayIndex < NumRaysPerPixel; rayIndex++){
+						totalIncomingLight += Trace(ray, rngState);
+					}
+					float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
+					return float4(pixelCol, 1);
 				}
-				float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
-				return float4(pixelCol, 1);
+				else
+				{
+					float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
+					float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 0));
+					viewPoint = viewPoint + CamTranslation;
+
+					Ray ray;
+					ray.origin = CamTranslation;
+					ray.dir = normalize(viewPoint - ray.origin);
+
+					HitInfo collision = CalculateRayCollision(ray);
+
+					if (collision.didHit) 
+					{
+						if (collision.numHits % 2 == 1)
+						{
+							//return float4(2,2,2,2); // return white as color for all edges
+						}
+
+						float opacity = collision.material.colour.w;
+						opacity = 1.0f - pow(1.0f - opacity, collision.numHits);
+
+						return lerp(float4(0,0,0,0), collision.material.colour * tmp_lighting(collision.normal, collision.hitPoint), opacity); // Sending in opacity in w wasn't working, lerp towards black instead
+					}
+					
+					return collision.material.colour;
+
+				}
+
+
 
 
 				// Old Lighting
