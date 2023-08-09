@@ -226,15 +226,13 @@ Shader "Custom/RayTracing"
 
 				for (int j = 0; j < NumTetMeshes; j++) {
 					TetMesh mesh = TetMeshes[j];
-		
 					RayTetMesh(closestHit, mesh, ray);
 					
 				}
 
 				for (int i = 0; i < NumHyperCubes; i++) {
 					Hypercube hypercube = HyperCubes[i];
-					Ray localRay = TransformRay(ray, hypercube.inverseTransform);
-					HitInfo hitInfo = hypercube.intersection(localRay);
+					HitInfo hitInfo = hypercube.intersection(ray);
 		
 					_compareHitInfo(closestHit, hitInfo);
 				}
@@ -322,7 +320,7 @@ Shader "Custom/RayTracing"
 						bool isSpecularBounce = material.specularProbability >= RandomValue(rngState);
 					
 						ray.origin = hitInfo.hitPoint;
-						float4 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState));
+						float4 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState)); // Rotations were a bit messed up //TODO: Normal probably local space, need to be world space
 						float4 specularDir = reflect(ray.dir, hitInfo.normal);
 						ray.dir = normalize(lerp(diffuseDir, specularDir, material.smoothness * isSpecularBounce));
 

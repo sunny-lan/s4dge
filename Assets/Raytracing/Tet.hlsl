@@ -147,6 +147,8 @@ struct Tet
 		res.dst = min_t;
 		res.didHit = min_t <= max_t;
 		res.numHits = 1;
+		
+        res.hitPoint = r.origin + r.dir * min_t; //! VERY IMPORTANT NEEDS TO BE ORIGINAL RAYS ORIGIN
 
 		return res;
 	}

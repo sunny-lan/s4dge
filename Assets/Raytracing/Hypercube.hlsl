@@ -32,20 +32,24 @@ struct Hypercube
 
 	HitInfo intersection(Ray r)
 	{
+
+		Ray localRay = TransformRay(r, inverseTransform);
+
 		float min_t = 0;
 		float max_t = 1.#INF;
 
-		_check_inside(r, float4(1, 0, 0, 0), min_t, max_t);
-		_check_inside(r, float4(0, 1, 0, 0), min_t, max_t);
-		_check_inside(r, float4(0, 0, 1, 0), min_t, max_t);
-		_check_inside(r, float4(0, 0, 0, 1), min_t, max_t);
+		_check_inside(localRay, float4(1, 0, 0, 0), min_t, max_t);
+		_check_inside(localRay, float4(0, 1, 0, 0), min_t, max_t);
+		_check_inside(localRay, float4(0, 0, 1, 0), min_t, max_t);
+		_check_inside(localRay, float4(0, 0, 0, 1), min_t, max_t);
 
 		HitInfo res;
 		res.didHit = min_t <= max_t;
 		res.dst = min_t;
 		res.numHits = 1;
 		res.material = material;
-
+		res.hitPoint = r.origin + localRay.dir * res.dst;
+		res.normal = normalize(res.hitPoint);
 		return res;
 	}
 };
