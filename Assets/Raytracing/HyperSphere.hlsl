@@ -51,6 +51,7 @@ HitInfo RayHyperSphere(Ray ray, HyperSphere hyperSphere)
     hitInfo.hitPoint = ray.origin + (t1 * localRay.dir); //! Very important
     hitInfo.numHits = t2 > 0 ? 2 : 0; // I think this works if I understand the math correctly
     hitInfo.normal = normal;
+    hitInfo.material = hyperSphere.material;
 
     return hitInfo;
 }

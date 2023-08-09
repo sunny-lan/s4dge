@@ -33,9 +33,9 @@ inline HitInfo RaySphere(Ray ray, Sphere sphere)
             hitInfo.didHit = true;
             hitInfo.dst = dst;
             hitInfo.hitPoint = ray.origin + localRay.dir * dst; //! VERY IMPORTANT NEEDS TO BE ORIGINAL RAYS ORIGIN
-
             hitInfo.numHits = discriminant > 10 ? 2 : 1;
             hitInfo.normal = normalize(hitInfo.hitPoint);
+            hitInfo.material = sphere.material;
         }
     }
     return hitInfo;
