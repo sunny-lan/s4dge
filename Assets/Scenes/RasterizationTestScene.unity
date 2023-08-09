@@ -1186,7 +1186,7 @@ MonoBehaviour:
   zSliceStart: -1
   zSliceLength: 2
   zSliceInterval: 0.1
-  rawMesh: {fileID: 11400000, guid: ccdf5669f6d24db4f82e994bc9c1b349, type: 2}
+  rawMesh: {fileID: 11400000, guid: c3374c0be843f9e4aaef12ee3e319c6c, type: 2}
 --- !u!114 &2103781772
 MonoBehaviour:
   m_ObjectHideFlags: 0
