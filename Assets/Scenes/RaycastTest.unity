@@ -333,7 +333,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: -5.7, y: 0, z: 0, w: 0}
+  localPosition: {x: -5.8, y: 0, z: 0, w: 0}
   localRotation:
   - -1.27
   - 1.92
@@ -448,7 +448,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9475f874fa87d4c438605e809a87d4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
+  type: 2
   generateButton: 0
 --- !u!1 &934519524
 GameObject:
@@ -578,6 +578,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 543ad5d35bf7445ff9070a4e63e626e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useRayTracedLighting: 0
   maxBounceCount: 4
   numRaysPerPixel: 2
   defocusStrength: 0
@@ -975,7 +976,7 @@ MonoBehaviour:
   shapeClass: 4
   materialObjectID: 0
   materialInitFlag: 1
-  mesh: {fileID: 11400000, guid: ccdf5669f6d24db4f82e994bc9c1b349, type: 2}
+  mesh: {fileID: 11400000, guid: 66dcbf71cc2418c4eb990b8f7770fcd9, type: 2}
 --- !u!114 &1972729587
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -988,7 +989,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: -13.7, y: 0, z: 0, w: 0}
+  localPosition: {x: -12.4, y: 0, z: 0, w: 0}
   localRotation:
   - 6.32
   - 13.5
