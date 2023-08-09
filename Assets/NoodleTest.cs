@@ -34,7 +34,7 @@ public class NoodleTestEditor : Editor
 
             var converted = ManifoldConverter.HyperCylinderify(line, s => 1);
 
-            var mesh = MeshGenerator4D.GenerateTetMesh(converted.Equation, converted.Normal, converted.Bounds);
+            var mesh = MeshGenerator4D.GenerateTetMesh(converted.Position, converted.Normal, converted.Bounds);
 
             renderer.mesh = ScriptableObject.CreateInstance<TetMesh_UnityObj>();
             renderer.mesh.mesh_Raw = new(mesh);

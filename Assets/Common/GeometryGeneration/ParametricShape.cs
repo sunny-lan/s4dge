@@ -28,7 +28,7 @@ public struct ParametricShape1D
 
 public struct ParametricShape3D
 {
-    public Manifold3D Equation;
+    public Manifold3D Position;
     public Manifold3D Normal;
     public ParameterBounds3D Bounds;
 }
@@ -105,13 +105,7 @@ public static class ParametricUtils
             float s1 = (i+1) * (p.End - p.Start) / p.Divisions + p.Start;
             Vector4 tangent = p.Path(s1) - p.Path(s);
 
-            Vector4 prev = curFrame.GetColumn(0);
-
-            Matrix4x4 rot = Util.RotationBetween(tangent, prev);
-            curFrame = rot * curFrame;
-            curFrame.SetColumn(0, tangent);
-
-            curFrame = Util.GramSchmidt(curFrame);
+            curFrame = curFrame.ParallelTransport(tangent);
             res[i] = curFrame;
         }
 

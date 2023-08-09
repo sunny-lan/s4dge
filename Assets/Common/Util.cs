@@ -186,6 +186,31 @@ public static class Util
             UnityEngine.Random.value
         );
     }
+
+    public static Vector4 OffsetByAngle(this Vector4 v, float angle, Vector4 direction)
+    {
+        float n = Mathf.Acos(angle);
+        float y = (n-v.sqrMagnitude)/Vector4.Dot(v, direction);
+        return v + y * direction;
+    }
+
+    public static Matrix4x4 ParallelTransport(this Matrix4x4 curFrame, Vector4 tangent)
+    {
+        Vector4 prev = curFrame.GetColumn(0);
+
+        Matrix4x4 rot = Util.RotationBetween(tangent, prev);
+        curFrame = rot * curFrame;
+        curFrame.SetColumn(0, tangent);
+
+        curFrame = Util.GramSchmidt(curFrame);
+
+        return curFrame;
+    }
+
+    public static float Randomize(this float val, float amount, System.Random rng)
+    {
+        return val + amount * (float)(rng.NextDouble() * 2 - 1);
+    }
 }
 
 

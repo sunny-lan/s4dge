@@ -35,7 +35,7 @@ public class Rasterize3Helix : MonoBehaviour
 
         var converted = ManifoldConverter.HyperCylinderify(line, s => thickness);
 
-        var mesh = MeshGenerator4D.GenerateTetMesh(converted.Equation, converted.Normal, converted.Bounds);
+        var mesh = MeshGenerator4D.GenerateTetMesh(converted.Position, converted.Normal, converted.Bounds);
 
         tetMeshRenderer.SetTetMesh(mesh);
     }

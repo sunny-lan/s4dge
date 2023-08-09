@@ -16,7 +16,7 @@ public class ManifoldConverter
     {
         return new()
         {
-            Equation = p =>
+            Position = p =>
             {
                 // p = [sphere_azi, sphere_elevation, line_position]
                 float r = radius(p.z);

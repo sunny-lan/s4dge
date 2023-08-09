@@ -53,6 +53,18 @@ namespace v2
             }
         }
 
+
+        public static Matrix4x4 RotationMatrix(int axis1, int axis2, float theta)
+        {
+            Matrix4x4 matrix = Matrix4x4.identity;
+            matrix[axis1, axis1] = Mathf.Cos(theta);
+            matrix[axis1, axis2] = -Mathf.Sin(theta);
+            matrix[axis2, axis1] = Mathf.Sin(theta);
+            matrix[axis2, axis2] = Mathf.Cos(theta);
+
+            return matrix;
+        }
+
         //
         // IDE auto-code below
         //

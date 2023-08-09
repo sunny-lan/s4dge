@@ -52,6 +52,18 @@ public class TetMesh_raw
         return new TetMesh4D(vertices.ToArray(), tets.ToArray());
     }
 
+    public void Append(TetMesh4D cylinder)
+    {
+        var baseIndex = vertices.Count;
+        vertices.AddRange(cylinder.vertices);
+        tets.AddRange(cylinder.tets.Select(tet =>
+        {
+            for (int i = 0; i < 4; i++)
+                tet.tetPoints[i] += baseIndex;
+            return tet;
+        }));
+    }
+
     public TetMesh_raw()
     {
         vertices = new();

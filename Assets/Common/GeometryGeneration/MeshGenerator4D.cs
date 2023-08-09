@@ -209,6 +209,10 @@ namespace RasterizationRenderer
             return hexMesh;
         }
 
+        public static TetMesh4D GenerateTetMesh(ParametricShape3D manifold3)
+        {
+            return GenerateTetMesh(manifold3.Position, manifold3.Normal, manifold3.Bounds);
+        }
 
         public struct Dimension3D
         {
