@@ -796,10 +796,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material:
-    colour: {r: 0.6886792, g: 0, b: 0, a: 1}
-    emissionColour: {r: 1, g: 1, b: 1, a: 1}
+    colour: {r: 0.8301887, g: 0.06657174, b: 0.7745903, a: 1}
+    emissionColour: {r: 1, g: 0, b: 0.84111834, a: 1}
     specularColour: {r: 1, g: 1, b: 1, a: 1}
-    emissionStrength: 1.46
+    emissionStrength: 3.05
     smoothness: 0
     specularProbability: 1
     flag: 0
@@ -819,7 +819,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 3.8574243, y: 3.8994825, z: 5.701712, w: 0}
+  localPosition: {x: -2.656549, y: 6.4705944, z: 2.1345298, w: 0}
   localRotation:
   - 0
   - 0
@@ -1148,7 +1148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0.22979784, y: 5.485854, z: -3.4623256, w: 0}
+  localPosition: {x: -4.6114907, y: 5.485854, z: -1.0297406, w: 0}
   localRotation:
   - 0
   - 0
