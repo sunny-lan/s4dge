@@ -21,6 +21,7 @@ using Unity.Mathematics;
 public class Raycast4D : MonoBehaviour {
 
     [Header("Ray Tracing Settings")]
+    [SerializeField] bool useRayTracedLighting = false;
 	[SerializeField, Range(0, 32)] int maxBounceCount = 4;
 	[SerializeField, Range(0, 64)] int numRaysPerPixel = 2;
 	[SerializeField, Min(0)] float defocusStrength = 0;
@@ -100,6 +101,7 @@ public class Raycast4D : MonoBehaviour {
 		rayTracingMaterial.SetInt("NumRaysPerPixel", numRaysPerPixel);
 		rayTracingMaterial.SetFloat("DefocusStrength", defocusStrength);
 		rayTracingMaterial.SetFloat("DivergeStrength", divergeStrength);
+        rayTracingMaterial.SetInt("UseRayTracedLighting", useRayTracedLighting ? 1 : 0);
 	}
 
     List<Vector4> vertices = new();

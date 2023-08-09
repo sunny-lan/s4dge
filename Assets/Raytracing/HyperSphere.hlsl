@@ -16,32 +16,29 @@ struct HyperSphere
 HitInfo RayHyperSphere(Ray ray, HyperSphere hyperSphere)
 {
     Ray localRay = TransformRay(ray, hyperSphere.inverseTransform);
-    HitInfo hitInfo = (HitInfo) 0;
+    HitInfo hitInfo = (HitInfo)0;
 
     float4 V = localRay.origin * -1;
     float bb = dot(V, localRay.dir);
 
-    float rad = (bb * bb) - dot(V, V) + hyperSphere.radius * hyperSphere.radius;
+    float rad = (bb*bb) - dot(V, V) + hyperSphere.radius * hyperSphere.radius;
 
-    if (rad < 0)
-    { // If rad negative then no intersection
-        return hitInfo;
-    }
+    if (rad < 0) { // If rad negative then no intersection
+        return hitInfo;				
+    } 
 
     rad = sqrt(rad);
 
     float t2 = bb - rad;
     float t1 = bb + rad;
 
-				// Get smaller of t1 and t2
-    if (t1 < 0 || (t2 > 0 && t2 < t1))
-    {
+    // Get smaller of t1 and t2
+    if (t1 < 0 || (t2 > 0 && t2 < t1)) {
         t1 = t2;
     }
 
-				// If behind sphere return false
-    if (t1 < 0)
-    {
+    // If behind sphere return false
+    if (t1 < 0) {
         return hitInfo;
     }
 
@@ -51,7 +48,7 @@ HitInfo RayHyperSphere(Ray ray, HyperSphere hyperSphere)
 
     hitInfo.didHit = true;
     hitInfo.dst = t1;
-    hitInfo.hitPoint = intersection;
+    hitInfo.hitPoint = ray.origin + (t1 * localRay.dir); //! Very important
     hitInfo.numHits = t2 > 0 ? 2 : 0; // I think this works if I understand the math correctly
     hitInfo.normal = normal;
     hitInfo.material = hyperSphere.material;
