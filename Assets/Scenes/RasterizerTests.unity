@@ -136,7 +136,6 @@ GameObject:
   - component: {fileID: 918128432}
   - component: {fileID: 918128436}
   - component: {fileID: 918128435}
-  - component: {fileID: 918128437}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -252,20 +251,6 @@ MonoBehaviour:
   - 0
   - 0
   localScale: {x: 1, y: 1, z: 1, w: 1}
---- !u!114 &918128437
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 918128431}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 157f9b80b3420bb47a296e37a155776b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enableShadows: 0
-  showShadowMap: 0
 --- !u!1 &1473966227
 GameObject:
   m_ObjectHideFlags: 0
@@ -426,7 +411,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: m_Name
-      value: RasterizeHypercube
+      value: RasterizePolytope
       objectReference: {fileID: 0}
     - target: {fileID: 4116801327568581918, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
       propertyPath: localRotation.Array.data[0]
@@ -480,29 +465,5 @@ PrefabInstance:
     - {fileID: 8192934327145224507, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2127139824}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
---- !u!1 &2127139818 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2288248937925208516, guid: ef5a3bc6bb84dae40a9cf599a17d9420, type: 3}
-  m_PrefabInstance: {fileID: 2127139817}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2127139824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2127139818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6a2a943960f39248900b8c94aa94d5e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zSliceStart: -1
-  zSliceLength: 2
-  zSliceInterval: 0.2
-  rawMesh: {fileID: 11400000, guid: 1b282f078e82fa04c8aca4eae258f997, type: 2}

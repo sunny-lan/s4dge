@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableShadows: 1
-  showShadowMap: 1
+  showShadowMap: 0
 --- !u!1001 &366056969
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -547,8 +547,6 @@ GameObject:
   - component: {fileID: 497203117}
   - component: {fileID: 497203116}
   - component: {fileID: 497203118}
-  - component: {fileID: 497203120}
-  - component: {fileID: 497203119}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -705,35 +703,6 @@ MonoBehaviour:
   zSliceStart: -1
   zSliceLength: 2
   zSliceInterval: 0.2
---- !u!114 &497203119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 497203112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bbd485f802ebe343aa2d2a574d268e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useCuller: 1
-  vertexShaderProgram: {fileID: 7200000, guid: 7351420028eb33940b7d0cbbfd11d0f5, type: 3}
-  cullShaderProgram: {fileID: 7200000, guid: b25f619466f100f4da9442f4eced4ea0, type: 3}
-  sliceShaderProgram: {fileID: 7200000, guid: 553d0079b4ec5f24fb47c3006b6232e8, type: 3}
---- !u!114 &497203120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 497203112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 559295d5f80b1bc48ab6d8baa691b8af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: bef671bee7fd3af45a8397341cf3dd0f, type: 2}
 --- !u!1 &987404468
 GameObject:
   m_ObjectHideFlags: 0
