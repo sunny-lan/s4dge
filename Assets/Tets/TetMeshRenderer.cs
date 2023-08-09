@@ -2,20 +2,26 @@
 using UnityEngine;
 using v2;
 
+/// <summary>
+/// This component represents a 4D tetrahedral mesh that can be
+/// attached to any 4D GameObject within a Ray Tracing scene.
+/// The mesh will appear at the position and orientation specified by the Transform4D
+/// component attached to the 4D GameObject.
+/// </summary>
 public class TetMeshRenderer : RayTracedShape
 {
+    /// <summary>
+    /// The 4D tetrahedral mesh to render.
+    /// </summary>
     public TetMesh_UnityObj mesh;
 
     protected new void Awake()
     {
         base.Awake();
 
-        shapeClass = ShapeClass.Tet;
+        shapeClass = ShapeClass.TetMesh;
     }
 }
-
-// Represents a single tet mesh, by indicating the range of the indices
-// that form this mesh. The same transform is applied to each tet in the mesh
 
 public struct TetMesh_shaderdata
 {
@@ -23,4 +29,6 @@ public struct TetMesh_shaderdata
 
     // Inclusive, exclusive
     public int idxStart, idxEnd;
+
+    public RayTracingMaterial material;
 }

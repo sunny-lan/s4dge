@@ -39,6 +39,18 @@ namespace v2
             return a.scaleAndRot * b + a.translation;
         }
 
+        public static TransformMatrixAffine4D identity
+        {
+            get
+            {
+                return new()
+                {
+                    scaleAndRot = Matrix4x4.identity,
+                    translation = Vector4.zero,
+                };
+            }
+        }
+
         public TransformMatrixAffine4D inverse
         {
             get

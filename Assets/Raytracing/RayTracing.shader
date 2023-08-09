@@ -9,9 +9,13 @@ Shader "Custom/RayTracing"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "UnityCG.cginc"
-			#include "Assets/Raytracing/Tet.hlsl"
-			#include "Assets/Raytracing/Hypercube.hlsl"
+			#include "UnityCG.cginc"	
+			#include "RayTracingStructs.hlsl"
+			#include "Tet.hlsl"
+			#include "Hypercube.hlsl"
+			#include "Sphere.hlsl"
+			#include "HyperSphere.hlsl"
+			#include "TetMesh.hlsl"
 
 			struct appdata
 			{
@@ -61,27 +65,6 @@ Shader "Custom/RayTracing"
 			static const int CheckerPattern = 1;
 			static const int InvisibleLightSource = 2;
 			
-			#include "RayTracingStructs.cginc"
-
-			struct Sphere
-			{
-				Transform4D inverseTransform;
-				float radius;
-				RayTracingMaterial material;
-			};
-
-			struct Triangle
-			{
-				float4 posA, posB, posC;
-				float4 normalA, normalB, normalC;
-			};
-
-			struct HyperSphere
-			{
-				Transform4D inverseTransform;
-				float radius;
-				RayTracingMaterial material;
-			};
 
 			// --- Buffers ---	
 			StructuredBuffer<Sphere> Spheres;
@@ -89,10 +72,6 @@ Shader "Custom/RayTracing"
 
 			StructuredBuffer<HyperSphere> HyperSpheres;
 			int NumHyperSpheres;
-
-			StructuredBuffer<Triangle> Triangles;
-			StructuredBuffer<MeshInfo> AllMeshInfo;
-			int NumMeshes;
 
 			StructuredBuffer<float4> Vertices;
 			int NumVertices;
@@ -107,118 +86,27 @@ Shader "Custom/RayTracing"
 			int NumHyperCubes;
 
 			// --- Ray Intersection Functions ---
-		
-			// Apply transform to ray - used for inverse transform of shapes
-			Ray TransformRay(Ray ray, Transform4D transform)
+			void RayTetMesh(inout HitInfo closestHit, in TetMesh mesh, in Ray ray)
 			{
-				Ray localRay;
-				localRay.origin = transform.apply(ray.origin);
-				localRay.dir = mul(transform.scaleAndRot,ray.dir); // TODO SUS
-				return localRay;
-			}
+				// Transform ray into local space of object
+				Ray localRay = TransformRay(ray, mesh.inverseTransform);
+	
+				for (int i = mesh.stIdx; i < mesh.edIdx; i++) {
+					Tet t;
+					int4 indices = Tets[i];
+					t.from_points(float4x4(
+						Vertices[indices[0]],
+						Vertices[indices[1]],
+						Vertices[indices[2]],
+						Vertices[indices[3]]
+					)); //TODO cache
 
-			// Calculate the intersection of a ray with a sphere
-			HitInfo RaySphere(Ray ray, Sphere sphere)
-			{
-				Ray localRay = TransformRay(ray, sphere.inverseTransform);
-				HitInfo hitInfo = (HitInfo)0;
-				float3 offsetRayOrigin = localRay.origin3D();
-				// From the equation: sqrLength(rayOrigin + rayDir * dst) = radius^2
-				// Solving for dst results in a quadratic equation with coefficients:
-				float a = dot(localRay.dir3D(), localRay.dir3D()); // a = 1 (assuming unit vector)
-				float b = 2 * dot(offsetRayOrigin, localRay.dir3D());
-				float c = dot(offsetRayOrigin, offsetRayOrigin) - sphere.radius * sphere.radius;
-				// Quadratic discriminant
-				float discriminant = b * b - 4 * a * c; 
+					HitInfo hitInfo = t.intersection(localRay);
+					hitInfo.material = mesh.material;
+			
+					_compareHitInfo(closestHit, hitInfo);
 
-				// No solution when d < 0 (ray misses sphere)
-				if (discriminant >= 0) {
-					// Distance to nearest intersection point (from quadratic formula)
-					float dst = (-b - sqrt(discriminant)) / (2 * a);
-
-					// Ignore intersections that occur behind the ray
-					if (dst >= 0) {
-						hitInfo.didHit = true;
-						hitInfo.dst = dst;
-						hitInfo.hitPoint = ray.origin + localRay.dir * dst; //! VERY IMPORTANT NEEDS TO BE ORIGINAL RAYS ORIGIN
-
-						hitInfo.numHits = discriminant > 10 ? 2 : 1;
-						hitInfo.normal = normalize(hitInfo.hitPoint);
-					}
 				}
-				return hitInfo;
-			}
-
-			// Calculate intersection of a ray with a hypersphere
-			// Math from: http://reprints.gravitywaves.com/People/Hollasch/Four-Space%20Visualization%20of%204D%20Objects%20-%20Chapter%205.htm 
-			HitInfo RayHyperSphere(Ray ray, HyperSphere hyperSphere)
-			{
-				Ray localRay = TransformRay(ray, hyperSphere.inverseTransform);
-				HitInfo hitInfo = (HitInfo)0;
-
-				float4 V = localRay.origin * -1;
-				float bb = dot(V, localRay.dir);
-
-				float rad = (bb*bb) - dot(V, V) + hyperSphere.radius * hyperSphere.radius;
-
-				if (rad < 0) { // If rad negative then no intersection
-					return hitInfo;				
-				} 
-
-				rad = sqrt(rad);
-
-				float t2 = bb - rad;
-				float t1 = bb + rad;
-
-				// Get smaller of t1 and t2
-				if (t1 < 0 || (t2 > 0 && t2 < t1)) {
-					t1 = t2;
-				}
-
-				// If behind sphere return false
-				if (t1 < 0) {
-					return hitInfo;
-				}
-
-
-				float4 intersection = localRay.origin + (t1 * localRay.dir);
-				float4 normal = intersection / hyperSphere.radius;
-
-				hitInfo.didHit = true;
-				hitInfo.dst = t1;
-				hitInfo.hitPoint = ray.origin + (t1 * localRay.dir);
-				hitInfo.numHits = t2 > 0 ? 2 : 0; // I think this works if I understand the math correctly
-				hitInfo.normal = normal;
-
-				return hitInfo;
-			}
-
-			// Calculate the intersection of a ray with a triangle using Möller–Trumbore algorithm
-			// Thanks to https://stackoverflow.com/a/42752998
-			HitInfo RayTriangle(Ray ray, Triangle tri)
-			{
-				float3 edgeAB = tri.posB - tri.posA;
-				float3 edgeAC = tri.posC - tri.posA;
-				float3 normalVector = cross(edgeAB, edgeAC);
-				float3 ao = ray.origin3D() - tri.posA;
-				float3 dao = cross(ao, ray.dir3D());
-
-				float determinant = -dot(ray.dir3D(), normalVector);
-				float invDet = 1 / determinant;
-				
-				// Calculate dst to triangle & barycentric coordinates of intersection point
-				float dst = dot(ao, normalVector) * invDet;
-				float u = dot(edgeAC, dao) * invDet;
-				float v = -dot(edgeAB, dao) * invDet;
-				float w = 1 - u - v;
-				
-				// Initialize hit info
-				HitInfo hitInfo;
-				hitInfo.didHit = determinant >= 1E-6 && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
-				hitInfo.hitPoint = ray.origin + ray.dir * dst;
-				hitInfo.normal = normalize(tri.normalA * w + tri.normalB * u + tri.normalC * v);
-				hitInfo.dst = dst;
-				return hitInfo;
 			}
 
 			// Thanks to https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
@@ -237,7 +125,7 @@ Shader "Custom/RayTracing"
 			// --- RNG Stuff ---
 			
 			// PCG (permuted congruential generator). Thanks to:
-			// www.pcg-random.org and www.shadertoy.com/view/XlGcRh
+			// www.pcg-random.org and www.hlsltoy.com/view/XlGcRh
 			uint NextRandom(inout uint state)
 			{
 				state = state * 747796405 + 2891336453;
@@ -325,99 +213,30 @@ Shader "Custom/RayTracing"
 				for (int i = 0; i < NumSpheres; i++) {
 					Sphere sphere = Spheres[i];
 					HitInfo hitInfo = RaySphere(ray, sphere);
-
-					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
-						
-						if (hitInfo.dst < closestHit.dst)
-						{
-							hitInfo.numHits += closestHit.numHits;
-							closestHit = hitInfo;
-							closestHit.material = sphere.material;
-						}
-						else
-						{
-							closestHit.numHits += hitInfo.numHits;
-						}
-					}
+					_compareHitInfo(closestHit, hitInfo);
 				}
 
 				for (int i = 0; i < NumHyperSpheres; i++) {
 					HyperSphere hyperSphere = HyperSpheres[i];
 					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere);
-
-					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
-						
-						if (hitInfo.dst < closestHit.dst)
-						{
-							hitInfo.numHits += closestHit.numHits;
-							closestHit = hitInfo;
-							closestHit.material = hyperSphere.material;
-						}
-						else
-						{
-							closestHit.numHits += hitInfo.numHits;
-						}
-					}
+		
+					_compareHitInfo(closestHit, hitInfo);
 
 				}
 
 				for (int j = 0; j < NumTetMeshes; j++) {
 					TetMesh mesh = TetMeshes[j];
-
-					// Transform ray into local space of object
-					Ray localRay;
-					localRay.origin = mesh.inverseTransform.apply(ray.origin);
-					localRay.dir = mul(mesh.inverseTransform.scaleAndRot,ray.dir); // TODO SUS
+		
+					RayTetMesh(closestHit, mesh, ray);
 					
-					for (int i = mesh.stIdx; i < mesh.edIdx; i++) {
-						Tet t;
-						int4 indices = Tets[i];
-						t.from_points(float4x4(
-							Vertices[indices[0]],
-							Vertices[indices[1]],
-							Vertices[indices[2]],
-							Vertices[indices[3]]
-						)); //TODO cache
-
-						HitInfo hitInfo = t.intersection(localRay);
-
-						if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01) {
-
-							if (hitInfo.dst < closestHit.dst)
-							{
-								hitInfo.numHits += closestHit.numHits;
-								hitInfo.hitPoint = hitInfo.dst * localRay.dir + localRay.origin;
-								closestHit = hitInfo;
-								closestHit.material.colour =
-									tmp_checkerboard(hitInfo.hitPoint);
-							}
-							else
-							{
-								closestHit.numHits += hitInfo.numHits;
-							}
-						}
-
-					}
 				}
 
 				for (int i = 0; i < NumHyperCubes; i++) {
 					Hypercube hypercube = HyperCubes[i];
 					Ray localRay = TransformRay(ray, hypercube.inverseTransform);
 					HitInfo hitInfo = hypercube.intersection(localRay);
-
-					if (hitInfo.didHit && abs(hitInfo.dst - closestHit.dst) > 0.01){
-						
-						if (hitInfo.dst < closestHit.dst)
-						{
-							hitInfo.numHits += closestHit.numHits;
-							closestHit = hitInfo;
-							closestHit.material = hypercube.material;
-						}
-						else
-						{
-							closestHit.numHits += hitInfo.numHits;
-						}
-					}
+		
+					_compareHitInfo(closestHit, hitInfo);
 				}
 
 				return closestHit;
@@ -521,7 +340,7 @@ Shader "Custom/RayTracing"
 					}
 					else
 					{
-						incomingLight += GetEnvironmentLight(ray) * rayColour;
+						// incomingLight += GetEnvironmentLight(ray) * rayColour;
 						break;
 					}
 				}
@@ -533,12 +352,10 @@ Shader "Custom/RayTracing"
 			// Run for every pixel in the display
 			float4 frag (v2f i) : SV_Target
 			{
-
-			
-			
 				// Random 
 				if(UseRayTracedLighting)
 				{ // Boon Lighting, need to make better
+
 					uint2 numPixels = _ScreenParams.xy;
 					uint2 pixelCoord = i.uv * numPixels;
 					uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;

@@ -12,6 +12,9 @@ using Unity.Mathematics;
 // Video that this shader is based on and hopefully we can adopt
 // https://www.youtube.com/watch?v=Qz0KTGYJtUk
 
+/// <summary>
+/// A 4D renderer based on ray tracing techniques
+/// </summary>
 [ExecuteAlways, ImageEffectAllowedInSceneView]
 [RequireComponent(typeof(Transform4D))]
 [RequireComponent(typeof(Scene4D))]
@@ -164,24 +167,26 @@ public class Raycast4D : MonoBehaviour {
                     );
                     break;
                 }
-                case ShapeClass.Tet: 
+                case ShapeClass.TetMesh: 
                     {
                         TetMeshRenderer meshRenderer = (TetMeshRenderer)shape;
                         if (meshRenderer.mesh?.mesh_Raw == null) continue;
 
                         int idxStart = tets.Count;
+                        int vertexStart = vertices.Count; // index of first vertex of this mesh
                         vertices.AddRange<Vector4>(meshRenderer.mesh.mesh_Raw.vertices.Select(vertex=>vertex.position));
-                        tets.AddRange<int4>(meshRenderer.mesh.mesh_Raw.tets.Select(x=>new int4(
-                            x.tetPoints[0],
-                            x.tetPoints[1],
-                            x.tetPoints[2],
-                            x.tetPoints[3]
+                        tets.AddRange<int4>(meshRenderer.mesh.mesh_Raw.tets.Select(x=>new int4( // Indices in tets are relative to their own vertices - will always start at 0
+                            vertexStart + x.tetPoints[0],
+                            vertexStart + x.tetPoints[1],
+                            vertexStart + x.tetPoints[2],
+                            vertexStart + x.tetPoints[3]
                         )));
                         tetMeshes.Add(new()
                         {
                             inverseTransform = meshRenderer.transform4D.worldToLocalMatrix,
                             idxStart = idxStart,
-                            idxEnd = tets.Count
+                            idxEnd = tets.Count,
+                            material = meshRenderer.material,
                         });
                         break;
                     }
@@ -225,6 +230,8 @@ public class Raycast4D : MonoBehaviour {
         ShaderHelper.Release(hyperSphereBuffer);
         ShaderHelper.Release(hyperCubeBuffer);
         ShaderHelper.Release(tetMeshBuffer);
+        ShaderHelper.Release(vertexBuffer);
+        ShaderHelper.Release(tetBuffer);
     }
 
     public struct Sphere

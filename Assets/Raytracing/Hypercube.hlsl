@@ -1,6 +1,7 @@
 ﻿#ifndef HYPERCUBE
 #define HYPERCUBE
 
+#include "RayTracingStructs.hlsl"
 #include "Hyperplane.hlsl"
 
 struct Hypercube
@@ -43,6 +44,7 @@ struct Hypercube
 		res.didHit = min_t <= max_t;
 		res.dst = min_t;
 		res.numHits = 1;
+		res.material = material;
 
 		return res;
 	}

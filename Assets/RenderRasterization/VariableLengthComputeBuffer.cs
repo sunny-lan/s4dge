@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using static RasterizationRenderer.RenderUtils;
 
 namespace RasterizationRenderer
 {
@@ -58,15 +57,15 @@ namespace RasterizationRenderer
             ComputeBuffer curGlobalAppendIdx;
             private ComputeShader shader;
             private int shaderKernel;
-            uint[] globalAppendIdxInitValues;
+            uint[] globalAppendIdxValues;
 
             public BufferList(VariableLengthComputeBuffer[] buffers, ComputeShader shader, int shaderKernel)
             {
                 this.Buffers = buffers;
                 this.shader = shader;
                 this.shaderKernel = shaderKernel;
-                this.globalAppendIdxInitValues = new uint[Buffers.Length];
-                this.curGlobalAppendIdx = InitComputeBuffer<uint>(sizeof(uint), globalAppendIdxInitValues);
+                this.globalAppendIdxValues = new uint[Buffers.Length];
+                this.curGlobalAppendIdx = new(Buffers.Length, sizeof(uint));
             }
 
             public void PrepareForRender()
@@ -82,15 +81,20 @@ namespace RasterizationRenderer
             // Call after dispatching shader
             public void UpdateBufferLengths()
             {
-                curGlobalAppendIdx.GetData(globalAppendIdxInitValues);
+                curGlobalAppendIdx.GetData(globalAppendIdxValues);
                 for (int i = 0; i < Buffers.Length; i++)
                 {
-                    Buffers[i].Count = (int)globalAppendIdxInitValues[i];
+                    Buffers[i].Count = (int)globalAppendIdxValues[i];
                 }
 
                 // zero global append idx buffer
-                Array.Clear(globalAppendIdxInitValues, 0, Buffers.Length);
-                RenderUtils.WriteToComputeBuffer(curGlobalAppendIdx, globalAppendIdxInitValues);
+                Array.Clear(globalAppendIdxValues, 0, Buffers.Length);
+            }
+
+            // Call after dispatching shader
+            public ComputeBuffer GetBufferLengths()
+            {
+                return curGlobalAppendIdx;
             }
 
             public void Dispose()

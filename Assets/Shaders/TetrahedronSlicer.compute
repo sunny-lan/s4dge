@@ -15,7 +15,7 @@ RWStructuredBuffer<VertexData> triangleVertices;
 
 groupshared VLComputeBuffer slicedTrianglesManager;
 RWStructuredBuffer<Triangle> slicedTriangles;
-uint numTets;
+StructuredBuffer<uint> numTets;
 
 struct TetIntersection {
     VertexData points[4];
@@ -24,49 +24,12 @@ struct TetIntersection {
     uint numTriangles;
 };
 
-static const uint2 intersectingEdges[] = {
-    // table entry 0 is empty
-    uint2(0, 3), uint2(1, 3), uint2(2, 3), // entry 1
-    uint2(0, 2), uint2(1, 2), uint2(3, 2), // entry 2
-    uint2(0, 2), uint2(0, 3), uint2(1, 3), uint2(1, 2),  // ...
-    uint2(0, 1), uint2(2, 1), uint2(3, 1),
-    uint2(0, 1), uint2(0, 3), uint2(2, 3), uint2(2, 1), 
-    uint2(0, 1), uint2(0, 2), uint2(2, 3), uint2(1, 3),
-    uint2(0, 1), uint2(0, 2), uint2(0, 3), // last entry 8
-    uint2(0, 0) // padding element at the end to avoid out of bounds access
-};
-
-// elements are (starting index, # of entries)
-static const uint2 edgeTableRows[] = {
-    uint2(0, 0),
-    uint2(0, 3),
-    uint2(3, 3),
-    uint2(6, 4),
-    uint2(10, 3),
-    uint2(13, 4),
-    uint2(17, 4),
-    uint2(21, 3)
-};
-
-// return 0 if val <= 0, else return 1
-int SignOp(float val) {
-    return (sign(val - zSlice) == 1);
-}
-
-float4 LerpVByPZ(float4 v0, float4 v1, float4 p0, float4 p1) {
-    if (p1.z == zSlice && p0.z == zSlice) {
-        return v1;
-    } else {
-        return lerp(v0, v1, abs(p0.z - zSlice) / (abs(p1.z - zSlice) + abs(p0.z - zSlice)));
-    }
-}
-
 // Slices the current tetrahedron with the plane z = 0
 TetIntersection PerformSlice(uint3 globalId) {
     TetIntersection ret = (TetIntersection)0;
 
     // avoid updating the output buffers if the current thread is not utilized (its index is past the number of tetrahedra)
-    if (globalId.x < numTets) {
+    if (globalId.x < numTets[0]) {
         // Tetrahedron points
         VertexData pts[4] = {
             transformedVertices[tetsToDraw[globalId.x].vertexIndices[0]],
@@ -100,8 +63,12 @@ TetIntersection PerformSlice(uint3 globalId) {
                 float4 n0 = v0.normal;
                 float4 n1 = v1.normal;
 
+                float4 wp0 = v0.worldPos;
+                float4 wp1 = v1.worldPos;
+
                 ret.points[edgeIdx].pos = LerpVByPZ(p0, p1, p0, p1);
                 ret.points[edgeIdx].normal = normalize(LerpVByPZ(n0, n1, p0, p1));
+                ret.points[edgeIdx].worldPos = LerpVByPZ(wp0, wp1, p0, p1);
             }
 
             // Add triangle
@@ -128,8 +95,8 @@ TetIntersection PerformSlice(uint3 globalId) {
 [numthreads(64,1,1)]
 void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
 {
-    slicedTrianglesManager.Init(threadId, 0);
-    triangleVerticesManager.Init(threadId, 1);
+    slicedTrianglesManager.Init(globalId, threadId, 0);
+    triangleVerticesManager.Init(globalId, threadId, 1);
     GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
 
     TetIntersection intersection = PerformSlice(globalId);

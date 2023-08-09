@@ -64,7 +64,7 @@ public class TestCuller4D
         var culledTets = culler.Render(vertexBuffer);
 
         int[] culledTetBuffer = new int[4 * tets.Length];
-        culledTets.Buffer.GetData(culledTetBuffer);
+        culledTets.Buffers[0].Buffer.GetData(culledTetBuffer);
 
         int[] expectedTetVertices = { 0, 1, 2, 3, 0, 1, 2, 3 };
         for (int i = 0; i < expectedTetVertices.Length; ++i)
@@ -72,7 +72,7 @@ public class TestCuller4D
             Assert.AreEqual(culledTetBuffer[i], expectedTetVertices[i]);
         }
 
-        Assert.AreEqual(culledTets.Count, 2);
+        Assert.AreEqual(culledTets.Buffers[0].Count, 2);
 
         culler.OnDisable();
     }

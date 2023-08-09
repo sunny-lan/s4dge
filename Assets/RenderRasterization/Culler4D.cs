@@ -27,7 +27,7 @@ namespace RasterizationRenderer
          * vanishingW: camera clip plane - vanishing point at (0, 0, 0, vanishingW)
          * nearW: camera viewport plane at w = nearW
          */
-        public VariableLengthComputeBuffer Render(ComputeBuffer vertexBuffer)
+        public VariableLengthComputeBuffer.BufferList Render(ComputeBuffer vertexBuffer)
         {
             bufferList.PrepareForRender();
 
@@ -38,10 +38,8 @@ namespace RasterizationRenderer
             int numThreadGroups = (int)((numTets + (threadGroupSize - 1)) / threadGroupSize);
             cullShader.Dispatch(cullShaderKernel, numThreadGroups, 1, 1);
 
-            bufferList.UpdateBufferLengths();
-
             // return array of tetrahedra that drawTetrahedron says should be drawn
-            return tetsToDraw;
+            return bufferList;
         }
 
         public void OnEnable(Tet4D[] tetrahedra)

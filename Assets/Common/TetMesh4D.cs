@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -29,15 +30,27 @@ namespace RasterizationRenderer
             [SerializeField]
             public Vector4 normal;
 
+            // world position without 3D projection for lighting calculations
+            [SerializeField]
+            public Vector4 worldPosition4D;
+
             public VertexData(Vector4 position, Vector4 normal)
             {
                 this.position = position;
                 this.normal = normal;
+                this.worldPosition4D = Vector4.zero;
+            }
+
+            public VertexData(Vector4 position, Vector4 normal, Vector4 worldPosition4D)
+            {
+                this.position = position;
+                this.normal = normal;
+                this.worldPosition4D = worldPosition4D;
             }
 
             public static int SizeFloats
             {
-                get => 8;
+                get => 12;
             }
 
             public static int SizeBytes
@@ -52,7 +65,8 @@ namespace RasterizationRenderer
                 {
                     ret.Add(new(
                         new(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]),
-                        new(arr[i + 4], arr[i + 5], arr[i + 6], arr[i + 7])
+                        new(arr[i + 4], arr[i + 5], arr[i + 6], arr[i + 7]),
+                        new(arr[i + 8], arr[i + 9], arr[i + 10], arr[i + 11])
                     ));
                 }
                 return ret.ToArray();
@@ -86,26 +100,23 @@ namespace RasterizationRenderer
         // Updates the mesh based on the vertices, tetrahedra
         public TetMesh4D(VertexData[] vertices, Tet4D[] tets)
         {
-            //mesh.Clear();
 
-            //// Override vertex buffer params so that position, normal take in 4D vectors
-            //mesh.SetVertexBufferParams(
-            //    vertices.Length,
-            //    new[]
-            //    {
-            //    new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, PTS_PER_TET),
-            //    new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, PTS_PER_TET),
-            //    }
-            //);
-
-            //// Set vertices, normals for the mesh
-            //mesh.SetVertexBufferData(vertices, 0, 0, vertices.Length);
-
-            //// Set tetrahedra vertex indices for mesh
-            //mesh.SetIndices(tets.SelectMany(tet => tet.tetPoints).ToArray(), MeshTopology.Quads, 0);
-
+            //MeshGeneratorUtils.MakeTetsForwardFacing(tets, vertices);
             this.vertices = vertices;
             this.tets = tets;
+        }
+
+        public void AppendTets(VertexData[] vertices, Tet4D[] tets)
+        {
+            int curVertexCount = this.vertices.Length;
+            this.vertices = this.vertices.Concat(vertices).ToArray();
+
+            // adds curVertexCount to each tet index
+            this.tets = this.tets.Concat(
+                tets.Select(tet => new Tet4D(
+                    tet.tetPoints.Select(idx => idx + curVertexCount).ToArray()
+                ))
+            ).ToArray();
         }
 
         public override string ToString()

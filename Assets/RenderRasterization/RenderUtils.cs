@@ -32,13 +32,21 @@ namespace RasterizationRenderer
             return values;
         }
 
+        public static T[] GetComputeBufferData<T>(VariableLengthComputeBuffer buf) where T : struct
+        {
+            T _ = new();
+            T[] values = new T[buf.Count];
+            buf.Buffer.GetData(values);
+            return values;
+        }
+
         public static void PrintComputeBufferData<T>(ComputeBuffer buf, string name) where T : struct
         {
             T[] values = GetComputeBufferData<T>(buf);
             Debug.Log(name + ": " + string.Join(", ", values));
         }
 
-        public static int[] getTrianglesFromTet(TetMesh4D.Tet4D tet)
+        public static int[] GetTrianglesFromTet(TetMesh4D.Tet4D tet)
         {
             List<int> triPts = new();
             for (int excludePt = 0; excludePt < 4; ++excludePt)
@@ -65,6 +73,32 @@ namespace RasterizationRenderer
             return mesh;
         }
 
+        public static Vector4 V4FromRawData(float[] rawData)
+        {
+            return new(rawData[0], rawData[1], rawData[2], rawData[3]);
+        }
+
+        public static TetMesh4D.VertexData[] ParseRawMeshVertices(float[] rawVertexData)
+        {
+            TetMesh4D.VertexData[] ret = new TetMesh4D.VertexData[rawVertexData.Length / TetMesh4D.VertexData.SizeFloats];
+            List<float> dataList = rawVertexData.ToList();
+            for (int i = 0; i < rawVertexData.Length; i += TetMesh4D.VertexData.SizeFloats)
+            {
+                ret[i / TetMesh4D.VertexData.SizeFloats] = new(
+                    V4FromRawData(dataList.GetRange(i, 4).ToArray()),
+                    V4FromRawData(dataList.GetRange(i + 4, 4).ToArray()),
+                    V4FromRawData(dataList.GetRange(i + 8, 4).ToArray())
+                );
+            }
+            return ret;
+        }
+
+        public static void PrintTriMeshData(float[] vertexData, int[] indices)
+        {
+            Debug.Log("vertices: " + string.Join(",", ParseRawMeshVertices(vertexData)) + "\n");
+            Debug.Log("indices: " + string.Join(",", indices) + "\n");
+        }
+
         public static void DebugDrawTet(TetMesh4D mesh)
         {
             foreach (var tet in mesh.tets)
@@ -81,16 +115,45 @@ namespace RasterizationRenderer
             }
         }
 
-        public static (float[], int[]) getTriMeshDataFromTetMesh(TetMesh4D tetMesh)
+        public static (float[], int[]) GetTriMeshDataFromTetMesh(TetMesh4D tetMesh)
         {
             float[] vertices = tetMesh.vertices.SelectMany(vertex => new float[] {
                 vertex.position.x, vertex.position.y, vertex.position.z, vertex.position.w,
                 0, 0, 0, 0
             }).ToArray();
 
-            int[] tris = tetMesh.tets.SelectMany(tet => getTrianglesFromTet(tet)).ToArray();
+            int[] tris = tetMesh.tets.SelectMany(tet => GetTrianglesFromTet(tet)).ToArray();
 
             return (vertices, tris);
+        }
+
+        public static Texture2D Texture2DFromRenderTexture(RenderTexture renderTexture)
+        {
+            RenderTexture oldRt = RenderTexture.active;
+            RenderTexture.active = renderTexture;
+            Texture2D tex = new(Screen.width, Screen.height);
+            tex.ReadPixels(new(0, 0, tex.width, tex.height), 0, 0);
+            tex.Apply();
+            RenderTexture.active = oldRt;
+            return tex;
+        }
+
+        public static void PrintTexture(Texture2D tex, Color ignoreColour, int mipLevel = 0)
+        {
+            string str = "";
+            for (int i = 0; i < tex.width / (1 << mipLevel); i++)
+            {
+                for (int j = 0; j < tex.height / (1 << mipLevel); j++)
+                {
+                    Color col = tex.GetPixel(i, j, mipLevel);
+                    if (col != ignoreColour)
+                    {
+                        str += string.Format("({0}, {1}): {2}", i, j, col);
+                    }
+                }
+                str += "\n";
+            }
+            Debug.Log(str);
         }
     }
 }
