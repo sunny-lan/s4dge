@@ -112,7 +112,7 @@ namespace RasterizationRenderer
             {
                 var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
                 tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
-                numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length });
+                numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET });
             }
 
             return (vertexBuffer, tetDrawBuffer, numTetsBuffer);
