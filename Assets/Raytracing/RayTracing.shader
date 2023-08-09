@@ -9,7 +9,7 @@ Shader "Custom/RayTracing"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "UnityCG.cginc"	
+			#include "UnityCG.cginc"
 			#include "Assets/Raytracing/Tet.hlsl"
 			#include "Assets/Raytracing/Hypercube.hlsl"
 
@@ -139,7 +139,8 @@ Shader "Custom/RayTracing"
 					if (dst >= 0) {
 						hitInfo.didHit = true;
 						hitInfo.dst = dst;
-						hitInfo.hitPoint = localRay.origin + localRay.dir * dst;
+						hitInfo.hitPoint = ray.origin + localRay.dir * dst; //! VERY IMPORTANT NEEDS TO BE ORIGINAL RAYS ORIGIN
+
 						hitInfo.numHits = discriminant > 10 ? 2 : 1;
 						hitInfo.normal = normalize(hitInfo.hitPoint);
 					}
@@ -184,7 +185,7 @@ Shader "Custom/RayTracing"
 
 				hitInfo.didHit = true;
 				hitInfo.dst = t1;
-				hitInfo.hitPoint = intersection;
+				hitInfo.hitPoint = ray.origin + (t1 * localRay.dir);
 				hitInfo.numHits = t2 > 0 ? 2 : 0; // I think this works if I understand the math correctly
 				hitInfo.normal = normal;
 
@@ -465,6 +466,28 @@ Shader "Custom/RayTracing"
 			// 	return closestHit;
 			// }
 
+			// float3 TraceOld(Ray ray, inout uint rngState)
+			// {
+			// 	float3 rayColour = 1;
+
+			// 	for(int i = 0; i <=MaxBounceCount; i++)
+			// 	{
+			// 		HitInfo hitInfo = CalculateRayCollision(ray);
+			// 		if (hitInfo.didHit)
+			// 		{
+			// 			ray.origin = hitInfo.hitPoint;
+			// 			ray.dir = RandomHemisphereDirection(hitInfo.normal, rngState);
+
+			// 			RayTracingMaterial material = hitInfo.material;
+			// 			rayColour = *= material.colour;
+			// 		}else{
+			// 			rayColour *= material.colour;
+			// 		}
+
+
+			// 	}
+			// }
+
 
 			float3 Trace(Ray ray, inout uint rngState)
 			{
@@ -478,19 +501,6 @@ Shader "Custom/RayTracing"
 					if (hitInfo.didHit)
 					{
 						RayTracingMaterial material = hitInfo.material;
-						// Handle special material types:
-						if (material.flag == CheckerPattern) 
-						{
-							float2 c = mod2(floor(hitInfo.hitPoint.xz), 2.0);
-							material.colour = c.x == c.y ? material.colour : material.emissionColour;
-						}
-						else if (material.flag == InvisibleLightSource && bounceIndex == 0)
-						{
-							ray.origin = hitInfo.hitPoint + ray.dir * 0.001;
-							continue;
-						}
-
-						// Figure out new ray position and direction
 						bool isSpecularBounce = material.specularProbability >= RandomValue(rngState);
 					
 						ray.origin = hitInfo.hitPoint;
@@ -524,9 +534,18 @@ Shader "Custom/RayTracing"
 			// Run for every pixel in the display
 			float4 frag (v2f i) : SV_Target
 			{
+
+			
 				// return float4(2, 0, 0, 0); // Red
 				// return float4(ray.dir3D(), 0); // Multicolor lol
 				// return RaySphere(ray, 0, 1).didHit; // Singular sphere
+			
+				// Random 
+				uint2 numPixels = _ScreenParams.xy;
+				uint2 pixelCoord = i.uv * numPixels;
+				uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;
+				uint rngState = pixelIndex;
+
 
 				float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
 				float4 viewPoint = mul(CamLocalToWorldMatrix, float4(viewPointLocal, 0));
@@ -536,23 +555,35 @@ Shader "Custom/RayTracing"
 				ray.origin = CamTranslation;
 				ray.dir = normalize(viewPoint - ray.origin);
 
-				HitInfo collision = CalculateRayCollision(ray);
+				float3 totalIncomingLight = 0;
 
-				if (collision.didHit) 
-				{
-					if (collision.numHits % 2 == 1)
-					{
-						//return float4(2,2,2,2); // return white as color for all edges
-					}
-
-					float opacity = collision.material.colour.w;
-					opacity = 1.0f - pow(1.0f - opacity, collision.numHits);
-
-					return lerp(float4(0,0,0,0), collision.material.colour * tmp_lighting(collision.normal, collision.hitPoint), opacity); // Sending in opacity in w wasn't working, lerp towards black instead
+				for (int rayIndex = 0; rayIndex < NumRaysPerPixel; rayIndex++){
+					totalIncomingLight += Trace(ray, rngState);
 				}
+				float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
+				return float4(pixelCol, 1);
+
+
+				// Old Lighting
+				// HitInfo collision = CalculateRayCollision(ray);
+
+				// if (collision.didHit) 
+				// {
+				// 	if (collision.numHits % 2 == 1)
+				// 	{
+				// 		//return float4(2,2,2,2); // return white as color for all edges
+				// 	}
+
+				// 	float opacity = collision.material.colour.w;
+				// 	opacity = 1.0f - pow(1.0f - opacity, collision.numHits);
+
+				// 	return lerp(float4(0,0,0,0), collision.material.colour * tmp_lighting(collision.normal, collision.hitPoint), opacity); // Sending in opacity in w wasn't working, lerp towards black instead
+				// }
 				
-				return collision.material.colour;
+				// return collision.material.colour;
+
 			}
+			
 
 			ENDCG
 		}
