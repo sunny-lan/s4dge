@@ -36,20 +36,20 @@ public class RasterizeCamera : MonoBehaviour
         }
     }
 
-    private void OnGUI()
-    {
-        if (showShadowMap)
-        {
-            foreach (var lightSource in FindObjectsByType<LightSource4D>(FindObjectsSortMode.InstanceID))
-            {
-                lightSource.UpdateShadowMap(true);
-                //GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), lightSource.ShadowMap);
-            }
+    //private void OnGUI()
+    //{
+    //    if (showShadowMap)
+    //    {
+    //        //foreach (var lightSource in FindObjectsByType<LightSource4D>(FindObjectsSortMode.InstanceID))
+    //        //{
+    //        //    lightSource.UpdateShadowMap(true);
+    //        //    //GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), lightSource.ShadowMap);
+    //        //}
 
-            foreach (var rasterizeObject in FindObjectsByType<RasterizeObject>(FindObjectsSortMode.InstanceID))
-            {
-                rasterizeObject.DrawFrame();
-            }
-        }
-    }
+    //        //foreach (var rasterizeObject in FindObjectsByType<RasterizeObject>(FindObjectsSortMode.InstanceID))
+    //        //{
+    //        //    rasterizeObject.DrawFrame();
+    //        //}
+    //    }
+    //}
 }

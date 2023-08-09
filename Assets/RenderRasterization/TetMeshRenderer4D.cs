@@ -33,7 +33,7 @@ namespace RasterizationRenderer
             internal set { _tetMesh = value; }
         }
 
-        public LightSource4DManager lightSourceManager;
+        LightSource4DManager lightSourceManager;
 
         public void SetTetMesh(TetMesh4D tetMesh)
         {

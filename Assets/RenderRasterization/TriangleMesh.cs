@@ -70,15 +70,22 @@ public class TriangleMesh : MonoBehaviour
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
 
-        Matrix4x4 projectionMatrix = Camera4D.main.camera3D.projectionMatrix;
-        RenderTexture prevRT = RenderTexture.active;
-        RenderTexture.active = rt;
-
         Material renderMaterial = material;
         if (overrideMaterial != null)
         {
             renderMaterial = overrideMaterial;
         }
+
+        Matrix4x4 projectionMatrix = Camera4D.main.camera3D.projectionMatrix;
+        //DrawToTextureNow(rt, projectionMatrix, clearColour, clearTexture, renderMaterial);
+        DrawToTextureCmdBuf(rt, projectionMatrix, clearColour, clearTexture, renderMaterial);
+    }
+
+    public void DrawToTextureNow(RenderTexture rt, Matrix4x4 projectionMatrix, Color clearColour, bool clearTexture, Material renderMaterial)
+    {
+        RenderTexture prevRT = RenderTexture.active;
+        RenderTexture.active = rt;
+
         renderMaterial.SetPass(0);
 
         GL.PushMatrix();
@@ -92,23 +99,24 @@ public class TriangleMesh : MonoBehaviour
             Graphics.DrawMeshNow(mesh, Matrix4x4.identity, i);
         }
         GL.PopMatrix();
+
         RenderTexture.active = prevRT;
     }
 
-    public void RenderToRenderTextureCmdBuf(RenderTexture rt, Color clearColour)
+    public void DrawToTextureCmdBuf(RenderTexture rt, Matrix4x4 projectionMatrix, Color clearColour, bool clearTexture, Material renderMaterial)
     {
-        mesh.RecalculateBounds();
-        mesh.RecalculateTangents();
-
-        Matrix4x4 projectionMatrix = Camera.main.projectionMatrix;
         CommandBuffer cmdBuf = new();
         cmdBuf.Clear();
         cmdBuf.SetRenderTarget(rt);
         cmdBuf.SetProjectionMatrix(projectionMatrix);
-        cmdBuf.ClearRenderTarget(true, true, clearColour);
+        cmdBuf.SetViewMatrix(Camera4D.main.camera3D.worldToCameraMatrix);
+        if (clearTexture)
+        {
+            cmdBuf.ClearRenderTarget(true, true, clearColour);
+        }
         for (int i = 0; i < mesh.subMeshCount; i++)
         {
-            cmdBuf.DrawMesh(mesh, Matrix4x4.identity, material, i);
+            cmdBuf.DrawMesh(mesh, Matrix4x4.identity, renderMaterial, i);
         }
         Graphics.ExecuteCommandBuffer(cmdBuf);
     }

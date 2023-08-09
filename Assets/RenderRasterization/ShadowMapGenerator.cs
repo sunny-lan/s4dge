@@ -39,28 +39,29 @@ namespace RasterizationRenderer
             return shadowMap;
         }
 
+        void UpdateVisibleShadowMap(bool enableShadows)
+        {
+            // Fill the shadow map with min depth (farthest from camera) if shadows are disabled
+            if (_shadowMap != null)
+            {
+                _shadowMap.Release();
+            }
+            _shadowMap = enableShadows ? newShadowMap : GetClearedShadowMap(Color.clear);
+        }
+
         public void UpdateShadowMap(TransformMatrixAffine4D worldToLightTransform, bool enableShadows)
         {
             if (!enableShadows)
             {
                 if (shadowsEnabled)
                 {
-                    // Fill the shadow map with min depth (farthest from camera) if shadows are disabled
-                    if (_shadowMap != null)
-                    {
-                        _shadowMap.Release();
-                    }
-                    _shadowMap = GetClearedShadowMap(Color.clear);
+                    UpdateVisibleShadowMap(enableShadows);
                     shadowsEnabled = false;
                 }
             }
             else
             {
-                if (_shadowMap != null)
-                {
-                    _shadowMap.Release();
-                }
-                _shadowMap = newShadowMap;
+                UpdateVisibleShadowMap(enableShadows);
 
                 if (sceneTetMeshRenderers == null)
                 {
