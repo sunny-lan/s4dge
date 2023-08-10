@@ -29,6 +29,8 @@ struct Hypercube
 		max_t = min(max_t, max_tmp);
 		if(min_t != old_min && max_t != old_max &&  min_t <= max_t){
 			normal = p.normal * -1;
+			old_min = min_t;
+			old_max = max_t;
 		}
 
 		p.offset = dot(axis, p2);
@@ -37,7 +39,7 @@ struct Hypercube
 		max_t = min(max_t, max_tmp);
 
 		if(min_t != old_min && max_t != old_max &&  min_t <= max_t){
-			normal = p.normal;
+			normal = p.normal * 1;
 		}
 	}
 
