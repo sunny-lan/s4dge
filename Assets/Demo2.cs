@@ -1,8 +1,9 @@
-
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using v2;
 
-public class Demo : MonoBehaviour
+public class Demo2 : MonoBehaviour
 {
     Transform4D t4d;
 
@@ -16,6 +17,6 @@ public class Demo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        t4d.localRotation[(int)Rot4D.xw] += v*Time.deltaTime;
+        t4d.localRotation[(int)Rot4D.zw] += v * Time.deltaTime;
     }
 }

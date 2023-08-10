@@ -118,14 +118,18 @@ namespace TreeGen
 
                     Matrix4x4 curRot = TransformMatrixAffine4D.RotationMatrix(0, 2, splitAngle);
 
-                    float sidewaysAngle =
-                        40 + 0.75f * (30 + Mathf.Abs(declination)) * Mathf.Pow((float)rng.NextDouble(), 2);
-                    sidewaysAngle *= Mathf.Deg2Rad;
-
-                    Matrix4x4 sidewaysRot = TransformMatrixAffine4D.RotationMatrix(0, 1, sidewaysAngle);
-
                     for (int cloneNum = 0; cloneNum <= segSplitsEffective; cloneNum++)
                     {
+                        float sidewaysAngle =
+                            40 + 0.75f * (30 + Mathf.Abs(declination)) * Mathf.Pow((float)rng.NextDouble(), 2);
+                        sidewaysAngle *= Mathf.Deg2Rad;
+
+                        float sidewaysAngle1 =
+                            20 + 0.75f * (30 + Mathf.Abs(declination)) * Mathf.Pow((float)rng.NextDouble(), 2);
+                        sidewaysAngle *= Mathf.Deg2Rad;
+
+                        Matrix4x4 sidewaysRot = TransformMatrixAffine4D.RotationMatrix(0, 1, sidewaysAngle) * TransformMatrixAffine4D.RotationMatrix(0, 3, sidewaysAngle1);
+
                         curRot = sidewaysRot * curRot;
                         TransformMatrixAffine4D subFrame = new()
                         {
