@@ -426,7 +426,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93f97a5248f77b142942dd7eb55e63cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  v: 0.1
+  v: 0.2
 --- !u!1001 &366056969
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -738,7 +738,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8905184228926953751, guid: 749aa6b34bae4aa4aa096ff787cee2ab, type: 3}
       propertyPath: localPosition.w
-      value: 2
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8905184228926953751, guid: 749aa6b34bae4aa4aa096ff787cee2ab, type: 3}
+      propertyPath: localPosition.z
+      value: 0.24
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
