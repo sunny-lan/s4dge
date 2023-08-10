@@ -33,13 +33,26 @@ struct Hypercube
 			old_max = max_t;
 		}
 
+		if(min_t != old_min && min_t <= max_t){ // New closest point
+			normal = p.normal;
+			if(dot(p.normal, r.dir) > 0) {
+				normal = normal * -1;
+			}
+			// normal = p.normal;
+			old_min = min_t;
+			old_max = max_t;
+		}
+
 		p.offset = dot(axis, p2);
 		p.intersection(r, -1, min_tmp, max_tmp);
 		min_t = max(min_t, min_tmp);
 		max_t = min(max_t, max_tmp);
 
-		if(min_t != old_min && max_t != old_max &&  min_t <= max_t){
-			normal = p.normal * 1;
+		if(min_t != old_min &&  min_t <= max_t){
+			normal = p.normal;
+			if(dot(p.normal, r.dir) > 0) {
+				normal = normal * -1;
+			}
 		}
 	}
 
