@@ -33,18 +33,10 @@ public class TestCuller4D
     [UnitySetUp]
     public IEnumerator SetUp()
     {
-        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizationTestScene.unity", new LoadSceneParameters(LoadSceneMode.Single));
+        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizerTests.unity", new LoadSceneParameters(LoadSceneMode.Single));
         yield return null; // wait until scene finishes loading
 
-        foreach (var shader in Resources.FindObjectsOfTypeAll<ComputeShader>())
-        {
-            if (shader.name == "Culler4D")
-            {
-                cullShader = shader;
-                break;
-            }
-        }
-        Assert.IsNotNull(cullShader);
+        cullShader = TestUtils.LoadShader("Culler4D");
 
         vertexBuffer = RenderUtils.InitComputeBuffer(TetMesh4D.VertexData.SizeBytes, vertexData);
     }
@@ -62,6 +54,7 @@ public class TestCuller4D
         var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
         Culler4D culler = new(cullShader, tets);
         var culledTets = culler.Render(vertexBuffer);
+        culledTets.UpdateBufferLengths();
 
         int[] culledTetBuffer = new int[4 * tets.Length];
         culledTets.Buffers[0].Buffer.GetData(culledTetBuffer);

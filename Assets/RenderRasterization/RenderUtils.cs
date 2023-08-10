@@ -127,11 +127,11 @@ namespace RasterizationRenderer
             return (vertices, tris);
         }
 
-        public static Texture2D Texture2DFromRenderTexture(RenderTexture renderTexture)
+        public static Texture2D Texture2DFromRenderTexture(RenderTexture renderTexture, int texWidth, int texHeight)
         {
             RenderTexture oldRt = RenderTexture.active;
             RenderTexture.active = renderTexture;
-            Texture2D tex = new(Screen.width, Screen.height);
+            Texture2D tex = new(texWidth, texHeight);
             tex.ReadPixels(new(0, 0, tex.width, tex.height), 0, 0);
             tex.Apply();
             RenderTexture.active = oldRt;

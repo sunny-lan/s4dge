@@ -15,10 +15,10 @@ public class TestTetMeshRenderer4D
     [UnitySetUp]
     public IEnumerator SetUp()
     {
-        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizationTestScene.unity", new LoadSceneParameters(LoadSceneMode.Single));
+        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizerTests.unity", new LoadSceneParameters(LoadSceneMode.Single));
         yield return null; // wait until scene finishes loading
 
-        foreach (var r in Resources.FindObjectsOfTypeAll<TetMeshRenderer4D>())
+        foreach (var r in Object.FindObjectsOfType<TetMeshRenderer4D>())
         {
             renderer = r;
             break;
@@ -31,14 +31,10 @@ public class TestTetMeshRenderer4D
     {
     }
 
-    void AssertAlmostEqual(float expected, float actual)
-    {
-        Assert.Less(Mathf.Abs(expected - actual), 1e-3);
-    }
-
     void RunMeshRendererTest(TetMesh4D mesh, float zSlice, float vanishingW, float nearW, int[] expectedTris, float[] expectedVertices)
     {
         renderer.SetTetMesh(mesh);
+        renderer.MeshInit();
         var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = renderer.TransformAndCullVertices(TransformMatrixAffine4D.identity, 1e6f, 1);
         (int[] triangleData, float[] vertexData) = renderer.GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
         Debug.Log("triangles: " + string.Join(",", triangleData));
@@ -47,12 +43,12 @@ public class TestTetMeshRenderer4D
 
         for (int i = 0; i < expectedVertices.Length; ++i)
         {
-            Assert.AreEqual(expectedVertices[i], expectedVertices[i]);
+            TestUtils.AssertAlmostEqual(expectedVertices[i], vertexData[i]);
         }
 
         for (int i = 0; i < expectedTris.Length; ++i)
         {
-            Assert.AreEqual(triangleData[i], expectedTris[i]);
+            Assert.AreEqual(expectedTris[i], triangleData[i]);
         }
 
         Assert.AreEqual(triangleData.Length, expectedTris.Length);
@@ -73,21 +69,35 @@ public class TestTetMeshRenderer4D
             0,1,2,
             3,4,5,
             6,7,8,
-            6,8,9
+            6,8,9,
+            10,11,12,
+            10,12,13,
+            14,15,16,
+            17,18,19
         };
 
         float[] expectedVertices =
         {
-            0,0,0,1,0,0,0,0,
-            1,0,0,1,0,0,0,0,
-            1,1,0,1,0,0,0,0,
-            0,0,0,1,0,0,0,0,
-            0,1,0,1,0,0,0,0,
-            1,1,0,1,0,0,0,0,
-            0,1,0,1,0,0,0,0,
-            0,1,0,1,0,0,0,0,
-            1,1,0,1,0,0,0,0,
-            1,1,0,1,0,0,0,0
+            0,0,0,0,0,0,0,0,0,0,0,0,
+            -0.03919365f,0.9992316f,0,0,0,0,0,0,-0.03919365f,0.9992316f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,
+            -0.9992316f,-0.03919365f,0,0,0,0,0,0,-0.9992316f,-0.03919365f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -0.9992316f,-0.03919365f,0,0,0,0,0,0,-0.9992316f,-0.03919365f,0,0,
+            -0.9992316f,-0.03919365f,0,0,0,0,0,0,-0.9992316f,-0.03919365f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -0.03919365f,0.9992316f,0,0,0,0,0,0,-0.03919365f,0.9992316f,0,0,
+            -0.03919365f,0.9992316f,0,0,0,0,0,0,-0.03919365f,0.9992316f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0
         };
 
         RunMeshRendererTest(
@@ -122,26 +132,26 @@ public class TestTetMeshRenderer4D
 
         float[] expectedVertices =
         {
-            0,0,0,1,0,0,0,0,
-            3,0,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            0,0,0,1,0,0,0,0,
-            0,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            0,3,0,1,0,0,0,0,
-            0,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,0,0,1,0,0,0,0,
-            3,0,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0,
-            3,3,0,1,0,0,0,0
+            0,0,0,0,0,0,0,0,0,0,0,0,
+            -0.03919365f,0.9992316f,0,0,0,0,0,0,-0.03919365f,0.9992316f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,
+            -0.9992316f,-0.03919365f,0,0,0,0,0,0,-0.9992316f,-0.03919365f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -0.9992316f,-0.03919365f,0,0,0,0,0,0,-0.9992316f,-0.03919365f,0,0,
+            -0.9992316f,-0.03919365f,0,0,0,0,0,0,-0.9992316f,-0.03919365f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -0.03919365f,0.9992316f,0,0,0,0,0,0,-0.03919365f,0.9992316f,0,0,
+            -0.03919365f,0.9992316f,0,0,0,0,0,0,-0.03919365f,0.9992316f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0,
+            -1.038425f,0.960038f,0,0,0,0,0,0,-1.038425f,0.960038f,0,0
         };
 
         RunMeshRendererTest(

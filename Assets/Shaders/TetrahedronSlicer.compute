@@ -67,7 +67,8 @@ TetIntersection PerformSlice(uint3 globalId) {
                 float4 wp1 = v1.worldPos;
 
                 ret.points[edgeIdx].pos = LerpVByPZ(p0, p1, p0, p1);
-                ret.points[edgeIdx].normal = normalize(LerpVByPZ(n0, n1, p0, p1));
+                ret.points[edgeIdx].normal = LerpVByPZ(n0, n1, p0, p1);
+                ret.points[edgeIdx].normal = ((length(ret.points[edgeIdx].normal) == 0) ? ret.points[edgeIdx].normal : normalize(ret.points[edgeIdx].normal));
                 ret.points[edgeIdx].worldPos = LerpVByPZ(wp0, wp1, p0, p1);
             }
 

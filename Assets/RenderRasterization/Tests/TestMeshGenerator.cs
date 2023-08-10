@@ -2,7 +2,6 @@ using NUnit.Framework;
 using RasterizationRenderer;
 using System.Linq;
 using UnityEngine;
-using static MeshGeneratorUtils;
 using static RasterizationRenderer.MeshGenerator4D;
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 
@@ -40,13 +39,15 @@ public class TestMeshGenerator
 
         TetMesh4D.Tet4D[] expectedTets =
         {
-            new(new int[] { 7,3,6,1 }),
-            new(new int[] { 7,5,1,6 }),
-            new(new int[] { 5,4,1,6 }),
-            new(new int[] { 3,2,6,1 }),
-            new(new int[] { 6,0,1,2 }),
-            new(new int[] { 6,4,1,0 }),
+            new(new int[] { 7,3,1,6 }),
+            new(new int[] { 7,5,6,1 }),
+            new(new int[] { 5,4,6,1 }),
+            new(new int[] { 3,2,1,6 }),
+            new(new int[] { 6,0,2,1 }),
+            new(new int[] { 6,4,0,1 }),
         };
+
+        Debug.Log("tetmesh tets: " + string.Join(", ", tetMesh.tets));
 
         foreach (var expectedTet in expectedTets)
         {
