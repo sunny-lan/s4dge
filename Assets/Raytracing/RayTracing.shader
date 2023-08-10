@@ -101,7 +101,7 @@ Shader "Custom/RayTracing"
 						Vertices[indices[3]]
 					)); //TODO cache
 
-					HitInfo hitInfo = t.intersection(localRay);
+					HitInfo hitInfo = t.intersection(ray, localRay);
 					hitInfo.material = mesh.material;
 			
 					_compareHitInfo(closestHit, hitInfo);
@@ -220,13 +220,11 @@ Shader "Custom/RayTracing"
 					HyperSphere hyperSphere = HyperSpheres[i];
 					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere);
 					_compareHitInfo(closestHit, hitInfo);
-
 				}
 
 				for (int j = 0; j < NumTetMeshes; j++) {
 					TetMesh mesh = TetMeshes[j];
 					RayTetMesh(closestHit, mesh, ray);
-					
 				}
 
 				for (int i = 0; i < NumHyperCubes; i++) {

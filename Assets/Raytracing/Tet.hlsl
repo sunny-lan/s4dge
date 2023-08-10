@@ -93,6 +93,7 @@ HitInfo intersection_ray_simplex(Ray r)
 
 #include "Matrix.hlsl"
 #include "Hyperplane.hlsl"
+
 struct Tet
 {
 	Hyperplane edges[4];
@@ -120,14 +121,14 @@ struct Tet
 	}
 
 	// Determines the range of t that a ray intersects this
-	HitInfo intersection(Ray r)
+	HitInfo intersection(Ray r, Ray localRay) // NOTE: NEED TO PASS IN BOTH r and LOCALRAY
 	{
 		HitInfo res = (HitInfo)0;
 		float min_t = 0; 
 		float max_t = 1.#INF;
 
 		float min_tmp, max_tmp;
-		volume.intersection(r, 0, min_tmp, max_tmp);
+		volume.intersection(localRay, 0, min_tmp, max_tmp);
 		if (min_tmp > min_t) {
 			min_t = min_tmp;
 			res.normal = volume.normal;
@@ -136,7 +137,7 @@ struct Tet
 
 		[unroll]
 		for (int i = 0; i < 4; i++) {
-			edges[i].intersection(r, direction[i], min_tmp, max_tmp);
+			edges[i].intersection(localRay, direction[i], min_tmp, max_tmp);
 			if (min_tmp > min_t) {
 				min_t = min_tmp;
 				res.normal = edges[i].normal;
@@ -147,8 +148,8 @@ struct Tet
 		res.dst = min_t;
 		res.didHit = min_t <= max_t;
 		res.numHits = 1;
-		
-        res.hitPoint = r.origin + r.dir * min_t; //! VERY IMPORTANT NEEDS TO BE ORIGINAL RAYS ORIGIN
+
+        res.hitPoint = r.origin + localRay.dir * res.dst; //! VERY IMPORTANT NEEDS TO BE ORIGINAL RAYS ORIGIN
 
 		return res;
 	}
