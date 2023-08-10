@@ -1,26 +1,24 @@
-using RasterizationRenderer;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace RasterizationRenderer
 {
-    public abstract class RasterizeObject: MonoBehaviour
+    public abstract class RasterizeObject : MonoBehaviour
     {
         protected TetMeshRenderer4D tetMeshRenderer;
         TriangleMesh triMesh;
 
         public float zSliceStart, zSliceLength, zSliceInterval;
 
-        Camera4D camera4D;
-
         void Awake()
         {
             tetMeshRenderer = GetComponent<TetMeshRenderer4D>();
             triMesh = GetComponent<TriangleMesh>();
+            Assert.IsNotNull(tetMeshRenderer);
         }
 
         private void Start()
         {
-            camera4D = Camera4D.main;
             InitGeometry();
             tetMeshRenderer.MeshInit();
         }
@@ -31,7 +29,7 @@ namespace RasterizationRenderer
         public void DrawFrame()
         {
             tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval,
-                camera4D.WorldToCameraTransform, camera4D.camera3D.farClipPlane, camera4D.camera3D.nearClipPlane);
+                Camera4D.main.WorldToCameraTransform, Camera4D.main.camera3D.farClipPlane, Camera4D.main.camera3D.nearClipPlane);
         }
 
         private void OnEnable()

@@ -1270,6 +1270,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RasterizeHelix
       objectReference: {fileID: 0}
+    - target: {fileID: 4539720673905110174, guid: 9fd7e702309ac864788abab8b3c1e869, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4984652209055239427, guid: 9fd7e702309ac864788abab8b3c1e869, type: 3}
       propertyPath: localRotation.Array.data[1]
       value: 0
