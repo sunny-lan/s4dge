@@ -219,7 +219,6 @@ Shader "Custom/RayTracing"
 				for (int i = 0; i < NumHyperSpheres; i++) {
 					HyperSphere hyperSphere = HyperSpheres[i];
 					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere);
-		
 					_compareHitInfo(closestHit, hitInfo);
 
 				}
@@ -323,6 +322,11 @@ Shader "Custom/RayTracing"
 						float4 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState)); // Rotations were a bit messed up //TODO: Normal probably local space, need to be world space
 						float4 specularDir = reflect(ray.dir, hitInfo.normal);
 						ray.dir = normalize(lerp(diffuseDir, specularDir, material.smoothness * isSpecularBounce));
+
+						//TODO: DELETE boon testing
+						// ray.dir.x = 1;
+						// ray.dir.y = 1;
+						// ray.dir.z = 1;
 
 						// Update light calculations
 						float3 emittedLight = material.emissionColour * material.emissionStrength;
