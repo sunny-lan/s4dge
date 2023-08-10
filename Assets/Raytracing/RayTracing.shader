@@ -101,7 +101,7 @@ Shader "Custom/RayTracing"
 						Vertices[indices[3]]
 					)); //TODO cache
 
-					HitInfo hitInfo = t.intersection(localRay);
+					HitInfo hitInfo = t.intersection(ray, localRay);
 					hitInfo.material = mesh.material;
 			
 					_compareHitInfo(closestHit, hitInfo);
@@ -219,22 +219,17 @@ Shader "Custom/RayTracing"
 				for (int i = 0; i < NumHyperSpheres; i++) {
 					HyperSphere hyperSphere = HyperSpheres[i];
 					HitInfo hitInfo = RayHyperSphere(ray, hyperSphere);
-		
 					_compareHitInfo(closestHit, hitInfo);
-
 				}
 
 				for (int j = 0; j < NumTetMeshes; j++) {
 					TetMesh mesh = TetMeshes[j];
-		
 					RayTetMesh(closestHit, mesh, ray);
-					
 				}
 
 				for (int i = 0; i < NumHyperCubes; i++) {
 					Hypercube hypercube = HyperCubes[i];
-					Ray localRay = TransformRay(ray, hypercube.inverseTransform);
-					HitInfo hitInfo = hypercube.intersection(localRay);
+					HitInfo hitInfo = hypercube.intersection(ray);
 		
 					_compareHitInfo(closestHit, hitInfo);
 				}
@@ -322,9 +317,14 @@ Shader "Custom/RayTracing"
 						bool isSpecularBounce = material.specularProbability >= RandomValue(rngState);
 					
 						ray.origin = hitInfo.hitPoint;
-						float4 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState));
+						float4 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState)); // Rotations were a bit messed up //TODO: Normal probably local space, need to be world space
 						float4 specularDir = reflect(ray.dir, hitInfo.normal);
 						ray.dir = normalize(lerp(diffuseDir, specularDir, material.smoothness * isSpecularBounce));
+
+						//TODO: DELETE boon testing
+						// ray.dir.x = 1;
+						// ray.dir.y = 1;
+						// ray.dir.z = 1;
 
 						// Update light calculations
 						float3 emittedLight = material.emissionColour * material.emissionStrength;
