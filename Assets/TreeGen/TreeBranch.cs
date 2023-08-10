@@ -188,7 +188,8 @@ namespace TreeGen
                 ParametricShape3D manifold3 = ManifoldConverter.HyperCylinderify(
                     segmentParametric,
                     s => s*segment.Rad1 + (1-s)*segment.Rad0,
-                    s => frame
+                    s => frame,
+                    6
                 );
 
                 TetMesh4D cylinder = MeshGenerator4D.GenerateTetMesh(manifold3);

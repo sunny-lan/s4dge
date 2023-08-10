@@ -1,4 +1,5 @@
 using RasterizationRenderer;
+using System.Collections.Generic;
 using TreeGen;
 using UnityEngine;
 using v2;
@@ -58,6 +59,8 @@ public class RasterizeTree : MonoBehaviour
         tetMeshRenderer.SetTetMesh(mesh.ToRasterizableTetMesh());
     }
 
+    public bool generate = false;
+
     // Update is called once per frame
     float timeSinceLast = 0;
     void Update()
@@ -67,6 +70,11 @@ public class RasterizeTree : MonoBehaviour
         {
             Render();
             timeSinceLast = 0;
+        }
+        if(generate)
+        {
+            CreateScriptableObject();
+            generate = false;
         }
         tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval);
     }
@@ -81,5 +89,12 @@ public class RasterizeTree : MonoBehaviour
     {
         tetMeshRenderer.gameObject.SetActive(false);
         triMesh.gameObject.SetActive(false);
+    }
+
+    void CreateScriptableObject()
+    {
+        TetMesh_UnityObj mesh = ScriptableObject.CreateInstance<TetMesh_UnityObj>();
+        mesh.mesh_Raw = this.mesh;
+        UnityEditor.AssetDatabase.CreateAsset(mesh, $"Assets/Tets/Polytopes/tree.asset");
     }
 }
