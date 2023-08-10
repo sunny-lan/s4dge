@@ -132,6 +132,9 @@ struct Tet
 		if (min_tmp > min_t) {
 			min_t = min_tmp;
 			res.normal = volume.normal;
+			if(dot(res.normal, localRay.dir) > 0) {
+				res.normal = res.normal * -1;
+			}
 		}
 		max_t = min(max_t, max_tmp);
 
@@ -141,6 +144,9 @@ struct Tet
 			if (min_tmp > min_t) {
 				min_t = min_tmp;
 				res.normal = edges[i].normal;
+				if(dot(res.normal, localRay.dir) > 0) {
+					res.normal = res.normal * -1;
+				}
 			}
 			max_t = min(max_t, max_tmp);
 		}

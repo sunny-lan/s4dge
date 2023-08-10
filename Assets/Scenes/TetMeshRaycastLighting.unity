@@ -489,7 +489,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: -0.71, y: 2.64, z: 3.7, w: 0}
+  localPosition: {x: 0.5933008, y: 4.8820896, z: 4.0700006, w: 0}
   localRotation:
   - 0
   - 0
@@ -739,7 +739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 2.42, y: 3.54, z: -0.48, w: 0}
+  localPosition: {x: 0.95692027, y: 4.668732, z: 0.44361758, w: 0}
   localRotation:
   - 0
   - 0
@@ -911,9 +911,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 2.24, z: 0, w: 1.42}
+  localPosition: {x: -2.08, y: 2.24, z: 0.03, w: 0.86}
   localRotation:
-  - 1.74
+  - 0
   - 0
   - 0
   - 0
