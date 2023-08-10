@@ -15,9 +15,9 @@ public class Rasterize3Helix : RasterizeObject
             Path = s =>
             {
                 return new(
-                    2 * Mathf.Sin(s),
-                    2 * Mathf.Cos(s),
-                    s, 0
+                    2 * Mathf.Sin(s*2),
+                    2 * Mathf.Cos(s*2),
+                    s/2, s/2
                 );
             }
         };

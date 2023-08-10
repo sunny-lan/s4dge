@@ -6,7 +6,8 @@ public class Demo : MonoBehaviour
 {
     Transform4D t4d;
 
-    public float v = 0;
+
+    public float[] rotSpeed = new float[6];
 
     void Start()
     {
@@ -16,7 +17,7 @@ public class Demo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        t4d.localRotation[(int)Rot4D.xz] += Time.deltaTime;
-        t4d.localRotation[(int)Rot4D.xw] += v*Time.deltaTime;
+        for(int i=0;i<6;i++)
+            t4d.localRotation[i] += Time.deltaTime*rotSpeed[i];
     }
 }
