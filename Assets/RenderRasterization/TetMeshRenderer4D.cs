@@ -27,7 +27,7 @@ namespace RasterizationRenderer
         Camera4D camera4D;
 
         TriangleMesh triangleMesh;
-        private TetMesh4D tetMesh;
+        TetMesh4D tetMesh;
 
         LightSource4DManager lightSourceManager;
 

@@ -17,10 +17,13 @@ namespace TreeGen
             public TransformMatrixAffine4D Frame;
             public float Length;
             public float Offset;
+            public float Rad0, Rad1;
         }
 
         public readonly List<Segment> Segments = new();
         public int Depth;
+
+        public Func<float, float> RadiusFunction;
     }
 
     public static class TreeGenerator
@@ -29,28 +32,53 @@ namespace TreeGen
         {
             float splitError = 0.0f;
             float length = p.Scale.Randomize(p.ScaleV, rng) * p.Length.Randomize(p.LengthV, rng);
+            float radius = length * p.Ratio * p.Scale.Randomize(p.ScaleV, rng);
+
+            float radFunction(float s)
+            {
+                if (p.Taper is >= 0 and <= 1)
+                {
+                    float t = s / length;
+                    float b = radius * (1 - p.Taper);
+                    return b * t + radius * (1 - t);
+                }
+                throw new NotImplementedException();
+            }
+
+            root.RadiusFunction = radFunction;
 
             void growBranch(int level, TransformMatrixAffine4D curSegFrame, float currentOffset)
             {
                 if (level >= p.CurveRes) return;
 
+                var segmentLen = length / p.CurveRes;
+
                 root.Segments.Add(new TreeBranch.Segment()
                 {
-                    Length = length,
+                    Length = segmentLen,
                     Frame = curSegFrame,
                     Offset = currentOffset,
+                    Rad0 = radFunction(currentOffset),
+                    Rad1 = radFunction(currentOffset + segmentLen)
                 });
 
-                Vector4 currentDirection = curSegFrame.scaleAndRot.GetColumn(3).normalized;
+                Vector4 currentDirection = curSegFrame.scaleAndRot.GetColumn(2).normalized;
 
                 float declination = Mathf.Acos(currentDirection.z);
+                
 
-                Vector4 endOfSegment = curSegFrame.translation + currentDirection * length;
+                int segSplitsEffective;
+                if (level == 0)
+                {
+                    segSplitsEffective = p.BaseSplits;
+                }
+                else
+                {
+                    segSplitsEffective = Mathf.RoundToInt(splitError + p.SegSplits);
+                    splitError -= segSplitsEffective - p.SegSplits;
+                }
 
-                int segSplitsEffective = Mathf.RoundToInt(splitError + p.SegSplits);
-                splitError -= segSplitsEffective - p.SegSplits;
-
-                if (segSplitsEffective == 1)
+                if (segSplitsEffective == 0)
                 {
                     // Straight line
 
@@ -72,38 +100,41 @@ namespace TreeGen
                     }
 
                     curveRot = curveRot.Randomize(p.CurveV, rng);
+                    curveRot *= Mathf.Deg2Rad;
 
                     TransformMatrixAffine4D subFrame = new()
                     {
-                        scaleAndRot = TransformMatrixAffine4D.RotationMatrix(0, 3, curveRot),
-                        translation = new(0, 0, 0, length),
+                        scaleAndRot = TransformMatrixAffine4D.RotationMatrix(0, 2, curveRot),
+                        translation = new(0, 0, segmentLen, 0),
                     };
 
-                    growBranch(level + 1, curSegFrame * subFrame, currentOffset+length);
+                    growBranch(level + 1, curSegFrame * subFrame, currentOffset + segmentLen);
                 }
                 else
                 {
                     // Split branch
-                    float splitAngle = p.SplitAngle + p.SplitAngleV * (float)(rng.NextDouble() * 2 - 1);
+                    float splitAngle = p.SplitAngle.Randomize(p.SplitAngleV, rng);
+                    splitAngle *= Mathf.Deg2Rad;
 
-                    Matrix4x4 curRot = TransformMatrixAffine4D.RotationMatrix(0, 3, splitAngle);
+                    Matrix4x4 curRot = TransformMatrixAffine4D.RotationMatrix(0, 2, splitAngle);
 
-                    float sidewaysAngle = Mathf.Deg2Rad *
-                        (20 + 0.75f * (30 + Mathf.Abs(declination)) * Mathf.Pow((float)rng.NextDouble(), 2));
+                    float sidewaysAngle =
+                        40 + 0.75f * (30 + Mathf.Abs(declination)) * Mathf.Pow((float)rng.NextDouble(), 2);
+                    sidewaysAngle *= Mathf.Deg2Rad;
 
-                    Matrix4x4 sidewaysRot = TransformMatrixAffine4D.RotationMatrix(2, 3, sidewaysAngle);
+                    Matrix4x4 sidewaysRot = TransformMatrixAffine4D.RotationMatrix(0, 1, sidewaysAngle);
 
-                    for (int cloneNum = 0; cloneNum < segSplitsEffective; cloneNum++)
+                    for (int cloneNum = 0; cloneNum <= segSplitsEffective; cloneNum++)
                     {
+                        curRot = sidewaysRot * curRot;
                         TransformMatrixAffine4D subFrame = new()
                         {
                             scaleAndRot = curRot,
-                            translation = new(0, 0, 0, length),
+                            translation = new(0, 0, segmentLen, 0),
                         };
 
-                        growBranch(level + 1, curSegFrame * subFrame, currentOffset + length);
+                        growBranch(level + 1, curSegFrame * subFrame, currentOffset + segmentLen);
 
-                        curRot = sidewaysRot * curRot;
 
                     }
                 }
@@ -130,15 +161,15 @@ namespace TreeGen
         public static void Render(TreeBranch root, TetMesh_raw mesh)
         {
 
-            foreach(var segment in root.Segments)
+            foreach (var segment in root.Segments)
             {
                 var a = segment.Frame.translation;
-                var b = a + segment.Length * segment.Frame.scaleAndRot.GetColumn(3);
+                var b = a + segment.Length * segment.Frame.scaleAndRot.GetColumn(2);
                 ParametricShape1D segmentParametric = new ParametricShape1D()
                 {
-                    Divisions=2,
-                    Start=0,
-                    End=1,
+                    Divisions = 1,
+                    Start =0,
+                    End = 1,
                     Path = s =>
                     {
                         return s * b + (1 - s) * a;
@@ -146,13 +177,13 @@ namespace TreeGen
                 };
 
                 Matrix4x4 frame = segment.Frame.scaleAndRot;
-                var tmp = frame.GetColumn(3);
-                frame.SetColumn(3, frame.GetColumn(0));
+                var tmp = frame.GetColumn(2);
+                frame.SetColumn(2, frame.GetColumn(0));
                 frame.SetColumn(0, tmp);
 
                 ParametricShape3D manifold3 = ManifoldConverter.HyperCylinderify(
                     segmentParametric,
-                    s => 0.3f,
+                    s => s*segment.Rad1 + (1-s)*segment.Rad0,
                     s => frame
                 );
 
@@ -160,7 +191,7 @@ namespace TreeGen
                 mesh.Append(cylinder);
             }
 
-            foreach(var child in root.Children)
+            foreach (var child in root.Children)
             {
                 Render(child, mesh);
             }
