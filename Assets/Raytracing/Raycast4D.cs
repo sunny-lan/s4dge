@@ -26,7 +26,6 @@ public class Raycast4D : MonoBehaviour {
 	[SerializeField, Range(0, 64)] int numRaysPerPixel = 2;
 	[SerializeField, Min(0)] float defocusStrength = 0;
 	[SerializeField, Min(0)] float divergeStrength = 0.3f;
-	[SerializeField, Min(0)] float focusDistance = 1;
 
 	[Header("View Settings")]
 	[SerializeField] bool useShaderInSceneView;
