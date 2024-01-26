@@ -4,7 +4,11 @@
 
 Video that this shader is based on and hopefully we can adopt
 https://www.youtube.com/watch?v=Qz0KTGYJtUk
+https://github.com/SebLague/Ray-Tracing
 
+MIT License
+
+Copyright (c) 2023 Sebastian Lague
 
 `Raycast4D.cs` is the initialization script for the scene.
 `RayTracingStructs.cginc` contains all common structs
