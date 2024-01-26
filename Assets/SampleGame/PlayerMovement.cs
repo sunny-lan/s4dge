@@ -31,10 +31,7 @@ public class PlayerMovement : MonoBehaviour
 
         cam4D = GetComponentInChildren<Camera4D>();
 
-        sliceRenderer = GetComponent<SliceRenderer>();
-
         grappleLine = ScriptableObject.CreateInstance<InterpolationBasedShape>();
-        sliceRenderer.Shape = null;
     }
 
     // listen to all collision events in children and self
@@ -85,7 +82,6 @@ public class PlayerMovement : MonoBehaviour
 
     Vector4? hookPoint = null;
     public float grapplingVelocity = 10;
-    SliceRenderer sliceRenderer;
 
     InterpolationBasedShape grappleLine;
     public float grappleMinW = 0, grappleMaxW = 0;
@@ -178,8 +174,6 @@ public class PlayerMovement : MonoBehaviour
             new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start2, start4, end4, end2 }),
             new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start3, start4, end4, end3 }),
         };
-
-        sliceRenderer.Shape = grappleLine;
     }
 
     int groundLayerMask;
@@ -435,7 +429,6 @@ public class PlayerMovement : MonoBehaviour
             if (Util.Angle(cam4D.t4d.forward, dir) > Mathf.PI / 2 || Vector4.Magnitude(delta) <= 1e-1)
             {
                 hookPoint = null;
-                sliceRenderer.Shape = null;
             }
             else
             {
