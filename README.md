@@ -1,7 +1,14 @@
 # S4DGE
 Welcome to S4DGE, a Unity extension for rendering of 4D objects and spaces in your games, written in C# and HLSL.
 
-This is an early preview of the project, which will open for contributions as an open source project in April 2024. It was developed by a group of Software Engineering students at the University of Waterloo as a capstone project.
+This is an early preview of the project for demonstration purposes only, the project will be publicly available as an open source project in April 2024. It was developed by a group of Software Engineering students at the University of Waterloo as a capstone project.
+
+AUTHORED BY: 
+https://github.com/royi-luo
+https://github.com/sunny-lan
+https://github.com/lukeKlassen
+https://github.com/boonboonsiri
+https://github.com/RichardYSun
 
 # Overview
 The S4DGE system includes two renderers for 4D Game Objects for comparing and verifying rendered results, though both renders have unique advantages. In general, the **Rasterizer** will be more performant and combatible with existing projects.
