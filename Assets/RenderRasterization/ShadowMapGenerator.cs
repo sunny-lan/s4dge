@@ -61,8 +61,6 @@ namespace RasterizationRenderer
             }
             else
             {
-                UpdateVisibleShadowMap(enableShadows);
-
                 if (sceneTetMeshRenderers == null)
                 {
                     UpdateTetMeshList();
@@ -83,6 +81,8 @@ namespace RasterizationRenderer
                 }
 
                 shadowsEnabled = true;
+
+                UpdateVisibleShadowMap(enableShadows);
             }
         }
 
