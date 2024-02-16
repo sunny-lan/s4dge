@@ -26,6 +26,8 @@ Shader "Rasterize4D"
             #include "UnityCG.cginc"
             #include "VertexShaderUtils.cginc"
 
+            #define MAX_NUM_LIGHTS 5
+
             /*
             * Struct definitions
             */
@@ -40,15 +42,19 @@ Shader "Rasterize4D"
                 float4 vertex : POSITION;
                 float4 normal : NORMAL;
                 float4 vertexWorld: TEXCOORD1;
+                float4 vertexLight0: TEXCOORD2;
+                float4 vertexLight1: TEXCOORD3;
             };
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
                 float4 normal : NORMAL;
-                float4 vertexWorld : TEXCOORD1;
-                float4 lightSpaceVertex: TEXCOORD2;
-                float lightSpaceDepth: DEPTH1;
+                float4 vertexWorld: TEXCOORD1;
+                float4 lightSpaceVertex0: TEXCOORD2;
+                float4 lightSpaceVertex1: TEXCOORD3;
+                float lightSpaceDepth0: DEPTH1;
+                float lightSpaceDepth1: DEPTH2;
             };
 
             /*
@@ -105,12 +111,11 @@ Shader "Rasterize4D"
                 o.normal = v.normal;
                 o.vertexWorld = v.vertexWorld;
 
-                float4 lightSpaceVertex = applyPerspectiveTransformation(
-                    applyTransform(v.vertexWorld, lightSources[0].worldToLightTransform)
-                );
-                float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
-                o.lightSpaceVertex = clipLightSpaceVertex;
-                o.lightSpaceDepth = o.lightSpaceVertex.z / o.lightSpaceVertex.w;
+                for (int lightIdx = 0; lightIdx < numLights; ++lightIdx) {
+                    float4 clipLightSpaceVertex = UnityObjectToClipPos(v.vertexLight0.xyw);
+                    o.lightSpaceVertex0 = clipLightSpaceVertex;
+                    o.lightSpaceDepth0 = o.lightSpaceVertex0.z / o.lightSpaceVertex0.w;
+                }
 
                 return o;
             }
@@ -145,11 +150,11 @@ Shader "Rasterize4D"
                     //    applyTransform(i.vertexWorld, lightSources[idx].worldToLightTransform)
                     //);
                     //float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
-                    float4 screenPos = ComputeScreenPos (i.lightSpaceVertex);
+                    float4 screenPos = ComputeScreenPos (i.lightSpaceVertex0);
                     fixed4 sampledDepth = tex2Dproj(_ShadowMap, screenPos).x; 
-                    float actualDepth = i.lightSpaceDepth;
+                    float actualDepth = i.lightSpaceDepth0;
 
-                    float4 clipLightSpaceVertex = i.lightSpaceVertex / i.lightSpaceVertex.w;
+                    float4 clipLightSpaceVertex = i.lightSpaceVertex0 / i.lightSpaceVertex0.w;
                     int shadowMultiplier = (actualDepth >= 0 && 
                         clipLightSpaceVertex.x >= -1 && clipLightSpaceVertex.x <= 1
                         && clipLightSpaceVertex.y >= -1 && clipLightSpaceVertex.y <= 1

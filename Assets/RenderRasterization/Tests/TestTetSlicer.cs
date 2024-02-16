@@ -70,8 +70,8 @@ public class TestTetSlicer
         var tetrahedraUnpacked = tets.SelectMany(tet => tet.tetPoints).ToArray();
         tetBuffer = RenderUtils.InitComputeBuffer(sizeof(int) * TetMesh4D.PTS_PER_TET, tetrahedraUnpacked);
         ComputeBuffer tetsLengthBuffer = RenderUtils.InitComputeBuffer(sizeof(int), new int[1] { tets.Length });
-        TetSlicer slicer = new(sliceShader, tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET);
-        var slicedTriangles = slicer.Render(vertexBuffer, tetBuffer, tetsLengthBuffer, zSlice);
+        TetSlicer slicer = new(sliceShader, tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET, 0);
+        var slicedTriangles = slicer.Render(vertexBuffer, vertexBuffer, tetBuffer, tetsLengthBuffer, zSlice);
         slicedTriangles.UpdateBufferLengths();
 
         int[] slicedTriBuffer = new int[expectedTris.Length];

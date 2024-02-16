@@ -42,7 +42,7 @@ public class TestTriangleMesh
         int[] indices1 = { 0, 0, 0 };
         int[] indices2 = { 0, 0, 0 };
 
-        triMesh.UpdateData(vertexData1, indices1);
+        triMesh.UpdateData(vertexData1, indices1, 0);
         Assert.That(Enumerable.SequenceEqual(triMesh.tMesh.triangles, indices1));
         GraphicsBuffer vertexBuf = triMesh.tMesh.GetVertexBuffer(0);
         float[] vertexDataActual1 = new float[vertexBuf.count * TetMesh4D.VertexData.SizeFloats];
@@ -50,7 +50,7 @@ public class TestTriangleMesh
         Assert.That(Enumerable.SequenceEqual(vertexData1, vertexDataActual1));
         Assert.That(Enumerable.SequenceEqual(indices1, triMesh.tMesh.triangles));
 
-        triMesh.UpdateData(vertexData2, indices2);
+        triMesh.UpdateData(vertexData2, indices2, 0);
         GraphicsBuffer vertexBuf2 = triMesh.tMesh.GetVertexBuffer(0);
         float[] vertexDataActual2 = new float[vertexBuf2.count * TetMesh4D.VertexData.SizeFloats];
         vertexBuf2.GetData(vertexDataActual2);
@@ -70,7 +70,7 @@ public class TestTriangleMesh
         };
         int[] indices = { 0, 1, 2 };
 
-        triMesh.UpdateData(vertexData, indices);
+        triMesh.UpdateData(vertexData, indices, 0);
 
         // try rendering to the tri mesh and make sure something renders
         Color clearColour = Color.clear;

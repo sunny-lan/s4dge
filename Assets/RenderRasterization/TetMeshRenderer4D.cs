@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 using v2;
 
 namespace RasterizationRenderer
@@ -64,40 +65,70 @@ namespace RasterizationRenderer
             culler?.OnDisable();
             tetSlicer?.OnDisable();
 
-            vertexShader = new(vertexShaderProgram, tetMesh.vertices);
+            vertexShader = new(vertexShaderProgram, tetMesh.vertices, lightSourceManager.LightSources);
             culler = new(cullShaderProgram, tetMesh.tets);
-            tetSlicer = new(sliceShaderProgram, tetMesh.tets.Length);
+            tetSlicer = new(sliceShaderProgram, tetMesh.tets.Length, lightSourceManager.LightSources.Count);
         }
 
-
-        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, ComputeBuffer vertexBuffer, ComputeBuffer tetDrawBuffer, ComputeBuffer numTetsBuffer)
+        public float[] PackTriangleVertexData(VariableLengthComputeBuffer triangleVertexBuffer, VariableLengthComputeBuffer lightSpaceTriangleVertexBuffer, int numLights)
         {
-            VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, tetDrawBuffer, numTetsBuffer, zSlice);
+            float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
+            float[] lightSpaceVertexData = new float[lightSpaceTriangleVertexBuffer.Count * 4 * numLights];
+
+            triangleVertexBuffer.Buffer.GetData(triangleVertexData);
+            lightSpaceTriangleVertexBuffer.Buffer.GetData(lightSpaceVertexData);
+
+            float[] ret = new float[triangleVertexData.Length + lightSpaceVertexData.Length];
+
+            int floatsPerVertex = TetMesh4D.VertexData.SizeFloats + 4;
+
+            Assert.IsTrue(triangleVertexBuffer.Count == lightSpaceTriangleVertexBuffer.Count);
+            for (int i = 0; i < triangleVertexBuffer.Count; ++i)
+            {
+                for (int j = 0; j < TetMesh4D.VertexData.SizeFloats; ++j)
+                {
+                    ret[i * floatsPerVertex + j] = triangleVertexData[i * TetMesh4D.VertexData.SizeFloats + j];
+                }
+                for (int j = 0; j < 4; ++j)
+                {
+                    ret[i * floatsPerVertex + TetMesh4D.VertexData.SizeFloats + j] = lightSpaceVertexData[i * 4 + j];
+                }
+            }
+
+            //Debug.Log("num vertices: " + ret.Length / 16 + ", " + triangleVertexBuffer.Count);
+
+            return ret;
+        }
+
+        public (int[] triangleData, float[] vertexData) GenerateTriangleMesh(float zSlice, ComputeBuffer vertexBuffer, ComputeBuffer lightSpaceVertexBuffer, ComputeBuffer tetDrawBuffer, ComputeBuffer numTetsBuffer)
+        {
+            VariableLengthComputeBuffer.BufferList trianglesToDraw = tetSlicer.Render(vertexBuffer, lightSpaceVertexBuffer, tetDrawBuffer, numTetsBuffer, zSlice);
             trianglesToDraw.UpdateBufferLengths();
 
             VariableLengthComputeBuffer triangleBuffer = trianglesToDraw.Buffers[0];
             VariableLengthComputeBuffer triangleVertexBuffer = trianglesToDraw.Buffers[1];
+            VariableLengthComputeBuffer lightSpaceTriangleVertexBuffer = trianglesToDraw.Buffers[2];
 
             int[] triangleData = new int[triangleBuffer.Count * TetSlicer.PTS_PER_TRIANGLE];
-            float[] triangleVertexData = new float[triangleVertexBuffer.Count * TetMesh4D.VertexData.SizeFloats];
+
 
             triangleBuffer.Buffer.GetData(triangleData);
-            triangleVertexBuffer.Buffer.GetData(triangleVertexData);
 
-            return (triangleData, triangleVertexData);
+
+            return (triangleData, PackTriangleVertexData(triangleVertexBuffer, lightSpaceTriangleVertexBuffer, lightSourceManager.LightSources.Count));
         }
 
-        public (ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices(
+        public (ComputeBuffer, ComputeBuffer, ComputeBuffer, ComputeBuffer) TransformAndCullVertices(
             TransformMatrixAffine4D worldToCameraTransform, float farClipPlane, float nearClipPlane)
         {
             Camera camera3D = Camera4D.main.camera3D;
 
-            ComputeBuffer vertexBuffer = vertexShader.Render(
-                worldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
-                modelWorldTransform4D.localToWorldMatrix,
-                Matrix4x4.identity,
-                farClipPlane, nearClipPlane
-            );
+            var (vertexBuffer, lightSpaceVertexBuffer) = vertexShader.Render(
+                            worldToCameraTransform * modelWorldTransform4D.localToWorldMatrix,
+                            modelWorldTransform4D.localToWorldMatrix,
+                            Matrix4x4.identity,
+                            farClipPlane, nearClipPlane
+                        );
 
             ComputeBuffer tetDrawBuffer;
             ComputeBuffer numTetsBuffer;
@@ -115,7 +146,7 @@ namespace RasterizationRenderer
                 numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET });
             }
 
-            return (vertexBuffer, tetDrawBuffer, numTetsBuffer);
+            return (vertexBuffer, lightSpaceVertexBuffer, tetDrawBuffer, numTetsBuffer);
         }
 
         // Generate triangle mesh
@@ -137,13 +168,13 @@ namespace RasterizationRenderer
                     renderMesh.Reset();
                 }
 
-                var (vertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices(worldToCameraTransform, farClipPlane, nearClipPlane);
+                var (vertexBuffer, lightSpaceVertexBuffer, tetDrawBuffer, numTetsBuffer) = TransformAndCullVertices(worldToCameraTransform, farClipPlane, nearClipPlane);
 
                 for (float zSlice = zSliceStart; zSlice <= zSliceStart + zSliceLength; zSlice += zSliceInterval)
                 {
-                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vertexBuffer, tetDrawBuffer, numTetsBuffer);
+                    (int[] triangleData, float[] vertexData) = GenerateTriangleMesh(zSlice, vertexBuffer, lightSpaceVertexBuffer, tetDrawBuffer, numTetsBuffer);
                     //RenderUtils.PrintTriMeshData(vertexData, triangleData);
-                    renderMesh.UpdateData(vertexData, triangleData);
+                    renderMesh.UpdateData(vertexData, triangleData, lightSourceManager.LightSources.Count);
                 }
 
 

@@ -4,7 +4,9 @@
 
 StructuredBuffer<VertexData> vertices;
 RWStructuredBuffer<VertexData> transformedVertices;
+RWStructuredBuffer<float4> transformedLightPos; // gets the position of the vertex in the camera space of a light
 uint vertexCount;
+uint numLights;
 
 [numthreads(64,1,1)]
 void vert (uint3 id : SV_DispatchThreadID)
@@ -17,5 +19,10 @@ void vert (uint3 id : SV_DispatchThreadID)
         transformed4D.normal = applyScaleAndRot(vertices[id.x].normal, modelViewScaleAndRot4D);
         transformed4D.worldPos = applyTranslation(applyScaleAndRot(vertices[id.x].pos, modelWorldScaleAndRot4D), modelWorldTranslation4D);
         transformedVertices[id.x] = transformed4D;
+
+        for(uint lightIdx = 0; lightIdx < numLights; ++lightIdx){
+            transformedLightPos[vertexCount * lightIdx + id.x] = 
+                applyTranslation(applyScaleAndRot(vertices[id.x].pos, modelLightScaleAndRot4D[lightIdx]), modelLightTranslation4D[lightIdx]);
+        }
     }
 }

@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Rendering;
 using v2;
 using static RasterizationRenderer.TetMesh4D;
@@ -20,25 +22,40 @@ public class TriangleMesh : MonoBehaviour
     }
     public Material material;
     int curVertexCount = 0;
-    public void UpdateData(float[] newVertexData, int[] newTriangleData)
+    public void UpdateData(float[] newVertexData, int[] newTriangleData, int numLights)
     {
-        int numNewVertices = newVertexData.Length / VertexData.SizeFloats;
+        //numLights = 0;
+        int vertexDataSize = VertexData.SizeFloats + 4 * numLights;
+
+        int numNewVertices = newVertexData.Length / vertexDataSize;
+        //Debug.Log("updating mesh, curVertexCount: " + curVertexCount + ", numNewVertices: " + numNewVertices);
         int curSubmesh = mesh.subMeshCount;
         ++mesh.subMeshCount;
 
         // Override vertex buffer params so that position, normal take in 4D vectors
+        List<VertexAttributeDescriptor> vertexBufferFields = new List<VertexAttributeDescriptor>
+        {
+            new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 4),
+            new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 4),
+            new VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexAttributeFormat.Float32, 4)
+        };
+
+        VertexAttribute[] texcoords = { VertexAttribute.TexCoord2, VertexAttribute.TexCoord3, VertexAttribute.TexCoord4, VertexAttribute.TexCoord5, VertexAttribute.TexCoord6 };
+        Assert.IsTrue(numLights <= texcoords.Length);
+        for (int i = 0; i < numLights; ++i)
+        {
+            vertexBufferFields.Add(new VertexAttributeDescriptor(texcoords[i], VertexAttributeFormat.Float32, 4));
+        }
+
+        //Debug.Log("bytes per vertex: " + vertexBufferFields.Count * 4);
+
         mesh.SetVertexBufferParams(
             curVertexCount + numNewVertices,
-            new[]
-            {
-                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 4),
-                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 4),
-                new VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexAttributeFormat.Float32, 4),
-            }
+            vertexBufferFields.ToArray()
         );
 
         // Set vertices, normals for the mesh
-        mesh.SetVertexBufferData(newVertexData, 0, curVertexCount * VertexData.SizeFloats, newVertexData.Length);
+        mesh.SetVertexBufferData(newVertexData, 0, curVertexCount * vertexDataSize, newVertexData.Length);
 
         // Set tetrahedra vertex indices for mesh
         mesh.SetTriangles(newTriangleData, curSubmesh, false, curVertexCount);

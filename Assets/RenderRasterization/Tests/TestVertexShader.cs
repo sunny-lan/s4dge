@@ -2,6 +2,7 @@ using NUnit.Framework;
 using NUnit.Framework.Internal;
 using RasterizationRenderer;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -48,14 +49,14 @@ public class TestVertexShader
 
     public void PerformIdentityTransformTest(TetMesh4D.VertexData[] vertices)
     {
-        VertexShader vertexTransformer = new(vertexShader, vertices);
+        VertexShader vertexTransformer = new(vertexShader, vertices, new List<LightSource4D>());
         float inf = 1e6f;
         TransformMatrixAffine4D transform = new()
         {
             scaleAndRot = Matrix4x4.identity,
             translation = Vector4.zero,
         };
-        ComputeBuffer transformedVertexBuffer = vertexTransformer.Render(transform, transform, Matrix4x4.identity, inf, 0.0f);
+        (ComputeBuffer transformedVertexBuffer, ComputeBuffer transformedLightSpaceVertexBuffer) = vertexTransformer.Render(transform, transform, Matrix4x4.identity, inf, 0.0f);
 
         float[] transformedVertexData = new float[vertices.Length * TetMesh4D.VertexData.SizeFloats];
         transformedVertexBuffer.GetData(transformedVertexData);

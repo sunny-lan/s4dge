@@ -1,24 +1,31 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel TetrahedronSlicer
 
-#define VL_BUFFER_COUNT 2
+#define VL_BUFFER_COUNT 3
+#define MAX_LIGHT_COUNT 5
 
 #include "SlicerUtils.cginc"
 #include "VariableLengthBufferUtils.cginc"
 #include "VertexShaderUtils.cginc"
 
 StructuredBuffer<VertexData> transformedVertices;
+StructuredBuffer<float4> lightSpaceTransformedVertices;
 StructuredBuffer<Tet4D> tetsToDraw;
 
 groupshared VLComputeBuffer triangleVerticesManager;
 RWStructuredBuffer<VertexData> triangleVertices;
 
+groupshared VLComputeBuffer lightSpaceTriangleVerticesManager;
+RWStructuredBuffer<float4> lightSpaceTriangleVertices;
+
 groupshared VLComputeBuffer slicedTrianglesManager;
 RWStructuredBuffer<Triangle> slicedTriangles;
 StructuredBuffer<uint> numTets;
+uint numLights, maxNumTriangleVertices, maxNumTransformedVertices;
 
 struct TetIntersection {
     VertexData points[4];
+    float4 lightSpacePoints[MAX_LIGHT_COUNT][4];
     Triangle triangles[2];
     uint numPoints;
     uint numTriangles;
@@ -63,13 +70,25 @@ TetIntersection PerformSlice(uint3 globalId) {
                 float4 n0 = v0.normal;
                 float4 n1 = v1.normal;
 
-                float4 wp0 = v0.worldPos;
-                float4 wp1 = v1.worldPos;
-
                 ret.points[edgeIdx].pos = LerpVByPZ(p0, p1, p0, p1);
                 ret.points[edgeIdx].normal = LerpVByPZ(n0, n1, p0, p1);
                 ret.points[edgeIdx].normal = ((length(ret.points[edgeIdx].normal) == 0) ? ret.points[edgeIdx].normal : normalize(ret.points[edgeIdx].normal));
-                ret.points[edgeIdx].worldPos = LerpVByPZ(wp0, wp1, p0, p1);
+
+                [unroll]
+                for (uint lightIdx = 0; lightIdx < MAX_LIGHT_COUNT; ++lightIdx) {
+                    if (lightIdx < numLights) {
+                        float4 lightSpacePts[4] = {
+                            lightSpaceTransformedVertices[maxNumTransformedVertices * lightIdx + tetsToDraw[globalId.x].vertexIndices[0]],
+                            lightSpaceTransformedVertices[maxNumTransformedVertices * lightIdx + tetsToDraw[globalId.x].vertexIndices[1]],
+                            lightSpaceTransformedVertices[maxNumTransformedVertices * lightIdx + tetsToDraw[globalId.x].vertexIndices[2]],
+                            lightSpaceTransformedVertices[maxNumTransformedVertices * lightIdx + tetsToDraw[globalId.x].vertexIndices[3]],
+                        };
+
+                        float4 l0 = lightSpacePts[intersectingEdges[edgeIdx + rowStartIndex].x];
+                        float4 l1 = lightSpacePts[intersectingEdges[edgeIdx + rowStartIndex].y];
+                        ret.lightSpacePoints[lightIdx][edgeIdx] = LerpVByPZ(l0, l1, p0, p1);
+                    }
+                }
             }
 
             // Add triangle
@@ -98,23 +117,32 @@ void TetrahedronSlicer(uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_
 {
     slicedTrianglesManager.Init(globalId, threadId, 0);
     triangleVerticesManager.Init(globalId, threadId, 1);
+    lightSpaceTriangleVerticesManager.Init(globalId, threadId, 2);
     GroupMemoryBarrierWithGroupSync(); // wait for all threads to reach this stage
 
     TetIntersection intersection = PerformSlice(globalId);
 
     uint localTriangleIndex = slicedTrianglesManager.IncreaseLocalAppendIdx(intersection.numTriangles);
     uint localPointIndex = triangleVerticesManager.IncreaseLocalAppendIdx(intersection.numPoints);
+    uint localLightSpacePointIndex = lightSpaceTriangleVerticesManager.IncreaseLocalAppendIdx(intersection.numPoints);
     GroupMemoryBarrierWithGroupSync();
 
     slicedTrianglesManager.IncreaseGlobalAppendIdx(threadId);
     triangleVerticesManager.IncreaseGlobalAppendIdx(threadId);
+    lightSpaceTriangleVerticesManager.IncreaseGlobalAppendIdx(threadId);
     GroupMemoryBarrierWithGroupSync();
     uint groupTriangleIdx = slicedTrianglesManager.GetGroupAppendIdx();
     uint groupPointIdx = triangleVerticesManager.GetGroupAppendIdx();
+    uint groupLightSpacePointIdx = lightSpaceTriangleVerticesManager.GetGroupAppendIdx();
 
     // Set the points for the current tetrahedron intersection
     for (uint pointIdx = 0; pointIdx < intersection.numPoints; ++pointIdx) {
-        triangleVertices[groupPointIdx + localPointIndex + pointIdx] = intersection.points[pointIdx];
+        uint globalPointIdx = groupPointIdx + localPointIndex + pointIdx;
+        triangleVertices[globalPointIdx] = intersection.points[pointIdx];
+
+        for (uint lightIdx = 0; lightIdx < numLights; ++lightIdx) {
+            lightSpaceTriangleVertices[maxNumTriangleVertices * lightIdx + globalPointIdx] = intersection.lightSpacePoints[lightIdx][pointIdx];
+        }
     }
 
     // Set the triangles for the current tetrahedron intersection

@@ -3,6 +3,9 @@
 
 // UNIFORM VARIABLES
 
+StructuredBuffer<float4x4> modelLightScaleAndRot4D;
+StructuredBuffer<float4> modelLightTranslation4D;
+
 float4x4 modelWorldScaleAndRot4D;
 float4 modelWorldTranslation4D;
 
@@ -21,7 +24,7 @@ float nearW; // camera viewport plane at w = nearW
 struct VertexData {
 	float4 pos: POSITION;
 	float4 normal: NORMAL;
-	float4 worldPos: POSITION1;
+	float4 worldPos: NORMAL;
 };
 
 struct Transform4D {
@@ -31,15 +34,15 @@ struct Transform4D {
 
 // FUNCTIONS
 
-float4 applyScaleAndRot(float4 v, float4x4 scaleAndRot) {
+float4 applyScaleAndRot(float4 v, const float4x4 scaleAndRot) {
 	return mul(scaleAndRot, v);
 }
 
-float4 applyTranslation(float4 v, float4 translation) {
+float4 applyTranslation(float4 v, const float4 translation) {
 	return v + translation;
 }
 
-float4 applyTransform(float4 v, Transform4D transform) {
+float4 applyTransform(float4 v, const Transform4D transform) {
     return applyTranslation(applyScaleAndRot(v, transform.scaleAndRot), transform.translation);
 }
 
