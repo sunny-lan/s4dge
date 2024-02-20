@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace RasterizationRenderer
@@ -34,36 +35,31 @@ namespace RasterizationRenderer
             [SerializeField]
             public Vector4 worldPosition4D;
 
-            public VertexData(Vector4 position)
+            [SerializeField]
+            public Vector4 colour;
+
+            public VertexData(Vector4 position):this(position, Vector4.zero)
             {
-                this.position = position;
-                this.normal = Vector4.zero;
-                this.worldPosition4D = Vector4.zero;
             }
 
-            public VertexData(Vector4 position, Vector4 normal)
+            public VertexData(Vector4 position, Vector4 normal):this(position,normal,Vector4.zero)
             {
-                this.position = position;
-                this.normal = normal;
-                this.worldPosition4D = Vector4.zero;
+			}
+
+            public VertexData(Vector4 position, Vector4 normal, Vector4 worldPosition4D):this(position,normal,worldPosition4D, Vector4.zero)
+            {
+			}
+
+			public VertexData(Vector4 position, Vector4 normal, Vector4 worldPosition4D, Vector4 colour)
+			{
+				this.position = position;
+				this.normal = normal;
+				this.worldPosition4D = worldPosition4D;
+                this.colour = colour;
             }
 
-            public VertexData(Vector4 position, Vector4 normal, Vector4 worldPosition4D)
-            {
-                this.position = position;
-                this.normal = normal;
-                this.worldPosition4D = worldPosition4D;
-            }
-
-            public static int SizeFloats
-            {
-                get => 12;
-            }
-
-            public static int SizeBytes
-            {
-                get => sizeof(float) * SizeFloats;
-            }
+            public static int SizeBytes = Marshal.SizeOf<VertexData>();
+            public static int SizeFloats = SizeBytes / sizeof(float);
 
             public static VertexData[] ReadFromFloatArr(float[] arr)
             {
@@ -73,8 +69,9 @@ namespace RasterizationRenderer
                     ret.Add(new(
                         new(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]),
                         new(arr[i + 4], arr[i + 5], arr[i + 6], arr[i + 7]),
-                        new(arr[i + 8], arr[i + 9], arr[i + 10], arr[i + 11])
-                    ));
+                        new(arr[i + 8], arr[i + 9], arr[i + 10], arr[i + 11]),
+						new(arr[i + 12], arr[i + 13], arr[i + 14], arr[i + 15])
+					));
                 }
                 return ret.ToArray();
             }
