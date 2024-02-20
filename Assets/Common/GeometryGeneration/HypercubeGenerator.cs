@@ -23,7 +23,7 @@ public class HypercubeGenerator
         // hypercube is formed by 8 bounding 3-cubes
         Vector4[] colors = new Vector4[]
 		{
-			new(0,0,0,1),
+			new(0.5f,0.5f,0.5f,1),
 			new(0,0,1,1),
 			new(0,1,0,1),
 			new(0,1,1,1),
@@ -34,19 +34,19 @@ public class HypercubeGenerator
 		};
 
         //left and right
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[0], new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[0], new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output, -1);
         Generate3Cube(new(1, 0, 0, 0), Vector3.one, colors[1], new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
 		//top and bottom
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[2], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[2], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output, -1);
 		Generate3Cube(new(0, 1, 0, 0), Vector3.one, colors[3], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
 		//front and back
-		Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[4], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
+		Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[4], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output, -1);
 		Generate3Cube(new(0, 0, 1, 0), Vector3.one, colors[5], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
 
 		//past and future
-		Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[6], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
+		Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[6], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output, -1);
 		Generate3Cube(new(0, 0, 0, 1), Vector3.one, colors[7], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
 	}
 
@@ -62,11 +62,11 @@ public class HypercubeGenerator
     public static void Generate3Cube(
         Vector4 start, Vector3 dims, Vector4 colour,
         Vector4 x_unit, Vector4 y_unit, Vector4 z_unit,
-        TetMesh_raw output
+        TetMesh_raw output, int normalMultiplier = 1
     )
     {
         int v0_idx = output.vertices.Count;
-        var normal = Util.CrossProduct4D(x_unit, y_unit, z_unit);
+        var normal = Util.CrossProduct4D(x_unit, y_unit, z_unit) * normalMultiplier;
 
 		//generate edges of cube in binary order
 		for (int i = 0; i < (1 << 3); i++)
