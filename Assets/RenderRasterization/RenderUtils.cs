@@ -87,8 +87,9 @@ namespace RasterizationRenderer
                 ret[i / TetMesh4D.VertexData.SizeFloats] = new(
                     V4FromRawData(dataList.GetRange(i, 4).ToArray()),
                     V4FromRawData(dataList.GetRange(i + 4, 4).ToArray()),
+                    V4FromRawData(dataList.GetRange(i + 12, 4).ToArray()),
                     V4FromRawData(dataList.GetRange(i + 8, 4).ToArray())
-                );
+				);
             }
             return ret;
         }

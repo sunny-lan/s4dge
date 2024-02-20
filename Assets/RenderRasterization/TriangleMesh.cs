@@ -33,8 +33,8 @@ public class TriangleMesh : MonoBehaviour
             {
                 new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 4),
                 new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 4),
-				new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.Float32, 4),
-                new VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexAttributeFormat.Float32, 4),
+				new VertexAttributeDescriptor(VertexAttribute.TexCoord1, VertexAttributeFormat.Float32, 4),
+                new VertexAttributeDescriptor(VertexAttribute.TexCoord2, VertexAttributeFormat.Float32, 4),
 			}
         );
 
@@ -43,6 +43,8 @@ public class TriangleMesh : MonoBehaviour
 
         // Set tetrahedra vertex indices for mesh
         mesh.SetTriangles(newTriangleData, curSubmesh, false, curVertexCount);
+
+
 
         curVertexCount += numNewVertices;
     }

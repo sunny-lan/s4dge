@@ -39,8 +39,8 @@ Shader "Rasterize4D"
             {
                 float4 vertex : POSITION;
                 float4 normal : NORMAL;
-                float4 color: COLOR;
-                float4 vertexWorld: TEXCOORD1;
+                float4 color : TEXCOORD1;
+                float4 vertexWorld: TEXCOORD2;
             };
 
             struct v2f
@@ -48,7 +48,7 @@ Shader "Rasterize4D"
                 float4 vertex : SV_POSITION;
                 float4 normal : NORMAL;
                 float4 vertexWorld : TEXCOORD1;
-                float4 color : COLOR4;
+                float4 color : COLOR;
                 float4 lightSpaceVertex: TEXCOORD2;
                 float lightSpaceDepth: DEPTH1;
             };

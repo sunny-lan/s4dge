@@ -172,7 +172,7 @@ public class TestTetSlicer
     public void TestSlice3Cube()
     {
         TetMesh_raw rawTetMesh = new();
-        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one,
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(),
             new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
 
         Debug.Log("num tets: " + rawTetMesh.tets.Count());
