@@ -22,6 +22,7 @@ struct VertexData {
 	float4 pos: POSITION;
 	float4 normal: NORMAL;
 	float4 worldPos: POSITION1;
+	float4 color: COLOR4;
 };
 
 struct Transform4D {
