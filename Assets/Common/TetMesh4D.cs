@@ -31,12 +31,12 @@ namespace RasterizationRenderer
             [SerializeField]
             public Vector4 normal;
 
+            [SerializeField]
+            public Vector4 colour;
+
             // world position without 3D projection for lighting calculations
             [SerializeField]
             public Vector4 worldPosition4D;
-
-            [SerializeField]
-            public Vector4 colour;
 
             public VertexData(Vector4 position):this(position, Vector4.zero)
             {

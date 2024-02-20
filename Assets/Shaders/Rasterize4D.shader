@@ -39,6 +39,7 @@ Shader "Rasterize4D"
             {
                 float4 vertex : POSITION;
                 float4 normal : NORMAL;
+                float4 color: COLOR;
                 float4 vertexWorld: TEXCOORD1;
             };
 
@@ -47,6 +48,7 @@ Shader "Rasterize4D"
                 float4 vertex : SV_POSITION;
                 float4 normal : NORMAL;
                 float4 vertexWorld : TEXCOORD1;
+                float4 color : COLOR4;
                 float4 lightSpaceVertex: TEXCOORD2;
                 float lightSpaceDepth: DEPTH1;
             };
@@ -104,6 +106,7 @@ Shader "Rasterize4D"
 
                 o.normal = v.normal;
                 o.vertexWorld = v.vertexWorld;
+                o.color = v.color;
 
                 float4 lightSpaceVertex = applyPerspectiveTransformation(
                     applyTransform(v.vertexWorld, lightSources[0].worldToLightTransform)
@@ -157,7 +160,7 @@ Shader "Rasterize4D"
                         && actualDepth >= (sampledDepth - 5e-3)
                     );
 
-                    colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) * shadowMultiplier;
+                    colour += (i.color * lightIntensity * cosAngIncidence) * shadowMultiplier;
                     colour += (_GlobalSpecularColour * lightIntensitySqr * blinnTerm) * shadowMultiplier;
                 }
 
