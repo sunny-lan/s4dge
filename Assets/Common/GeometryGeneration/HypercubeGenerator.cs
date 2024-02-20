@@ -56,9 +56,10 @@ public class HypercubeGenerator
     )
     {
         int v0_idx = output.vertices.Count;
+        var normal = Util.CrossProduct4D(x_unit, y_unit, z_unit);
 
-        //generate edges of cube in binary order
-        for (int i = 0; i < (1 << 3); i++)
+		//generate edges of cube in binary order
+		for (int i = 0; i < (1 << 3); i++)
         {
             int z = (i >> 0) & 1;
             int y = (i >> 1) & 1;
@@ -70,7 +71,7 @@ public class HypercubeGenerator
             output.vertices.Add(new()
             {
                 position = pt.x * x_unit + pt.y * y_unit + pt.z * z_unit + start,
-                //TODO normal
+                normal = normal
             });
         }
 
