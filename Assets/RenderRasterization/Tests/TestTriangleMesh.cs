@@ -27,7 +27,7 @@ public class TestTriangleMesh
     }
 
     // triangle mesh should automatically adjust the tet indices for subsequent calls to UpdateData()
-    int[] expectedIndices2 = { 1, 1, 1 };
+    int[] expectedIndices2 = { 3,3,3 };
 
     [UnityTearDown]
     public void TearDown()
@@ -37,9 +37,9 @@ public class TestTriangleMesh
     [Test]
     public void TestUpdateData()
     {
-        float[] vertexData1 = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        float[] vertexData2 = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
-        int[] indices1 = { 0, 0, 0 };
+        float[] vertexData1 = Enumerable.Range(0, 3 * TetMesh4D.VertexData.SizeFloats).Select(x => 1.0f).ToArray();
+        float[] vertexData2 = Enumerable.Range(0, 3 * TetMesh4D.VertexData.SizeFloats).Select(x => 2.0f).ToArray();
+		int[] indices1 = { 0, 0, 0 };
         int[] indices2 = { 0, 0, 0 };
 
         triMesh.UpdateData(vertexData1, indices1);
@@ -64,10 +64,11 @@ public class TestTriangleMesh
     public void TestRenderToRenderTexture()
     {
         float[] vertexData = {
-            0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1,
-            1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1,
-            -1, 1, 0, 1, 0, 0, 0, 1, -1, 1, 0, 1
-        };
+            // pos, normal, color, worldpos 
+            0, 0, 0, 1, 0, 0, 0, 1,  1,1,1,1,  0, 0, 0, 1,   
+            1, 1, 0, 1, 0, 0, 0, 1,  1,1,1,1,  1, 1, 0, 1,   
+			-1, 1, 0, 1, 0, 0, 0, 1, 1,1,1,1,  -1, 1, 0, 1, 
+		};
         int[] indices = { 0, 1, 2 };
 
         triMesh.UpdateData(vertexData, indices);
