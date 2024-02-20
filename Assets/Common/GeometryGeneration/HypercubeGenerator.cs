@@ -37,18 +37,18 @@ public class HypercubeGenerator
         Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[0], new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
         Generate3Cube(new(1, 0, 0, 0), Vector3.one, colors[1], new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
-        //top and bottom
+		//top and bottom
         Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[2], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
-        Generate3Cube(new(0, 1, 0, 0), Vector3.one, colors[3], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+		Generate3Cube(new(0, 1, 0, 0), Vector3.one, colors[3], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
-        //front and back
-        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[4], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
-        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[5], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
+		//front and back
+		Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[4], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
+		Generate3Cube(new(0, 0, 1, 0), Vector3.one, colors[5], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
 
-        //past and future
-        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[6], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
-        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[7], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
-    }
+		//past and future
+		Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[6], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
+		Generate3Cube(new(0, 0, 0, 1), Vector3.one, colors[7], new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
+	}
 
     /// <summary>
     /// Adds a 3-cube to the given mesh
