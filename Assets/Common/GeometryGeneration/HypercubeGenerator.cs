@@ -71,7 +71,8 @@ public class HypercubeGenerator
             output.vertices.Add(new()
             {
                 position = pt.x * x_unit + pt.y * y_unit + pt.z * z_unit + start,
-                normal = normal
+                normal = normal,
+                colour=new(1,0,0,1)
             });
         }
 
