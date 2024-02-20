@@ -125,7 +125,7 @@ Shader "Rasterize4D"
                 float4 vertex4D = applyWorldToCameraTransform(i.vertexWorld);
                 float4 fragNormal = normalize(i.normal);
 
-                fixed4 colour = _GlobalAmbientIntensity * _GlobalDiffuseColour;
+                fixed4 colour = _GlobalAmbientIntensity * i.c;
 
                 for (int idx = 0; idx < numLights; ++idx) {
                     float4 lightSource = applyWorldToCameraTransform(lightSources[idx].lightToWorldTransform.translation);
