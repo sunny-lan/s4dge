@@ -78,7 +78,7 @@ namespace RasterizationRenderer
 
             public override string ToString()
             {
-                return "(pos: " + position + ", norm: " + normal + ", worldPos: " + worldPosition4D + ")";
+                return "(pos: " + position + ", norm: " + normal + ", worldPos: " + worldPosition4D + ", colour: " + colour + ")";
                 //return "(" + position + ")";
             }
         }

@@ -21,23 +21,33 @@ public class HypercubeGenerator
     public static void GenerateHypercubeTmp(TetMesh_raw output)
     {
         // hypercube is formed by 8 bounding 3-cubes
-
+        Vector4[] colors = new Vector4[]
+		{
+			new(0,0,0,1),
+			new(0,0,1,1),
+			new(0,1,0,1),
+			new(0,1,1,1),
+            new(1,0,0,1),
+			new(1,0,1,1),
+			new(1,1,0,1),
+			new(1,1,1,1),
+		};
 
         //left and right
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
-        Generate3Cube(new(1, 0, 0, 0), Vector3.one, new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[0], new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        Generate3Cube(new(1, 0, 0, 0), Vector3.one, colors[1], new(0, 1, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
-        ////top and bottom
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
-        Generate3Cube(new(0, 1, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        //top and bottom
+        Generate3Cube(new(0, 0, 0, 0), Vector3.one, colors[2], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
+        Generate3Cube(new(0, 1, 0, 0), Vector3.one, colors[3], new(1, 0, 0, 0), new(0, 0, 1, 0), new(0, 0, 0, 1), output);
 
-        ////front and back
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
-        Generate3Cube(new(0, 0, 1, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 0, 1), output);
+        //front and back
+        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[4], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
+        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[5], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
 
         //past and future
-        Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
-        Generate3Cube(new(0, 0, 0, 1), Vector3.one, new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), output);
+        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[6], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
+        Generate3Cube(new(1, 0, 1, 1), Vector3.one, colors[7], new(1, 0, 0, 0), new(1, 1, 0, 1), new(1, 1, 1, 0), output);
     }
 
     /// <summary>
@@ -50,7 +60,7 @@ public class HypercubeGenerator
     /// <param name="z_unit">3rd axis of cube in 4D</param>
     /// <param name="output">The mesh to add the 3-cube to</param>
     public static void Generate3Cube(
-        Vector4 start, Vector3 dims,
+        Vector4 start, Vector3 dims, Vector4 colour,
         Vector4 x_unit, Vector4 y_unit, Vector4 z_unit,
         TetMesh_raw output
     )
@@ -72,7 +82,7 @@ public class HypercubeGenerator
             {
                 position = pt.x * x_unit + pt.y * y_unit + pt.z * z_unit + start,
                 normal = normal,
-                colour=new(1,0,0,1)
+                colour = colour
             });
         }
 
