@@ -23,14 +23,14 @@ public class HypercubeGenerator
         // hypercube is formed by 8 bounding 3-cubes
         Vector4[] colors = new Vector4[]
 		{
-			new(0.5f,0.5f,0.5f,1),
-			new(0,0,1,1),
+			new(1,1,0,1),
 			new(0,1,0,1),
 			new(0,1,1,1),
-            new(1,0,0,1),
+			new(0,0,1,1),
+            new(1,1,1,1),
 			new(1,0,1,1),
-			new(1,1,0,1),
-			new(1,1,1,1),
+			new(1,0.4f,0,1),
+			new(1,0,0,1),
 		};
 
         //left and right

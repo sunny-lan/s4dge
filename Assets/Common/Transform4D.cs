@@ -5,7 +5,7 @@ using UnityEngine;
 namespace v2
 {
 
-    public enum Rot4D
+    public enum Rot4D:int
     {
         xy = 0,
         xz,
