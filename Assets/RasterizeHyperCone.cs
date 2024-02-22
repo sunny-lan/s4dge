@@ -5,6 +5,8 @@ public class RasterizeHyperCone : RasterizeObject
 {
     public float thickness;
     public float samplingInterval;
+    public int coneEdges = 6;
+
     protected override void InitGeometry()
     {
         var line = new ParametricShape1D()
@@ -23,7 +25,7 @@ public class RasterizeHyperCone : RasterizeObject
             }
         };
 
-        var converted = ManifoldConverter.HyperCylinderify(line, s => s > 0 ? s : 0);
+        var converted = ManifoldConverter.HyperCylinderify(line, s => s > 0 ? s * thickness : 0, coneEdges);
 
         var mesh = MeshGenerator4D.GenerateTetMesh(converted.Equation, converted.Normal, converted.Bounds);
 
