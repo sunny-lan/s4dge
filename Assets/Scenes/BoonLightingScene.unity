@@ -567,12 +567,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 10.45, y: 0.12, z: 3.59, w: 0.2}
+  localPosition: {x: -1.11, y: 7.69, z: -9.25, w: 0}
   localRotation:
-  - -0.21
-  - 1.76
   - 0
-  - 0.37
+  - 0
+  - 0
+  - 0
   - 0
   - 0
   localScale: {x: 1, y: 1, z: 1, w: 1}
@@ -589,13 +589,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useRayTracedLighting: 1
-  maxBounceCount: 4
-  numRaysPerPixel: 10
+  maxBounceCount: 10
+  numRaysPerPixel: 2
   defocusStrength: 0
   divergeStrength: 0.3
   focusDistance: 1
   useShaderInSceneView: 1
   rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
+  accumulateShader: {fileID: 4800000, guid: 16d0ff87d6e364730865a85125facd95, type: 3}
+  numRenderedFrames: 0
   defaultMat:
     colour: {r: 0, g: 0, b: 0, a: 0}
     emissionColour: {r: 0, g: 0, b: 0, a: 0}
@@ -897,7 +899,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: -0.45587808, y: 10.45212, z: 4.5149636, w: 0}
+  localPosition: {x: -0.45587808, y: 6.9571133, z: -0.30003607, w: 0}
   localRotation:
   - 0
   - 0
