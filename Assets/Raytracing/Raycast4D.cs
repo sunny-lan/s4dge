@@ -30,13 +30,15 @@ public class Raycast4D : MonoBehaviour {
 	[Header("View Settings")]
 	[SerializeField] bool useShaderInSceneView;
     [SerializeField] bool accumulateAverageScene = false;
+    [SerializeField] float accumulateWeight = 1000.0f;
+
 
 	[SerializeField] Shader rayTracingShader;
 	[SerializeField] Shader accumulateShader;
 
+
     [SerializeField] int numRenderedFrames;
-
-
+    TransformMatrixAffine4D previousTransform;
 
 
 
@@ -73,10 +75,12 @@ public class Raycast4D : MonoBehaviour {
 
             if (accumulateAverageScene) { // Build up the average frame (can't handle movement)
 
-                if (Camera.current.name == "SceneCamera") {
-                    // apply scene view camera position/rotation to the t4d when rendering in scene view
-                    t4d.ApplyTransform3D(Camera.current.cameraToWorldMatrix);
+                if (previousTransform == t4d.localToWorldMatrix) { // camera still, weight lower so  cleaner image
+                    accumulateWeight = 10;
+                } else { // camera moving, weight less so less blur
+                    accumulateWeight = 2000;
                 }
+
 
                 // Create copy of prev frame
                 RenderTexture prevFrameCopy = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
@@ -90,6 +94,7 @@ public class Raycast4D : MonoBehaviour {
                 // Accumulate
                 accumulateMaterial.SetInt("_Frame", numRenderedFrames);
                 accumulateMaterial.SetTexture("_PrevFrame", prevFrameCopy);
+                accumulateMaterial.SetFloat("_Weight", accumulateWeight);
                 Graphics.Blit(currentFrame, resultTexture, accumulateMaterial);
 
                 // Draw result to screen
@@ -103,6 +108,10 @@ public class Raycast4D : MonoBehaviour {
                 RenderTexture.ReleaseTemporary(currentFrame);
 
                 numRenderedFrames += Application.isPlaying ? 1 : 0;
+
+                if (numRenderedFrames % 10 == 0) {
+                    previousTransform = t4d.localToWorldMatrix;
+                }
 
             } else {
 
