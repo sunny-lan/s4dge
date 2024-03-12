@@ -29,6 +29,8 @@ public class Raycast4D : MonoBehaviour {
 
 	[Header("View Settings")]
 	[SerializeField] bool useShaderInSceneView;
+    [SerializeField] bool accumulateAverageScene = false;
+
 	[SerializeField] Shader rayTracingShader;
 	[SerializeField] Shader accumulateShader;
 
@@ -69,32 +71,43 @@ public class Raycast4D : MonoBehaviour {
                 t4d.ApplyTransform3D(Camera.current.cameraToWorldMatrix);
             }
 
-			// Create copy of prev frame
-			RenderTexture prevFrameCopy = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
-			Graphics.Blit(resultTexture, prevFrameCopy);
+            if (accumulateAverageScene) { // Build up the average frame (can't handle movement)
 
-			// Run the ray tracing shader and draw the result to a temp texture
-			rayTracingMaterial.SetInt("Frame", numRenderedFrames);
-			RenderTexture currentFrame = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
-			Graphics.Blit(null, currentFrame, rayTracingMaterial);
+                if (Camera.current.name == "SceneCamera") {
+                    // apply scene view camera position/rotation to the t4d when rendering in scene view
+                    t4d.ApplyTransform3D(Camera.current.cameraToWorldMatrix);
+                }
 
-			// Accumulate
-			accumulateMaterial.SetInt("_Frame", numRenderedFrames);
-			accumulateMaterial.SetTexture("_PrevFrame", prevFrameCopy);
-			Graphics.Blit(currentFrame, resultTexture, accumulateMaterial);
+                // Create copy of prev frame
+                RenderTexture prevFrameCopy = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
+                Graphics.Blit(resultTexture, prevFrameCopy);
 
-			// Draw result to screen
-			Graphics.Blit(resultTexture, target);
+                // Run the ray tracing shader and draw the result to a temp texture
+                rayTracingMaterial.SetInt("Frame", numRenderedFrames);
+                RenderTexture currentFrame = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
+                Graphics.Blit(null, currentFrame, rayTracingMaterial);
 
-			// Release temps
-			RenderTexture.ReleaseTemporary(currentFrame);
-			RenderTexture.ReleaseTemporary(prevFrameCopy);
-			RenderTexture.ReleaseTemporary(currentFrame);
+                // Accumulate
+                accumulateMaterial.SetInt("_Frame", numRenderedFrames);
+                accumulateMaterial.SetTexture("_PrevFrame", prevFrameCopy);
+                Graphics.Blit(currentFrame, resultTexture, accumulateMaterial);
 
-			numRenderedFrames += Application.isPlaying ? 1 : 0;
+                // Draw result to screen
+                if (numRenderedFrames % 5 == 0) {
+                    Graphics.Blit(resultTexture, target);
+                }
 
-            Graphics.Blit(null, target, rayTracingMaterial); // old
+                // Release temps
+                RenderTexture.ReleaseTemporary(currentFrame);
+                RenderTexture.ReleaseTemporary(prevFrameCopy);
+                RenderTexture.ReleaseTemporary(currentFrame);
 
+                numRenderedFrames += Application.isPlaying ? 1 : 0;
+
+            } else {
+
+                Graphics.Blit(null, target, rayTracingMaterial); // old
+            }
         }
         else { // scene view no ratracing
             Graphics.Blit(src, target);
