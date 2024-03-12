@@ -14,6 +14,10 @@ public class TriangleMesh : MonoBehaviour
     }
 
     Mesh mesh;
+    public Mesh tMesh
+    {
+        get => mesh;
+    }
     public Material material;
     int curVertexCount = 0;
     public void UpdateData(float[] newVertexData, int[] newTriangleData)
@@ -81,27 +85,27 @@ public class TriangleMesh : MonoBehaviour
         DrawToTextureCmdBuf(rt, projectionMatrix, clearColour, clearTexture, renderMaterial);
     }
 
-    public void DrawToTextureNow(RenderTexture rt, Matrix4x4 projectionMatrix, Color clearColour, bool clearTexture, Material renderMaterial)
-    {
-        RenderTexture prevRT = RenderTexture.active;
-        RenderTexture.active = rt;
+    //public void DrawToTextureNow(RenderTexture rt, Matrix4x4 projectionMatrix, Color clearColour, bool clearTexture, Material renderMaterial)
+    //{
+    //    RenderTexture prevRT = RenderTexture.active;
+    //    RenderTexture.active = rt;
 
-        renderMaterial.SetPass(0);
+    //    renderMaterial.SetPass(0);
 
-        GL.PushMatrix();
-        GL.LoadProjectionMatrix(projectionMatrix);
-        if (clearTexture)
-        {
-            GL.Clear(true, true, clearColour);
-        }
-        for (int i = 0; i < mesh.subMeshCount; i++)
-        {
-            Graphics.DrawMeshNow(mesh, Matrix4x4.identity, i);
-        }
-        GL.PopMatrix();
+    //    GL.PushMatrix();
+    //    GL.LoadProjectionMatrix(projectionMatrix);
+    //    if (clearTexture)
+    //    {
+    //        GL.Clear(true, true, clearColour);
+    //    }
+    //    for (int i = 0; i < mesh.subMeshCount; i++)
+    //    {
+    //        Graphics.DrawMeshNow(mesh, Matrix4x4.identity, i);
+    //    }
+    //    GL.PopMatrix();
 
-        RenderTexture.active = prevRT;
-    }
+    //    RenderTexture.active = prevRT;
+    //}
 
     public void DrawToTextureCmdBuf(RenderTexture rt, Matrix4x4 projectionMatrix, Color clearColour, bool clearTexture, Material renderMaterial)
     {

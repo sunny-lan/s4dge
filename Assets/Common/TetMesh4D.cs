@@ -34,6 +34,13 @@ namespace RasterizationRenderer
             [SerializeField]
             public Vector4 worldPosition4D;
 
+            public VertexData(Vector4 position)
+            {
+                this.position = position;
+                this.normal = Vector4.zero;
+                this.worldPosition4D = Vector4.zero;
+            }
+
             public VertexData(Vector4 position, Vector4 normal)
             {
                 this.position = position;
@@ -74,7 +81,7 @@ namespace RasterizationRenderer
 
             public override string ToString()
             {
-                return "(pos: " + position + ", norm: " + normal + ")";
+                return "(pos: " + position + ", norm: " + normal + ", worldPos: " + worldPosition4D + ")";
                 //return "(" + position + ")";
             }
         }

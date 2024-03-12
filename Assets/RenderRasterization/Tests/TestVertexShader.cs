@@ -16,30 +16,25 @@ public class TestVertexShader
 
     TetMesh4D.VertexData[] vertexData = new TetMesh4D.VertexData[]
     {
-        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 0.0f, 0.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
-        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
-        new TetMesh4D.VertexData(new Vector4(1.0f, 0.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
-        new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, 1.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
-        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 0.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
-        new TetMesh4D.VertexData(new Vector4(1.0f, 0.0f, 0.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
-        new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, 0.0f, 1.0f), new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 0.0f, 0.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 1.0f, 1.0f)),
+        new TetMesh4D.VertexData(new Vector4(1.0f, 0.0f, 1.0f, 1.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, 1.0f, 1.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 0.0f, 0.0f, 1.0f)),
+        new TetMesh4D.VertexData(new Vector4(1.0f, 0.0f, 0.0f, 1.0f)),
+        new TetMesh4D.VertexData(new Vector4(0.0f, 1.0f, 0.0f, 1.0f)),
     };
 
     [UnitySetUp]
     public IEnumerator SetUp()
     {
-        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizationTestScene.unity", new LoadSceneParameters(LoadSceneMode.Single));
+        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizerTests.unity", new LoadSceneParameters(LoadSceneMode.Single));
         yield return null; // wait until scene finishes loading
 
-        foreach (var shader in Resources.FindObjectsOfTypeAll<ComputeShader>())
-        {
-            if (shader.name == "VertexShader")
-            {
-                vertexShader = shader;
-                break;
-            }
-        }
-        Assert.IsNotNull(vertexShader);
+        vertexShader = TestUtils.LoadShader("VertexShader");
+
+        // make normals, worldPos equal to pos
+        TestUtils.CopyPosToOtherFields(vertexData);
 
         vertexBuffer = RenderUtils.InitComputeBuffer(TetMesh4D.VertexData.SizeBytes, vertexData);
     }
@@ -51,27 +46,21 @@ public class TestVertexShader
         vertexBuffer = null;
     }
 
-    void AssertAlmostEqual(float expected, float actual)
-    {
-        Assert.Less(Mathf.Abs(expected - actual), 1e-3);
-    }
-
-
     public void PerformIdentityTransformTest(TetMesh4D.VertexData[] vertices)
     {
         VertexShader vertexTransformer = new(vertexShader, vertices);
         float inf = 1e6f;
-        TransformMatrixAffine4D transform = new v2.TransformMatrixAffine4D
+        TransformMatrixAffine4D transform = new()
         {
             scaleAndRot = Matrix4x4.identity,
             translation = Vector4.zero,
         };
         ComputeBuffer transformedVertexBuffer = vertexTransformer.Render(transform, transform, Matrix4x4.identity, inf, 0.0f);
 
-        float[] transformedVertexData = new float[vertices.Length * 8];
+        float[] transformedVertexData = new float[vertices.Length * TetMesh4D.VertexData.SizeFloats];
         transformedVertexBuffer.GetData(transformedVertexData);
 
-        Debug.Log(string.Join(",", transformedVertexData));
+        Debug.Log(string.Join("\n", RenderUtils.ParseRawMeshVertices(transformedVertexData)));
 
         float[] expectedVertexData = vertices.SelectMany(vert => new float[] {
             vert.position.x,
@@ -82,13 +71,17 @@ public class TestVertexShader
             vert.normal.y,
             vert.normal.z,
             vert.normal.w,
+            vert.position.x,
+            vert.position.y,
+            vert.position.z,
+            vert.position.w,
         }).ToArray();
 
         Assert.AreEqual(transformedVertexData.Length, expectedVertexData.Length);
         for (int i = 0; i < expectedVertexData.Length; ++i)
         {
             Assert.True(!double.IsNaN(transformedVertexData[i]));
-            AssertAlmostEqual(expectedVertexData[i], transformedVertexData[i]);
+            TestUtils.AssertAlmostEqual(expectedVertexData[i], transformedVertexData[i]);
         }
 
         vertexTransformer.OnDisable();

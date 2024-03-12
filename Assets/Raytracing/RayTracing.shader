@@ -9,7 +9,7 @@ Shader "Custom/RayTracing"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "UnityCG.cginc"	
+			#include "UnityCG.cginc"
 			#include "RayTracingStructs.hlsl"
 			#include "Tet.hlsl"
 			#include "Hypercube.hlsl"
@@ -60,13 +60,13 @@ Shader "Custom/RayTracing"
 			float4 SkyColourZenith;
 			float SunFocus;
 			float SunIntensity;
-			
+
 			// Special material types
 			static const int CheckerPattern = 1;
 			static const int InvisibleLightSource = 2;
-			
 
-			// --- Buffers ---	
+
+			// --- Buffers ---
 			StructuredBuffer<Sphere> Spheres;
 			int NumSpheres;
 
@@ -90,7 +90,7 @@ Shader "Custom/RayTracing"
 			{
 				// Transform ray into local space of object
 				Ray localRay = TransformRay(ray, mesh.inverseTransform);
-	
+
 				for (int i = mesh.stIdx; i < mesh.edIdx; i++) {
 					Tet t;
 					int4 indices = Tets[i];
@@ -103,7 +103,7 @@ Shader "Custom/RayTracing"
 
 					HitInfo hitInfo = t.intersection(ray, localRay);
 					hitInfo.material = mesh.material;
-			
+
 					_compareHitInfo(closestHit, hitInfo);
 
 				}
@@ -123,7 +123,7 @@ Shader "Custom/RayTracing"
 			};
 
 			// --- RNG Stuff ---
-			
+
 			// PCG (permuted congruential generator). Thanks to:
 			// www.pcg-random.org and www.hlsltoy.com/view/XlGcRh
 			uint NextRandom(inout uint state)
@@ -177,7 +177,7 @@ Shader "Custom/RayTracing"
 				if (!EnvironmentEnabled) {
 					return 0;
 				}
-				
+
 				float skyGradientT = pow(smoothstep(0, 0.4, ray.dir3D().y), 0.35);
 				float groundToSkyT = smoothstep(-0.01, 0, ray.dir3D().y);
 				float3 skyGradient = lerp(SkyColourHorizon, SkyColourZenith, skyGradientT);
@@ -230,7 +230,7 @@ Shader "Custom/RayTracing"
 				for (int i = 0; i < NumHyperCubes; i++) {
 					Hypercube hypercube = HyperCubes[i];
 					HitInfo hitInfo = hypercube.intersection(ray);
-		
+
 					_compareHitInfo(closestHit, hitInfo);
 				}
 
@@ -269,7 +269,7 @@ Shader "Custom/RayTracing"
 						int triIndex = meshInfo.firstTriangleIndex + i;
 						Triangle tri = Triangles[triIndex];
 						HitInfo hitInfo = RayTriangle(ray, tri);
-	
+
 						if (hitInfo.didHit && hitInfo.dst < closestHit.dst)
 						{
 							closestHit = hitInfo;
@@ -315,28 +315,24 @@ Shader "Custom/RayTracing"
 					{
 						RayTracingMaterial material = hitInfo.material;
 						bool isSpecularBounce = material.specularProbability >= RandomValue(rngState);
-					
+
 						ray.origin = hitInfo.hitPoint;
 						float4 diffuseDir = normalize(hitInfo.normal + RandomDirection(rngState)); // Rotations were a bit messed up //TODO: Normal probably local space, need to be world space
 						float4 specularDir = reflect(ray.dir, hitInfo.normal);
 						ray.dir = normalize(lerp(diffuseDir, specularDir, material.smoothness * isSpecularBounce));
 
-						//TODO: DELETE boon testing
-						// ray.dir.x = 1;
-						// ray.dir.y = 1;
-						// ray.dir.z = 1;
 
 						// Update light calculations
 						float3 emittedLight = material.emissionColour * material.emissionStrength;
 						incomingLight += emittedLight * rayColour;
 						rayColour *= lerp(material.colour, material.specularColour, isSpecularBounce);
-						
+
 						// Random early exit if ray colour is nearly 0 (can't contribute much to final result)
 						float p = max(rayColour.r, max(rayColour.g, rayColour.b));
 						if (RandomValue(rngState) >= p) {
 							break;
 						}
-						rayColour *= 1.0f / p; 
+						rayColour *= 1.0f / p;
 					}
 					else
 					{
@@ -348,18 +344,20 @@ Shader "Custom/RayTracing"
 				return incomingLight;
 			}
 
-		
+
 			// Run for every pixel in the display
 			float4 frag (v2f i) : SV_Target
 			{
-				// Random 
+				// Random
 				if(UseRayTracedLighting)
 				{ // Boon Lighting, need to make better
 
 					uint2 numPixels = _ScreenParams.xy;
 					uint2 pixelCoord = i.uv * numPixels;
 					uint pixelIndex = pixelCoord.y * numPixels.x + pixelCoord.x;
-					uint rngState = pixelIndex;
+					// uint rngState = pixelIndex;
+					uint rngState = pixelIndex + Frame * 719393;
+
 
 
 					float3 viewPointLocal = float3(i.uv - 0.5, 1) * ViewParams;
@@ -376,6 +374,7 @@ Shader "Custom/RayTracing"
 						totalIncomingLight += Trace(ray, rngState);
 					}
 					float3 pixelCol = totalIncomingLight / NumRaysPerPixel;
+
 					return float4(pixelCol, 1);
 				}
 				else
@@ -390,7 +389,7 @@ Shader "Custom/RayTracing"
 
 					HitInfo collision = CalculateRayCollision(ray);
 
-					if (collision.didHit) 
+					if (collision.didHit)
 					{
 						if (collision.numHits % 2 == 1)
 						{
@@ -402,7 +401,7 @@ Shader "Custom/RayTracing"
 
 						return lerp(float4(0,0,0,0), collision.material.colour * tmp_lighting(collision.normal, collision.hitPoint), opacity); // Sending in opacity in w wasn't working, lerp towards black instead
 					}
-					
+
 					return collision.material.colour;
 
 				}
@@ -413,7 +412,7 @@ Shader "Custom/RayTracing"
 				// Old Lighting
 				// HitInfo collision = CalculateRayCollision(ray);
 
-				// if (collision.didHit) 
+				// if (collision.didHit)
 				// {
 				// 	if (collision.numHits % 2 == 1)
 				// 	{
@@ -425,11 +424,11 @@ Shader "Custom/RayTracing"
 
 				// 	return lerp(float4(0,0,0,0), collision.material.colour * tmp_lighting(collision.normal, collision.hitPoint), opacity); // Sending in opacity in w wasn't working, lerp towards black instead
 				// }
-				
+
 				// return collision.material.colour;
 
 			}
-			
+
 
 			ENDCG
 		}

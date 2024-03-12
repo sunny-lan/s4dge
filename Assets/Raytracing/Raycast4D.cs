@@ -30,8 +30,19 @@ public class Raycast4D : MonoBehaviour {
 	[Header("View Settings")]
 	[SerializeField] bool useShaderInSceneView;
 	[SerializeField] Shader rayTracingShader;
-	
+	[SerializeField] Shader accumulateShader;
+
+    [SerializeField] int numRenderedFrames;
+
+
+
+
+
     Material rayTracingMaterial;
+    Material accumulateMaterial;
+	RenderTexture resultTexture;
+
+
     public Transform4D t4d { get; private set; }
     public RayTracingMaterial defaultMat;
 
@@ -58,9 +69,34 @@ public class Raycast4D : MonoBehaviour {
                 t4d.ApplyTransform3D(Camera.current.cameraToWorldMatrix);
             }
 
-            Graphics.Blit(null, target, rayTracingMaterial);
+			// Create copy of prev frame
+			RenderTexture prevFrameCopy = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
+			Graphics.Blit(resultTexture, prevFrameCopy);
+
+			// Run the ray tracing shader and draw the result to a temp texture
+			rayTracingMaterial.SetInt("Frame", numRenderedFrames);
+			RenderTexture currentFrame = RenderTexture.GetTemporary(src.width, src.height, 0, ShaderHelper.RGBA_SFloat);
+			Graphics.Blit(null, currentFrame, rayTracingMaterial);
+
+			// Accumulate
+			accumulateMaterial.SetInt("_Frame", numRenderedFrames);
+			accumulateMaterial.SetTexture("_PrevFrame", prevFrameCopy);
+			Graphics.Blit(currentFrame, resultTexture, accumulateMaterial);
+
+			// Draw result to screen
+			Graphics.Blit(resultTexture, target);
+
+			// Release temps
+			RenderTexture.ReleaseTemporary(currentFrame);
+			RenderTexture.ReleaseTemporary(prevFrameCopy);
+			RenderTexture.ReleaseTemporary(currentFrame);
+
+			numRenderedFrames += Application.isPlaying ? 1 : 0;
+
+            Graphics.Blit(null, target, rayTracingMaterial); // old
+
         }
-        else {
+        else { // scene view no ratracing
             Graphics.Blit(src, target);
         }
     }
@@ -80,13 +116,18 @@ public class Raycast4D : MonoBehaviour {
     void Start()
     {
         cam4D = GetComponent<Camera4D>();
+        numRenderedFrames = 0;
     }
 
     void InitFrame()
 	{
 		// Create materials used in blits
 		ShaderHelper.InitMaterial(rayTracingShader, ref rayTracingMaterial);
-		
+		ShaderHelper.InitMaterial(accumulateShader, ref accumulateMaterial);
+
+		ShaderHelper.CreateRenderTexture(ref resultTexture, Screen.width, Screen.height, FilterMode.Bilinear, ShaderHelper.RGBA_SFloat, "Result");
+
+
 		// Update data
 		UpdateCameraParams(Camera.current);
         UpdateShapes();
@@ -166,7 +207,7 @@ public class Raycast4D : MonoBehaviour {
                     );
                     break;
                 }
-                case ShapeClass.TetMesh: 
+                case ShapeClass.TetMesh:
                     {
                         TetMeshRenderer meshRenderer = (TetMeshRenderer)shape;
                         if (meshRenderer.mesh?.mesh_Raw == null) continue;
@@ -196,7 +237,7 @@ public class Raycast4D : MonoBehaviour {
                 }
             }
         }
-        
+
         ShaderHelper.CreateStructuredBuffer(ref sphereBuffer, spheres);
 		rayTracingMaterial.SetBuffer("Spheres", sphereBuffer);
 		rayTracingMaterial.SetInt("NumSpheres", spheres.Count);
@@ -231,6 +272,12 @@ public class Raycast4D : MonoBehaviour {
         ShaderHelper.Release(tetMeshBuffer);
         ShaderHelper.Release(vertexBuffer);
         ShaderHelper.Release(tetBuffer);
+    }
+
+    void OnValidate()
+    {
+        maxBounceCount = Mathf.Max(0, maxBounceCount);
+        numRaysPerPixel = Mathf.Max(1, numRaysPerPixel);
     }
 
     public struct Sphere
