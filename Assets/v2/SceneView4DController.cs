@@ -31,17 +31,19 @@ public class SceneView4DController : MonoBehaviour
         SceneView.duringSceneGui -= InstanceOnSceneGUI;
     }
 
-    float w;
+    float w  = 0f;
     void InstanceOnSceneGUI(SceneView sceneview)
-    {
+    {        
         currentlyDrawingSceneView = this;
 
         t4d.localScale = Vector4.one;
         t4d.localPosition = t4d.localPosition3D.withW(w);
         
-
         Handles.BeginGUI();
-        w = GUILayout.HorizontalSlider(w, -100, 200);
+        try {
+            w = GUILayout.HorizontalSlider(w, -100, 200);
+        } catch(ArgumentException) {};
+        
         Handles.EndGUI();
     }
 
