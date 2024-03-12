@@ -46,7 +46,8 @@ Shader "Custom/Accumulate"
 				float4 col = tex2D(_MainTex, i.uv);
 				float4 colPrev = tex2D(_PrevFrame, i.uv);
 
-				float weight = _Weight / (_Frame + 1);
+				int frame = (_Frame % 2000) + 1000;
+				float weight = _Weight / (frame + 1);
 				// Combine prev frame with current frame. Weight the contributions to result in an average over all frames.
 				float4 accumulatedCol = saturate(colPrev * (1 - weight) + col * weight);
 

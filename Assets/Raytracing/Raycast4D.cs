@@ -98,9 +98,7 @@ public class Raycast4D : MonoBehaviour {
                 Graphics.Blit(currentFrame, resultTexture, accumulateMaterial);
 
                 // Draw result to screen
-                if (numRenderedFrames % 5 == 0) {
-                    Graphics.Blit(resultTexture, target);
-                }
+                Graphics.Blit(resultTexture, target);
 
                 // Release temps
                 RenderTexture.ReleaseTemporary(currentFrame);
@@ -109,7 +107,7 @@ public class Raycast4D : MonoBehaviour {
 
                 numRenderedFrames += Application.isPlaying ? 1 : 0;
 
-                if (numRenderedFrames % 10 == 0) {
+                if (numRenderedFrames % 5 == 0) {
                     previousTransform = t4d.localToWorldMatrix;
                 }
 
