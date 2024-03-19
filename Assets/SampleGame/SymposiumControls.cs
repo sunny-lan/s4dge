@@ -10,6 +10,7 @@ using v2;
 public class SymposiumControls : MonoBehaviour
 {
     public Text lookMode;
+    public Text debugCam;
     public float lookSpeed = 0.05f;
 
     /// <summary>
@@ -22,6 +23,8 @@ public class SymposiumControls : MonoBehaviour
     void Start()
     {
         t4d = GetComponent<Transform4D>();
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        UnityEngine.Cursor.visible = false;
     }
 
     Vector2 lookRotation; //x=side to side rotation, y=up down rotation
@@ -31,6 +34,11 @@ public class SymposiumControls : MonoBehaviour
 
     void Update()
     {
+        if (Camera4D.main != null)
+        {
+            debugCam.text = "World to Camera\n" + Camera4D.main.WorldToCameraTransform.ToString() + "\n\nCamera to World\n" + Camera4D.main.CameraToWorldTransform.ToString();
+            // Debug.Log(Camera4D.main.CameraToWorldTransform.ToString());
+        }
         // Camera look
         Vector2 deltaMouse = new(
             Input.GetAxis("Mouse X"),
@@ -54,7 +62,7 @@ public class SymposiumControls : MonoBehaviour
                 // camera rotates left/right, up/down
                 lookRotation.x = t4d.localRotation[(int)Rot4D.xz];
                 lookRotation.y = t4d.localRotation[(int)Rot4D.yz];
-                lookMode.text = "Rotation Mode = 4D (xz, yz)";
+                lookMode.text = "Rotation Planes = 4D (xz, yz)";
             }
         }
 
