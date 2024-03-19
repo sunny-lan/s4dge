@@ -91,10 +91,6 @@ Shader "Rasterize4D"
                 return applyTranslation(applyScaleAndRot(v, worldToCameraScaleAndRot), worldToCameraTranslation);
             }
 
-            float4 applyClipSpaceTransform(float4 v) {
-                return float4(v.xy, v.w / 100, 1.0);
-            }
-
             /*
             * Main shader functions
             */
@@ -155,13 +151,12 @@ Shader "Rasterize4D"
                     float actualDepth = i.lightSpaceDepth;
 
                     float4 clipLightSpaceVertex = i.lightSpaceVertex / i.lightSpaceVertex.w;
-                    //int shadowMultiplier = (actualDepth >= 0 && 
-                    //    clipLightSpaceVertex.x >= -1 && clipLightSpaceVertex.x <= 1
-                    //    && clipLightSpaceVertex.y >= -1 && clipLightSpaceVertex.y <= 1
-                    //    && clipLightSpaceVertex.z >= -1 && clipLightSpaceVertex.z <= 1
-                    //    && actualDepth >= (sampledDepth - 5e-3)
-                    //);
-                    int shadowMultiplier = 1;
+                    int shadowMultiplier = (actualDepth >= 0 && 
+                        clipLightSpaceVertex.x >= -1 && clipLightSpaceVertex.x <= 1
+                        && clipLightSpaceVertex.y >= -1 && clipLightSpaceVertex.y <= 1
+                        && clipLightSpaceVertex.z >= -1 && clipLightSpaceVertex.z <= 1
+                        && actualDepth >= (sampledDepth - 5e-3)
+                    );
 
                     colour += (_GlobalDiffuseColour * lightIntensity * cosAngIncidence) * shadowMultiplier;
                     colour += (_GlobalSpecularColour * lightIntensitySqr * blinnTerm) * shadowMultiplier;

@@ -31,10 +31,6 @@ Shader "ShadowMapGenerator4D"
                 float depth: DEPTH1;
             };
 
-            float4 applyClipSpaceTransform(float4 v) {
-                return float4(v.xy, v.w / 100, 1.0);
-            }
-
             v2f vert (appdata v)
             {
                 v2f o;

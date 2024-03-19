@@ -149,7 +149,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2288248937925208516, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: nearW
@@ -310,7 +310,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 50
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -400,9 +400,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 8, z: 0, w: -17}
+  localPosition: {x: 0, y: 3, z: 0, w: -35}
   localRotation:
-  - 3.14
+  - 0
   - 0
   - 0
   - 0
@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableShadows: 1
-  showShadowMap: 1
+  showShadowMap: 0
 --- !u!1001 &366056969
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -669,7 +669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 15, z: 0, w: 0}
+  localPosition: {x: 0, y: 10, z: 0, w: 0}
   localRotation:
   - 0
   - 0
@@ -922,7 +922,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: localPosition.y
-      value: 8
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8372625504801601057, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_RootOrder

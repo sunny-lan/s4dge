@@ -46,12 +46,16 @@ float4 applyTransform(float4 v, Transform4D transform) {
 float4 applyPerspectiveTransformation(float4 pos) {
 	// Project 4D point to 3D
 	float4 pProjectedNoPerspective = mul(modelViewProjection3D, float4(pos.xyz, 1));
-	float perspectiveFactor = (vanishingW - pos.w) / (vanishingW - nearW);
+	float perspectiveFactor = max(0, (vanishingW - pos.w) / (vanishingW - nearW));
 	float3 pProjected3D = mul(pProjectedNoPerspective, 1.0 / pProjectedNoPerspective.w).xyz; // apply perspective division
 	float3 pProjectedWithPerspective = mul(perspectiveFactor, pProjected3D.xyz);
 
 	// Piggyback w coordinate of 4D point for depth testing
 	return float4(pProjectedWithPerspective, pos.w);
+}
+
+float4 applyClipSpaceTransform(float4 v) {
+    return float4(v.x, -v.y, -v.w / 100 + 0.5, 1.0);
 }
 
 #endif // VERTEX_SHADER_H
