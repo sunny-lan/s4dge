@@ -46,7 +46,7 @@ float4 applyTransform(float4 v, Transform4D transform) {
 float4 applyPerspectiveTransformation(float4 pos) {
 	// Project 4D point to 3D
 	float4 pProjectedNoPerspective = mul(modelViewProjection3D, float4(pos.xyz, 1));
-	float perspectiveFactor = max(0, (vanishingW - pos.w) / (vanishingW - nearW));
+	float perspectiveFactor = (vanishingW - pos.w) / (vanishingW - nearW);
 	float3 pProjected3D = mul(pProjectedNoPerspective, 1.0 / pProjectedNoPerspective.w).xyz; // apply perspective division
 	float3 pProjectedWithPerspective = mul(perspectiveFactor, pProjected3D.xyz);
 

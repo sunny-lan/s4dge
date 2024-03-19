@@ -31,13 +31,17 @@ Shader "ShadowMapGenerator4D"
                 float depth: DEPTH1;
             };
 
+            float4 applyClipSpaceTransform(float4 v) {
+                return float4(v.xy, v.w / 100, 1.0);
+            }
+
             v2f vert (appdata v)
             {
                 v2f o;
 
                 // we piggyback the w-coordinate into z to leverage hardware depth-testing
-                o.vertex = UnityObjectToClipPos(v.vertex.xyw);
-                o.depth = o.vertex.z / o.vertex.w;
+                o.vertex = applyClipSpaceTransform(v.vertex);
+                o.depth = o.vertex.z;
                 return o;
             }
             fixed4 frag (v2f i) : SV_Target
