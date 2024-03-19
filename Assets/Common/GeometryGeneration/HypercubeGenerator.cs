@@ -24,13 +24,13 @@ public class HypercubeGenerator
 		// hypercube is formed by 8 bounding 3-cubes
 		Vector4[][] colors = new Vector4[][]
 		{
-			Enumerable.Repeat<Vector4>( new(1,1,0,1),6).ToArray(),
-			Enumerable.Repeat<Vector4>( new(0,1,0,1),6).ToArray(),
 			Enumerable.Repeat<Vector4>( new(0,1,1,1),6).ToArray(),
-			Enumerable.Repeat<Vector4>( new(0,0,1,1),6).ToArray(),
-			Enumerable.Repeat<Vector4>( new(1,0.5f,0.5f,1),6).ToArray(),
-			Enumerable.Repeat<Vector4>( new(1,0,1,1),6).ToArray(),
+			Enumerable.Repeat<Vector4>( new(0,1,0,1),6).ToArray(),
+			Enumerable.Repeat<Vector4>( new(1,1,0,1),6).ToArray(),
 			Enumerable.Repeat<Vector4>( new(1,0.4f,0,1),6).ToArray(),
+			Enumerable.Repeat<Vector4>( new(1,0,1,1),6).ToArray(),
+			Enumerable.Repeat<Vector4>( new(1,1f,1f,1),6).ToArray(),
+			Enumerable.Repeat<Vector4>( new(0,0,1,1),6).ToArray(),
 			Enumerable.Repeat<Vector4>( new(1,0,0,1),6).ToArray(),
 		};
 
@@ -66,7 +66,6 @@ public class HypercubeGenerator
 		TetMesh_raw output, int normalMultiplier = 1
 	)
 	{
-		int v0_idx = output.vertices.Count;
 		var normal = Util.CrossProduct4D(x_unit, y_unit, z_unit) * normalMultiplier;
 
 		var vertices = new List<TetMesh4D.VertexData>();
