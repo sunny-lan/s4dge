@@ -177,7 +177,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: localScale.w
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: localScale.x
@@ -197,7 +197,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: localPosition.y
-      value: -4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8372625504801601057, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_RootOrder
@@ -310,7 +310,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 50
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -400,13 +400,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 7, z: 0, w: 0}
+  localPosition: {x: 0, y: 3, z: 0, w: -35}
   localRotation:
   - 0
   - 0
   - 0
   - 0
-  - 1
+  - 0
   - 0
   localScale: {x: 1, y: 1, z: 1, w: 1}
 --- !u!114 &347650902
@@ -669,7 +669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 15, z: 0, w: 0}
+  localPosition: {x: 0, y: 10, z: 0, w: 0}
   localRotation:
   - 0
   - 0
@@ -905,8 +905,24 @@ PrefabInstance:
       value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: localScale.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: localScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: localScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
+      propertyPath: localScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: localPosition.y
-      value: 8
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8372625504801601057, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: m_RootOrder

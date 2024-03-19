@@ -54,4 +54,8 @@ float4 applyPerspectiveTransformation(float4 pos) {
 	return float4(pProjectedWithPerspective, pos.w);
 }
 
+float4 applyClipSpaceTransform(float4 v) {
+    return float4(v.x, -v.y, -v.w / 100 + 0.5, 1.0);
+}
+
 #endif // VERTEX_SHADER_H

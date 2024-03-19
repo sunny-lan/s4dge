@@ -36,8 +36,8 @@ Shader "ShadowMapGenerator4D"
                 v2f o;
 
                 // we piggyback the w-coordinate into z to leverage hardware depth-testing
-                o.vertex = UnityObjectToClipPos(v.vertex.xyw);
-                o.depth = o.vertex.z / o.vertex.w;
+                o.vertex = applyClipSpaceTransform(v.vertex);
+                o.depth = o.vertex.z;
                 return o;
             }
             fixed4 frag (v2f i) : SV_Target

@@ -101,7 +101,7 @@ Shader "Rasterize4D"
 
                 // we piggyback the w-coordinate into z to leverage hardware depth-testing
                 //o.vertex = UnityObjectToClipPos(v.vertex.xyw);
-                o.vertex = float4(v.vertex.xy, v.vertex.w / 50, 1.0);
+                o.vertex = applyClipSpaceTransform(v.vertex);
 
                 o.normal = v.normal;
                 o.vertexWorld = v.vertexWorld;
@@ -109,9 +109,9 @@ Shader "Rasterize4D"
                 float4 lightSpaceVertex = applyPerspectiveTransformation(
                     applyTransform(v.vertexWorld, lightSources[0].worldToLightTransform)
                 );
-                float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
+                float4 clipLightSpaceVertex = applyClipSpaceTransform(lightSpaceVertex);
                 o.lightSpaceVertex = clipLightSpaceVertex;
-                o.lightSpaceDepth = o.lightSpaceVertex.z / o.lightSpaceVertex.w;
+                o.lightSpaceDepth = o.lightSpaceVertex.z;
 
                 return o;
             }
