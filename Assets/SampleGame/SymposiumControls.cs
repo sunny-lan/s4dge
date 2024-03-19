@@ -55,13 +55,13 @@ public class SymposiumControls : MonoBehaviour
             // Update look rotation back to the corresponding rotation
             if (!rotateIn4D) {
                 // camera rotates left/right, up/down
-                lookRotation.x = t4d.localRotation[(int)Rot4D.xy];
-                lookRotation.y = t4d.localRotation[(int)Rot4D.xw];
+                lookRotation.x = t4d.localRotation[(int)Rot4D.xw];
+                lookRotation.y = -t4d.localRotation[(int)Rot4D.yw];
                 lookMode.text = "Rotation Planes = 3D (xy, xw)";
             } else {
                 // camera rotates left/right, up/down
                 lookRotation.x = t4d.localRotation[(int)Rot4D.xz];
-                lookRotation.y = t4d.localRotation[(int)Rot4D.yz];
+                lookRotation.y = -t4d.localRotation[(int)Rot4D.yz];
                 lookMode.text = "Rotation Planes = 4D (xz, yz)";
             }
         }
@@ -74,12 +74,12 @@ public class SymposiumControls : MonoBehaviour
 
         if (!rotateIn4D) {
             // camera rotates left/right, up/down
-            t4d.localRotation[(int)Rot4D.xy] = lookRotation.x;
-            t4d.localRotation[(int)Rot4D.xw] = lookRotation.y;
+            t4d.localRotation[(int)Rot4D.xw] = lookRotation.x;
+            t4d.localRotation[(int)Rot4D.yw] = -lookRotation.y;
         } else {
             // camera rotates left/right, up/down
             t4d.localRotation[(int)Rot4D.xz] = lookRotation.x;
-            t4d.localRotation[(int)Rot4D.yz] = lookRotation.y;
+            t4d.localRotation[(int)Rot4D.yz] = -lookRotation.y;
         }
 
         // wasd movement
