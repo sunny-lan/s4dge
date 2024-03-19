@@ -2,6 +2,7 @@ using NUnit.Framework;
 using NUnit.Framework.Internal;
 using RasterizationRenderer;
 using System.Collections;
+using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -61,7 +62,7 @@ public class TestTetMeshRenderer4D
         renderer.useCuller = true;
 
         TetMesh_raw rawTetMesh = new();
-        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(),
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one, Enumerable.Repeat(new Vector4(), 6).ToArray(),
             new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
 
         // triangles left after culling
@@ -116,7 +117,7 @@ public class TestTetMeshRenderer4D
         renderer.useCuller = false;
 
         TetMesh_raw rawTetMesh = new();
-        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one, new(),
+        HypercubeGenerator.Generate3Cube(new(0, 0, 0, 0), Vector3.one, Enumerable.Repeat(new Vector4(), 6).ToArray(),
             new(1, 0, 0, 0), new(0, 1, 0, 0), new(0, 0, 1, 0), rawTetMesh);
 
         int[] expectedTris = {
