@@ -275,13 +275,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: -5.23, z: -0.19, w: -1.2}
+  localPosition: {x: 0, y: 0, z: 0, w: 0}
   localRotation:
   - 0
   - 0
   - 0
   - 0
-  - 1.6
+  - 0
   - 0
   localScale: {x: 1, y: 1, z: 1, w: 1}
 --- !u!114 &347650902
@@ -535,6 +535,14 @@ PrefabInstance:
     - target: {fileID: 2024575094011324295, guid: 477364a6697ff02438c90be1d2c77021, type: 3}
       propertyPath: rotSpeed.Array.data[1]
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085928294061907890, guid: 477364a6697ff02438c90be1d2c77021, type: 3}
+      propertyPath: localPosition.w
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085928294061907890, guid: 477364a6697ff02438c90be1d2c77021, type: 3}
+      propertyPath: localPosition.x
+      value: -0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4197036871100264037, guid: 477364a6697ff02438c90be1d2c77021, type: 3}
       propertyPath: m_Name

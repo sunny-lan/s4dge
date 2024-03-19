@@ -100,7 +100,8 @@ Shader "Rasterize4D"
                 v2f o;
 
                 // we piggyback the w-coordinate into z to leverage hardware depth-testing
-                o.vertex = UnityObjectToClipPos(v.vertex.xyw);
+                //o.vertex = UnityObjectToClipPos(v.vertex.xyw);
+                o.vertex = float4(v.vertex.xy, v.vertex.w / 50, 1.0);
 
                 o.normal = v.normal;
                 o.vertexWorld = v.vertexWorld;
