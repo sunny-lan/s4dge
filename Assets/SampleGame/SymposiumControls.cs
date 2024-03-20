@@ -11,6 +11,7 @@ public class SymposiumControls : MonoBehaviour
 {
     public Text lookMode;
     public Text debugCam;
+    public Demo coneRotation;
     public float lookSpeed = 0.05f;
 
     /// <summary>
@@ -31,7 +32,8 @@ public class SymposiumControls : MonoBehaviour
 
     Vector2 lookRotation; //x=side to side rotation, y=up down rotation
     Vector4 velocity; //local direction vector
-    public float maxStrafeSpeed = 1f;
+    public float maxStrafeSpeed = 5f;
+    public float max4DSpeed = 1f; // Move up down and in 4D more slowly
     private bool rotateIn4D = false;
 
     void ResetLookRotation()
@@ -112,7 +114,7 @@ public class SymposiumControls : MonoBehaviour
         {
             // prevent from exceeding limit (do not apply new velocity if exceeds limits)
             Vector4 accelDirection = t4d.LocalDirectionToWorld(wasdDirection);
-            var nextVelocity = velocity + accelDirection * Time.deltaTime;
+            var nextVelocity = maxStrafeSpeed * accelDirection * Time.deltaTime;
             velocity = nextVelocity;
         }
         else
@@ -125,20 +127,25 @@ public class SymposiumControls : MonoBehaviour
         // Up/down and forwards/backward not dependent on rotation positioned
         if (Input.GetKey(KeyCode.Q))
         {
-            t4d.localPosition += new Vector4(0, 1, 0, 0) * maxStrafeSpeed * Time.deltaTime;
+            t4d.localPosition += new Vector4(0, 1, 0, 0) * max4DSpeed * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.E))
         {
-            t4d.localPosition += new Vector4(0, -1, 0, 0) * maxStrafeSpeed * Time.deltaTime;
+            t4d.localPosition += new Vector4(0, -1, 0, 0) * max4DSpeed * Time.deltaTime;
         }
         
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            t4d.localPosition += new Vector4(0, 0, 1, 0) * maxStrafeSpeed * Time.deltaTime;
+            t4d.localPosition += new Vector4(0, 0, 1, 0) * max4DSpeed * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.LeftControl))
         {
-            t4d.localPosition += new Vector4(0, 0, -1, 0) * maxStrafeSpeed * Time.deltaTime;
+            t4d.localPosition += new Vector4(0, 0, -1, 0) * max4DSpeed * Time.deltaTime;
+        }
+
+        if (Input.GetKeyUp(KeyCode.Tab) && coneRotation != null)
+        {
+            coneRotation.enabled = !coneRotation.enabled;
         }
     }
 }
