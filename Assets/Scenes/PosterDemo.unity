@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 347650902}
   - component: {fileID: 347650901}
   - component: {fileID: 347650903}
+  - component: {fileID: 347650904}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -311,6 +312,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableShadows: 1
   showShadowMap: 0
+--- !u!114 &347650904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347650896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7eb9c320eed70a409d98ca5002e9ac2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  t4d: {fileID: 347650901}
+  rotSpeed: 2.5
+  transSpeed: 2.5
 --- !u!1 &497203112
 GameObject:
   m_ObjectHideFlags: 0
