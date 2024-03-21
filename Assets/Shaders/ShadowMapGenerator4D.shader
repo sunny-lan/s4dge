@@ -17,6 +17,7 @@ Shader "ShadowMapGenerator4D"
 
             #include "UnityCG.cginc"
             #include "VertexShaderUtils.cginc"
+            #include "RenderShaderUtils.cginc"
 
             struct appdata
             {

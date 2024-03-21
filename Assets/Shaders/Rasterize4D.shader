@@ -25,6 +25,7 @@ Shader "Rasterize4D"
 
             #include "UnityCG.cginc"
             #include "VertexShaderUtils.cginc"
+            #include "RenderShaderUtils.cginc"
 
             /*
             * Struct definitions
@@ -100,7 +101,6 @@ Shader "Rasterize4D"
                 v2f o;
 
                 // we piggyback the w-coordinate into z to leverage hardware depth-testing
-                //o.vertex = UnityObjectToClipPos(v.vertex.xyw);
                 o.vertex = applyClipSpaceTransform(v.vertex);
 
                 o.normal = v.normal;
@@ -142,19 +142,12 @@ Shader "Rasterize4D"
                     float lightIntensity = GetLightIntensity(lightVec, false);
                     float lightIntensitySqr = GetLightIntensity(lightVec, true);
 
-                    //float4 lightSpaceVertex = applyPerspectiveTransformation(
-                    //    applyTransform(i.vertexWorld, lightSources[idx].worldToLightTransform)
-                    //);
-                    //float4 clipLightSpaceVertex = UnityObjectToClipPos(lightSpaceVertex.xyw);
                     float4 screenPos = ComputeScreenPos (i.lightSpaceVertex);
                     fixed4 sampledDepth = tex2Dproj(_ShadowMap, screenPos).x; 
                     float actualDepth = i.lightSpaceDepth;
 
                     float4 clipLightSpaceVertex = i.lightSpaceVertex / i.lightSpaceVertex.w;
-                    int shadowMultiplier = (actualDepth >= 0 && 
-                        clipLightSpaceVertex.x >= -1 && clipLightSpaceVertex.x <= 1
-                        && clipLightSpaceVertex.y >= -1 && clipLightSpaceVertex.y <= 1
-                        && clipLightSpaceVertex.z >= -1 && clipLightSpaceVertex.z <= 1
+                    int shadowMultiplier = (actualDepth >= 0
                         && actualDepth >= (sampledDepth - 5e-3)
                     );
 

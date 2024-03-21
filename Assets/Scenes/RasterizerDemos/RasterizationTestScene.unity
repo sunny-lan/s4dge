@@ -400,7 +400,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6fd6f7826baacf74c85eb1a8616a08ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localPosition: {x: 0, y: 3, z: 0, w: -35}
+  localPosition: {x: 0, y: 3, z: 0, w: -10}
   localRotation:
   - 0
   - 0
@@ -705,7 +705,7 @@ MonoBehaviour:
   shadowGenerateMaterial: {fileID: 2100000, guid: bef671bee7fd3af45a8397341cf3dd0f, type: 2}
   zSliceStart: -1
   zSliceLength: 2
-  zSliceInterval: 0.2
+  zSliceInterval: 0.1
 --- !u!114 &497203119
 MonoBehaviour:
   m_ObjectHideFlags: 0
