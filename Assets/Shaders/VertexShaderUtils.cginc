@@ -44,7 +44,7 @@ float4 applyTransform(float4 v, Transform4D transform) {
 }
 
 float4 applyPerspectiveTransformation(float4 pos) {
-	float perspectiveFactor = max(0, 1.0 / pos.w);
+	float perspectiveFactor = max(0, 1.0 / max(nearW, pos.w));
 	float3 pProjectedWithPerspective = mul(perspectiveFactor, pos.xyz);
 
 	// Piggyback w coordinate of 4D point for depth testing
