@@ -44,12 +44,11 @@ float4 applyTransform(float4 v, Transform4D transform) {
 }
 
 float4 applyPerspectiveTransformation(float4 pos) {
-	// Project 4D point to 3D
-	float4 pProjectedNoPerspective = mul(modelViewProjection3D, float4(pos.xyz, 1));
-	float3 pProjected3D = mul(pProjectedNoPerspective, 1.0 / pProjectedNoPerspective.w).xyz; // apply perspective division
+	float perspectiveFactor = max(0, 1.0 / max(nearW, pos.w));
+	float3 pProjectedWithPerspective = mul(perspectiveFactor, pos.xyz);
 
 	// Piggyback w coordinate of 4D point for depth testing
-	return float4(pProjected3D, pos.w);
+	return float4(pProjectedWithPerspective, pos.w);
 }
 
 #endif // VERTEX_SHADER_H

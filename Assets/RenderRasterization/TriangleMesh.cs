@@ -22,6 +22,8 @@ public class TriangleMesh : MonoBehaviour
     int curVertexCount = 0;
     public void UpdateData(float[] newVertexData, int[] newTriangleData)
     {
+        //RenderUtils.PrintTriMeshData(newVertexData, newTriangleData);
+
         int numNewVertices = newVertexData.Length / VertexData.SizeFloats;
         int curSubmesh = mesh.subMeshCount;
         ++mesh.subMeshCount;

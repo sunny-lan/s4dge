@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Assertions;
+using v2;
 
 namespace RasterizationRenderer
 {
@@ -28,6 +29,7 @@ namespace RasterizationRenderer
         // Update is called once per frame
         public void DrawFrame()
         {
+            var pos4D = Camera4D.main.t4d.position;
             tetMeshRenderer.Render(zSliceStart, zSliceLength, zSliceInterval,
                 Camera4D.main.WorldToCameraTransform, Camera4D.main.camera3D.farClipPlane, Camera4D.main.camera3D.nearClipPlane);
         }
