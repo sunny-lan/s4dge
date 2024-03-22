@@ -11,7 +11,7 @@ public class SymposiumControls : MonoBehaviour
 {
     public Text lookMode;
     public Text debugCam;
-    public Demo coneRotation;
+    public Rotator coneRotation;
     public float lookSpeed = 0.05f;
 
     /// <summary>

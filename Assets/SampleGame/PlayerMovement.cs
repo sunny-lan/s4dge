@@ -31,7 +31,7 @@ public class PlayerMovement : MonoBehaviour
 
         cam4D = GetComponentInChildren<Camera4D>();
 
-        grappleLine = ScriptableObject.CreateInstance<InterpolationBasedShape>();
+        // grappleLine = ScriptableObject.CreateInstance<InterpolationBasedShape>();
     }
 
     // listen to all collision events in children and self
@@ -83,7 +83,7 @@ public class PlayerMovement : MonoBehaviour
     Vector4? hookPoint = null;
     public float grapplingVelocity = 10;
 
-    InterpolationBasedShape grappleLine;
+    // InterpolationBasedShape grappleLine;
     public float grappleMinW = 0, grappleMaxW = 0;
     public float grappleDltW = 0.5f;
 
@@ -127,6 +127,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+/*
     InterpolationPoint4D V4At(string name, Vector4 vec)
     {
         return new(name, new List<PointInfo> {
@@ -175,6 +176,7 @@ public class PlayerMovement : MonoBehaviour
             new Face<InterpolationPoint4D>(new List<InterpolationPoint4D> { start3, start4, end4, end3 }),
         };
     }
+*/
 
     int groundLayerMask;
 
@@ -432,7 +434,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                DrawGrapple(localGrappleStart: new Vector4(0.5f, 1f, 0.5f, 0f), hp);
+                // DrawGrapple(localGrappleStart: new Vector4(0.5f, 1f, 0.5f, 0f), hp);
                 // grapple affects player velocity
                 var curVel = Vector4.Dot(velocity, dir);
                 velocity += dir * Math.Max(0, (grapplingVelocity - curVel) * grappleAccelFactor);
