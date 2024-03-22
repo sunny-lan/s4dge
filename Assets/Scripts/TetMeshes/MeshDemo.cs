@@ -3,34 +3,37 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using v2;
+using RaytraceRenderer;
 
-public class MeshDemo : MonoBehaviour
+namespace S4DGE
 {
-    TetMeshRenderer meshRenderer;
-
-    // Start is called before the first frame update
-    void Start()
+    public class MeshDemo : MonoBehaviour
     {
-        meshRenderer = GetComponent<TetMeshRenderer>();
+        TetMeshRenderer meshRenderer;
 
-        var newMesh = MeshGenerator4D.GenerateTetMesh(
-            p => new(
-                Mathf.Sin(p.x) - p.z,
-                Mathf.Cos(p.y),
-                Mathf.Sin(p.z) + p.x,
-                Mathf.Cos(p.x)* Mathf.Sin(p.y)
-            ), _ => new(), new(
-                lo:new(-1,-1,-1),
-                hi:new(1,1,1),
-                interval:0.3f
-            ));
-
-        meshRenderer.mesh = ScriptableObject.CreateInstance<TetMesh_UnityObj>();
-        meshRenderer.mesh.mesh_Raw = new()
+        // Start is called before the first frame update
+        void Start()
         {
-            tets = newMesh.tets.ToList(),
-            vertices = newMesh.vertices.ToList(),
-        };
+            meshRenderer = GetComponent<TetMeshRenderer>();
+
+            var newMesh = MeshGenerator4D.GenerateTetMesh(
+                p => new(
+                    Mathf.Sin(p.x) - p.z,
+                    Mathf.Cos(p.y),
+                    Mathf.Sin(p.z) + p.x,
+                    Mathf.Cos(p.x)* Mathf.Sin(p.y)
+                ), _ => new(), new(
+                    lo:new(-1,-1,-1),
+                    hi:new(1,1,1),
+                    interval:0.3f
+                ));
+
+            meshRenderer.mesh = ScriptableObject.CreateInstance<TetMesh_UnityObj>();
+            meshRenderer.mesh.mesh_Raw = new()
+            {
+                tets = newMesh.tets.ToList(),
+                vertices = newMesh.vertices.ToList(),
+            };
+        }
     }
 }

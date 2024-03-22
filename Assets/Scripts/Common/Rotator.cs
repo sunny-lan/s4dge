@@ -1,23 +1,26 @@
 
 using UnityEngine;
-using v2;
+using S4DGE;
 
-public class Rotator : MonoBehaviour
+namespace S4DGE
 {
-    Transform4D t4d;
-
-
-    public float[] rotSpeed = new float[6];
-
-    void Start()
+    public class Rotator : MonoBehaviour
     {
-        t4d = GetComponent<Transform4D>();
-    }
+        Transform4D t4d;
 
-    // Update is called once per frame
-    void Update()
-    {
-        for(int i=0;i<6;i++)
-            t4d.localRotation[i] += Time.deltaTime*rotSpeed[i];
+
+        public float[] rotSpeed = new float[6];
+
+        void Start()
+        {
+            t4d = GetComponent<Transform4D>();
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            for(int i=0;i<6;i++)
+                t4d.localRotation[i] += Time.deltaTime*rotSpeed[i];
+        }
     }
 }

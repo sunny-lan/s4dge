@@ -2,36 +2,39 @@ using NUnit.Framework;
 using RasterizationRenderer;
 using UnityEngine;
 
-public class TestUtils
+namespace RasterizationRenderer
 {
-    public static void CopyPosToOtherFields(TetMesh4D.VertexData[] vertexData)
+    public class TestUtils
     {
-        // make normals, worldPos equal to pos
-        for (int i = 0; i < vertexData.Length; i++)
+        public static void CopyPosToOtherFields(TetMesh4D.VertexData[] vertexData)
         {
-            vertexData[i].normal = vertexData[i].position;
-            vertexData[i].worldPosition4D = vertexData[i].position;
-        }
-    }
-
-    public static ComputeShader LoadShader(string shaderName)
-    {
-        ComputeShader ret = null;
-        foreach (var shader in Resources.FindObjectsOfTypeAll<ComputeShader>())
-        {
-            if (shader.name == shaderName)
+            // make normals, worldPos equal to pos
+            for (int i = 0; i < vertexData.Length; i++)
             {
-                ret = shader;
-                break;
+                vertexData[i].normal = vertexData[i].position;
+                vertexData[i].worldPosition4D = vertexData[i].position;
             }
         }
-        Assert.IsNotNull(ret);
 
-        return ret;
-    }
+        public static ComputeShader LoadShader(string shaderName)
+        {
+            ComputeShader ret = null;
+            foreach (var shader in Resources.FindObjectsOfTypeAll<ComputeShader>())
+            {
+                if (shader.name == shaderName)
+                {
+                    ret = shader;
+                    break;
+                }
+            }
+            Assert.IsNotNull(ret);
 
-    public static void AssertAlmostEqual(float expected, float actual)
-    {
-        Assert.Less(Mathf.Abs(expected - actual), 1e-2);
+            return ret;
+        }
+
+        public static void AssertAlmostEqual(float expected, float actual)
+        {
+            Assert.Less(Mathf.Abs(expected - actual), 1e-2);
+        }
     }
 }

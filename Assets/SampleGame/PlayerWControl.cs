@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace v2 {
+namespace S4DGE {
     // Allows the referenced player to directly affect their t4d w coordinate using the 1 and 2 keyboard keys
     public class PlayerWControl : MonoBehaviour
     {

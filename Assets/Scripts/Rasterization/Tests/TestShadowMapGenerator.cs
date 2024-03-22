@@ -6,43 +6,46 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
-public class TestShadowMapGenerator
+namespace RasterizationRenderer
 {
-    ShadowMapGenerator mapGenerator;
-
-    [UnitySetUp]
-    public IEnumerator SetUp()
+    public class TestShadowMapGenerator
     {
-        EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizerTests.unity", new LoadSceneParameters(LoadSceneMode.Single));
-        yield return null; // wait until scene finishes loading
+        ShadowMapGenerator mapGenerator;
 
-        foreach (var r in Object.FindObjectsOfType<ShadowMapGenerator>())
+        [UnitySetUp]
+        public IEnumerator SetUp()
         {
-            mapGenerator = r;
-            break;
-        }
-        Assert.IsNotNull(mapGenerator);
-    }
+            EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/RasterizerTests.unity", new LoadSceneParameters(LoadSceneMode.Single));
+            yield return null; // wait until scene finishes loading
 
-    [UnityTearDown]
-    public void TearDown()
-    {
-
-    }
-
-    [Test]
-    public void TestGetClearedShadowMap()
-    {
-        RenderTexture rt = mapGenerator.GetClearedShadowMap(Color.red);
-        Texture2D tex = RenderUtils.Texture2DFromRenderTexture(rt, rt.width, rt.height);
-        for (int i = 0; i < tex.width; i++)
-        {
-            for (int j = 0; j < tex.height; j++)
+            foreach (var r in Object.FindObjectsOfType<ShadowMapGenerator>())
             {
-                Color col = tex.GetPixel(i, j, 0);
-                Assert.IsTrue(col == Color.red);
+                mapGenerator = r;
+                break;
+            }
+            Assert.IsNotNull(mapGenerator);
+        }
+
+        [UnityTearDown]
+        public void TearDown()
+        {
+
+        }
+
+        [Test]
+        public void TestGetClearedShadowMap()
+        {
+            RenderTexture rt = mapGenerator.GetClearedShadowMap(Color.red);
+            Texture2D tex = RenderUtils.Texture2DFromRenderTexture(rt, rt.width, rt.height);
+            for (int i = 0; i < tex.width; i++)
+            {
+                for (int j = 0; j < tex.height; j++)
+                {
+                    Color col = tex.GetPixel(i, j, 0);
+                    Assert.IsTrue(col == Color.red);
+                }
             }
         }
-    }
 
+    }
 }

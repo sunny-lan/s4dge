@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace v2
+namespace S4DGE
 {
 
     public enum Rot4D

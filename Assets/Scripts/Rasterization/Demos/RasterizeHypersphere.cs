@@ -1,12 +1,15 @@
 using RasterizationRenderer;
 using UnityEngine;
 
-public class RasterizeHypersphere : RasterizeObject
+namespace RasterizationRenderer
 {
-    public float samplingInterval;
-
-    protected override void InitGeometry()
+    public class RasterizeHypersphere : RasterizeObject
     {
-        tetMeshRenderer.SetTetMesh(MeshGenerator4D.GenerateHypersphereMesh(samplingInterval));
+        public float samplingInterval;
+
+        protected override void InitGeometry()
+        {
+            tetMeshRenderer.SetTetMesh(MeshGenerator4D.GenerateHypersphereMesh(samplingInterval));
+        }
     }
 }

@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.UI;
-using v2;
+using S4DGE;
 
 public class SymposiumControls : MonoBehaviour
 {

@@ -1,34 +1,38 @@
 using RasterizationRenderer;
 using UnityEngine;
+using S4DGE;
 
-public class RasterizeHyperCone : RasterizeObject
+namespace RasterizationRenderer
 {
-    public float thickness;
-    public float samplingInterval;
-    public int coneEdges = 6;
-
-    protected override void InitGeometry()
+    public class RasterizeHyperCone : RasterizeObject
     {
-        var line = new ParametricShape1D()
+        public float thickness;
+        public float samplingInterval;
+        public int coneEdges = 6;
+
+        protected override void InitGeometry()
         {
-            Divisions = 1 / samplingInterval,
-            End = 1,
-            Start = 0,
-            Path = s =>
+            var line = new ParametricShape1D()
             {
-                return new(
-                    s,
-                    0,
-                    0,
-                    0
-                );
-            }
-        };
+                Divisions = 1 / samplingInterval,
+                End = 1,
+                Start = 0,
+                Path = s =>
+                {
+                    return new(
+                        s,
+                        0,
+                        0,
+                        0
+                    );
+                }
+            };
 
-        var converted = ManifoldConverter.HyperCylinderify(line, s => s > 0 ? s * thickness : 0, coneEdges);
+            var converted = ManifoldConverter.HyperCylinderify(line, s => s > 0 ? s * thickness : 0, coneEdges);
 
-        var mesh = MeshGenerator4D.GenerateTetMesh(converted.Equation, converted.Normal, converted.Bounds);
+            var mesh = MeshGenerator4D.GenerateTetMesh(converted.Equation, converted.Normal, converted.Bounds);
 
-        tetMeshRenderer.SetTetMesh(mesh);
+            tetMeshRenderer.SetTetMesh(mesh);
+        }
     }
 }

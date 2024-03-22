@@ -1,60 +1,63 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using v2;
+using S4DGE;
 
 /// <summary>
 /// The abstract base class for any shape that can be attached to a 4D gameobject in a raytracing scene
 /// </summary>
-[RequireComponent(typeof(Transform4D))]
-[ExecuteInEditMode]
-public abstract class RayTracedShape : MonoBehaviour
+namespace RaytraceRenderer
 {
-    /// <summary>
-    /// The material of the shape
-    /// </summary>
-    public RayTracingMaterial material;
-
-    /// <summary>
-    /// The position and orientation of the shape
-    /// </summary>
-    public Transform4D transform4D { get; private set; }
-
-    [HideInInspector] public ShapeClass shapeClass = ShapeClass.Unknown;
-    
-    [SerializeField, HideInInspector] int materialObjectID;
-	[SerializeField, HideInInspector] bool materialInitFlag;
-
-    protected void Awake()
+    [RequireComponent(typeof(Transform4D))]
+    [ExecuteInEditMode]
+    public abstract class RayTracedShape : MonoBehaviour
     {
-        transform4D = GetComponent<Transform4D>();
-    }
+        /// <summary>
+        /// The material of the shape
+        /// </summary>
+        public RayTracingMaterial material;
 
+        /// <summary>
+        /// The position and orientation of the shape
+        /// </summary>
+        public Transform4D transform4D { get; private set; }
 
-    protected void OnDisable()
-    {
-        OnDestroy();
-    }
+        [HideInInspector] public ShapeClass shapeClass = ShapeClass.Unknown;
+        
+        [SerializeField, HideInInspector] int materialObjectID;
+        [SerializeField, HideInInspector] bool materialInitFlag;
 
-    protected void OnDestroy()
-    {
-        if (Scene4D.Instance != null) // Check that scene was not also destroyed
+        protected void Awake()
         {
-            Scene4D.Instance.Remove(this);
+            transform4D = GetComponent<Transform4D>();
+        }
+
+
+        protected void OnDisable()
+        {
+            OnDestroy();
+        }
+
+        protected void OnDestroy()
+        {
+            if (Scene4D.Instance != null) // Check that scene was not also destroyed
+            {
+                Scene4D.Instance.Remove(this);
+            }
+        }
+
+        protected void OnEnable()
+        {
+            Scene4D.Instance.Register(this);
+        }
+
+        void OnValidate()
+        {
+            if (!materialInitFlag)
+            {
+                materialInitFlag = true;
+                material.SetDefaultValues();
+            }
         }
     }
-
-    protected void OnEnable()
-    {
-        Scene4D.Instance.Register(this);
-    }
-
-	void OnValidate()
-	{
-		if (!materialInitFlag)
-		{
-			materialInitFlag = true;
-			material.SetDefaultValues();
-		}
-	}
 }

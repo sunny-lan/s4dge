@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace v2
+namespace S4DGE
 {
     /// <summary>
     /// Represents 4D transformation via affine matrix

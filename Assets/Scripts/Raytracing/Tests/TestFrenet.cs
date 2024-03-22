@@ -1,24 +1,28 @@
 using NUnit.Framework;
 using UnityEngine;
+using S4DGE;
 
-public class TestFrenet
+namespace RaytraceRenderer
 {
-    [Test]
-    public void TestBasicLine()
+    public class TestFrenet
     {
-        var line = new ParametricShape1D()
+        [Test]
+        public void TestBasicLine()
         {
-            Divisions = 2,
-            End = 1,
-            Start = 0,
-            Path = s =>
+            var line = new ParametricShape1D()
             {
-                Vector4 st = new(0, 0, 0, 0), ed = new(1, 0, 0, 0);
-                return s * ed + (1 - s) * st;
-            }
-        };
+                Divisions = 2,
+                End = 1,
+                Start = 0,
+                Path = s =>
+                {
+                    Vector4 st = new(0, 0, 0, 0), ed = new(1, 0, 0, 0);
+                    return s * ed + (1 - s) * st;
+                }
+            };
 
 
-        Debug.Log(line.Path.FrenetFrame()(0.5f));
+            Debug.Log(line.Path.FrenetFrame()(0.5f));
+        }
     }
 }

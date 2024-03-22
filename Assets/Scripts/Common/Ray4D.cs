@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace v2
+namespace S4DGE
 {
     public struct Ray4D
     {

@@ -1,6 +1,6 @@
 ﻿using RasterizationRenderer;
 using UnityEngine;
-using v2;
+using S4DGE;
 
 /// <summary>
 /// This component represents a 4D tetrahedral mesh that can be
@@ -8,27 +8,30 @@ using v2;
 /// The mesh will appear at the position and orientation specified by the Transform4D
 /// component attached to the 4D GameObject.
 /// </summary>
-public class TetMeshRenderer : RayTracedShape
+namespace RaytraceRenderer
 {
-    /// <summary>
-    /// The 4D tetrahedral mesh to render.
-    /// </summary>
-    public TetMesh_UnityObj mesh;
-
-    protected new void Awake()
+    public class TetMeshRenderer : RayTracedShape
     {
-        base.Awake();
+        /// <summary>
+        /// The 4D tetrahedral mesh to render.
+        /// </summary>
+        public TetMesh_UnityObj mesh;
 
-        shapeClass = ShapeClass.TetMesh;
+        protected new void Awake()
+        {
+            base.Awake();
+
+            shapeClass = ShapeClass.TetMesh;
+        }
     }
-}
 
-public struct TetMesh_shaderdata
-{
-    public TransformMatrixAffine4D inverseTransform;
+    public struct TetMesh_shaderdata
+    {
+        public TransformMatrixAffine4D inverseTransform;
 
-    // Inclusive, exclusive
-    public int idxStart, idxEnd;
+        // Inclusive, exclusive
+        public int idxStart, idxEnd;
 
-    public RayTracingMaterial material;
+        public RayTracingMaterial material;
+    }
 }

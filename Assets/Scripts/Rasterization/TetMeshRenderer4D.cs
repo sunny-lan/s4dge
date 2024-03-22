@@ -1,6 +1,6 @@
 using System.Linq;
 using UnityEngine;
-using v2;
+using S4DGE;
 
 namespace RasterizationRenderer
 {
@@ -8,7 +8,7 @@ namespace RasterizationRenderer
     [RequireComponent(typeof(TriangleMesh))]
     public class TetMeshRenderer4D : MonoBehaviour
     {
-        v2.Transform4D modelWorldTransform4D;
+        S4DGE.Transform4D modelWorldTransform4D;
         public static readonly int PTS_PER_TET = 4;
         public bool useCuller;
 

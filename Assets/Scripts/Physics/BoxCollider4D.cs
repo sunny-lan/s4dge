@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.UIElements;
 
-namespace v2
+namespace S4DGE
 {
     /// <summary>
     /// Represents hypercube collision area

@@ -1,14 +1,17 @@
 using RasterizationRenderer;
 using UnityEngine;
 
-public class Rasterize3Torus : RasterizeObject
+namespace RasterizationRenderer
 {
-
-    public float thickness;
-    public float samplingInterval;
-
-    protected override void InitGeometry()
+    public class Rasterize3Torus : RasterizeObject
     {
-        tetMeshRenderer.SetTetMesh(MeshGenerator4D.Generate3TorusMesh(samplingInterval, thickness));
+
+        public float thickness;
+        public float samplingInterval;
+
+        protected override void InitGeometry()
+        {
+            tetMeshRenderer.SetTetMesh(MeshGenerator4D.Generate3TorusMesh(samplingInterval, thickness));
+        }
     }
 }

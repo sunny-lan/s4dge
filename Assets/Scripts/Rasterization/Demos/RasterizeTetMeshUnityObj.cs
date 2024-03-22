@@ -2,13 +2,17 @@ using RasterizationRenderer;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using S4DGE;
 
-public class RasterizeTetMeshUnityObj : RasterizeObject
+namespace RasterizationRenderer
 {
-    public TetMesh_UnityObj rawMesh;
-
-    protected override void InitGeometry()
+    public class RasterizeTetMeshUnityObj : RasterizeObject
     {
-        tetMeshRenderer.SetTetMesh(rawMesh.mesh_Raw.ToRasterizableTetMesh());
+        public TetMesh_UnityObj rawMesh;
+
+        protected override void InitGeometry()
+        {
+            tetMeshRenderer.SetTetMesh(rawMesh.mesh_Raw.ToRasterizableTetMesh());
+        }
     }
 }

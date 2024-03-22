@@ -25,10 +25,10 @@ bool backFaceCull(uint3 id) {
 
     // Only draw tetrahedron if it is "front-facing"
     float3 v1 = p1.xyz - p0.xyz;
-    float3 v2 = p2.xyz - p0.xyz;
+    float3 S4DGE = p2.xyz - p0.xyz;
     float3 v3 = p3.xyz - p0.xyz;
 
-    return (dot(v1, cross(v2, v3)) > 0);
+    return (dot(v1, cross(S4DGE, v3)) > 0);
 }
 
 [numthreads(64,1,1)]

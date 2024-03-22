@@ -5,17 +5,20 @@ using UnityEngine;
 /// <summary>
 /// A 3-sphere that can be attached to a 4D gameobject in a raytracing scene
 /// </summary>
-public class RayTracedSphere : RayTracedShape
+namespace RaytraceRenderer
 {
-	/// <summary>
-	/// The radius of the 3-sphere
-	/// </summary>
-	public float radius;
-
-	protected new void Awake()
+	public class RayTracedSphere : RayTracedShape
 	{
-		base.Awake();
+		/// <summary>
+		/// The radius of the 3-sphere
+		/// </summary>
+		public float radius;
 
-		shapeClass = ShapeClass.Sphere;
+		protected new void Awake()
+		{
+			base.Awake();
+
+			shapeClass = ShapeClass.Sphere;
+		}
 	}
 }

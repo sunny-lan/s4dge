@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
-using static MeshGeneratorUtils;
+using S4DGE;
+using static S4DGE.MeshGeneratorUtils;
 using Manifold2D = System.Func<UnityEngine.Vector2, UnityEngine.Vector4>;
 using Manifold3D = System.Func<UnityEngine.Vector3, UnityEngine.Vector4>;
 

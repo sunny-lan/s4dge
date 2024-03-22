@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace v2
+namespace S4DGE
 {
 
     /// <summary>

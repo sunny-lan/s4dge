@@ -1,30 +1,33 @@
 ﻿using UnityEditor;
 using UnityEngine;
-using v2;
+using S4DGE;
 
-[CustomEditor(typeof(BoxCollider4D))]
-public class BoxCollider4DEditor : Editor
+namespace S4DGE
 {
-    void OnSceneGUI()
+    [CustomEditor(typeof(BoxCollider4D))]
+    public class BoxCollider4DEditor : Editor
     {
-        var sceneView = SceneView4DController.currentlyDrawingSceneView;
-        if (sceneView == null) return;
-
-        if(target is BoxCollider4D b4d)
+        void OnSceneGUI()
         {
-            Vector4 begin = b4d.t4d.LocalToWorld(b4d.corner),
-                    end = b4d.t4d.LocalToWorld(b4d.corner + b4d.size);
+            var sceneView = SceneView4DController.currentlyDrawingSceneView;
+            if (sceneView == null) return;
 
-            if(begin.w > end.w)
+            if(target is BoxCollider4D b4d)
             {
-                Util.Swap(ref begin, ref end);
+                Vector4 begin = b4d.t4d.LocalToWorld(b4d.corner),
+                        end = b4d.t4d.LocalToWorld(b4d.corner + b4d.size);
+
+                if(begin.w > end.w)
+                {
+                    Util.Swap(ref begin, ref end);
+                }
+
+                float minW = begin.w, maxW = end.w;
+
+                float curW = sceneView.t4d.localPosition.w;
+                if (curW >= minW && curW <= maxW)
+                    Handles.DrawWireCube((begin+end)/2, end-begin);
             }
-
-            float minW = begin.w, maxW = end.w;
-
-            float curW = sceneView.t4d.localPosition.w;
-            if (curW >= minW && curW <= maxW)
-                Handles.DrawWireCube((begin+end)/2, end-begin);
         }
     }
 }
