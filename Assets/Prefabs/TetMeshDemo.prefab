@@ -33,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6960853920066165043
 MonoBehaviour:
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6950439635730942000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e150298c1b392d54db4d802cd3e7def6, type: 3}
+  m_Script: {fileID: 11500000, guid: 818e4b9b08efa504c9a1096f44aa88f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   material:
@@ -76,10 +76,10 @@ MonoBehaviour:
     smoothness: 0
     specularProbability: 1
     flag: 0
-  shapeClass: 3
+  shapeClass: 4
   materialObjectID: 0
   materialInitFlag: 1
-  mesh: {fileID: 0}
+  mesh: {fileID: 11400000, guid: c3374c0be843f9e4aaef12ee3e319c6c, type: 2}
 --- !u!114 &235142507399748242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,7 +92,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca8997f754ef3f848bef54e00a42977f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  v: 0
+  rotSpeed:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
 --- !u!114 &6645127666836719037
 MonoBehaviour:
   m_ObjectHideFlags: 0
