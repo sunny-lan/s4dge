@@ -52,10 +52,7 @@ namespace RaytraceRenderer
 
         public void Remove(RayTracedShape removedShape) // Remove shape from the raycasted scene
         {
-            if (!rayTracedShapes.Remove(removedShape))
-            {
-                Debug.LogWarning($"Failed to remove shape {removedShape} from the raycast list");
-            }
+            rayTracedShapes.Remove(removedShape);
         }
     }
 }

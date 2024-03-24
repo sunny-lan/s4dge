@@ -80,12 +80,12 @@ namespace RasterizationRenderer
             // cleanup for vertex shader
             if (inputVertices != null)
             {
-                inputVertices.Dispose();
+                inputVertices.Release();
                 inputVertices = null;
             }
             if (transformedVertices != null)
             {
-                transformedVertices.Dispose();
+                transformedVertices.Release();
                 transformedVertices = null;
             }
         }

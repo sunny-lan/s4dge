@@ -27,6 +27,10 @@ namespace RasterizationRenderer
         TriangleMesh triangleMesh;
 
         TetMesh4D _tetMesh;
+
+        private ComputeBuffer _tetDrawBuffer;
+        private ComputeBuffer _numTetsBuffer;
+
         public TetMesh4D tetMesh
         {
             get { return _tetMesh; }
@@ -99,23 +103,29 @@ namespace RasterizationRenderer
                 farClipPlane, nearClipPlane
             );
 
-            ComputeBuffer tetDrawBuffer;
-            ComputeBuffer numTetsBuffer;
+            if (_tetDrawBuffer != null)
+            {
+                _tetDrawBuffer.Release();
+            }
+            if (_numTetsBuffer != null)
+            {
+                _numTetsBuffer.Release();
+            }
 
             if (useCuller)
             {
                 VariableLengthComputeBuffer.BufferList tetrahedraToDraw = culler.Render(vertexBuffer);
-                tetDrawBuffer = tetrahedraToDraw.Buffers[0].Buffer;
-                numTetsBuffer = tetrahedraToDraw.GetBufferLengths();
+                _tetDrawBuffer = tetrahedraToDraw.Buffers[0].Buffer;
+                _numTetsBuffer = tetrahedraToDraw.GetBufferLengths();
             }
             else
             {
                 var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
-                tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
-                numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET });
+                _tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
+                _numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET });
             }
 
-            return (vertexBuffer, tetDrawBuffer, numTetsBuffer);
+            return (vertexBuffer, _tetDrawBuffer, _numTetsBuffer);
         }
 
         // Generate triangle mesh
@@ -188,6 +198,18 @@ namespace RasterizationRenderer
             {
                 tetSlicer.OnDisable();
             }
+            if (lightSourceManager != null)
+            {
+                lightSourceManager.OnDisable();
+            }
+            if (_tetDrawBuffer != null)
+            {
+                _tetDrawBuffer.Release();
+            }
+            if (_numTetsBuffer != null)
+            {
+                _numTetsBuffer.Release();
+            }
         }
 
         // Start is called before the first frame update
@@ -208,11 +230,6 @@ namespace RasterizationRenderer
         void Update()
         {
 
-        }
-
-        private void OnDestroy()
-        {
-            OnDisable();
         }
     }
 

@@ -59,6 +59,7 @@ namespace RasterizationRenderer
 
         public void OnDisable()
         {
+            if (tetrahedraBuffer != null) { tetrahedraBuffer.Release(); tetrahedraBuffer = null; }
             if (slicedTriangles != null) { slicedTriangles.Dispose(); slicedTriangles = null; }
             if (triangleVertices != null) { triangleVertices.Dispose(); triangleVertices = null; }
             if (bufferList != null) { bufferList.Dispose(); bufferList = null; }

@@ -43,5 +43,13 @@ namespace RasterizationRenderer
             _lightSourceBuffer = RenderUtils.InitComputeBuffer(LightSource4D.ShaderData.SizeBytes,
                 lightSourceArr);
         }
+
+        public void OnDisable()
+        {
+            if (_lightSourceBuffer != null)
+            {
+                _lightSourceBuffer.Release();
+            }
+        }
     }
 }
