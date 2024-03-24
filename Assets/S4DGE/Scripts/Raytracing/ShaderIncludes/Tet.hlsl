@@ -91,8 +91,8 @@ HitInfo intersection_ray_simplex(Ray r)
 // The 3D equivalent is how a triangle in 3D
 // is bounded by 3 lines on a plane.
 
-#include "ShaderIncludes/Matrix.hlsl"
-#include "Shapes/Hyperplane.hlsl"
+#include "Matrix.hlsl"
+#include "../Shapes/Hyperplane.hlsl"
 
 struct Tet
 {

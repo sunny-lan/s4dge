@@ -196,7 +196,6 @@ GameObject:
   - component: {fileID: 934519526}
   - component: {fileID: 934519525}
   - component: {fileID: 934519528}
-  - component: {fileID: 934519531}
   - component: {fileID: 934519533}
   - component: {fileID: 934519534}
   m_Layer: 0
@@ -301,18 +300,6 @@ MonoBehaviour:
   - 0.3
   - 0
   localScale: {x: 1, y: 1, z: 1, w: 1}
---- !u!114 &934519531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 934519524}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aaf7c3641ae0c9e43997de5126599888, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &934519533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,13 +312,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 543ad5d35bf7445ff9070a4e63e626e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useRayTracedLighting: 0
   maxBounceCount: 4
   numRaysPerPixel: 2
   defocusStrength: 0
   divergeStrength: 0.3
-  focusDistance: 1
   useShaderInSceneView: 1
+  accumulateAverageScene: 0
+  accumulateWeight: 1000
   rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
+  accumulateShader: {fileID: 0}
+  numRenderedFrames: 0
   defaultMat:
     colour: {r: 0, g: 0, b: 0, a: 0}
     emissionColour: {r: 0, g: 0, b: 0, a: 0}

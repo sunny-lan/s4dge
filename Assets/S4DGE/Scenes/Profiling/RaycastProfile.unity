@@ -170,14 +170,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 283578517}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e150298c1b392d54db4d802cd3e7def6, type: 3}
+  m_Script: {fileID: 11500000, guid: 818e4b9b08efa504c9a1096f44aa88f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   material:
     colour: {r: 1, g: 1, b: 1, a: 1}
     emissionColour: {r: 1, g: 1, b: 1, a: 1}
     specularColour: {r: 1, g: 1, b: 1, a: 1}
-    emissionStrength: 0.5
+    emissionStrength: 0
     smoothness: 0
     specularProbability: 1
     flag: 0
@@ -249,14 +249,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 324992487}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e150298c1b392d54db4d802cd3e7def6, type: 3}
+  m_Script: {fileID: 11500000, guid: 818e4b9b08efa504c9a1096f44aa88f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   material:
     colour: {r: 1, g: 1, b: 1, a: 1}
     emissionColour: {r: 1, g: 1, b: 1, a: 1}
     specularColour: {r: 1, g: 1, b: 1, a: 1}
-    emissionStrength: 0.5
+    emissionStrength: 0
     smoothness: 0
     specularProbability: 1
     flag: 0
@@ -366,14 +366,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 327131249}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e150298c1b392d54db4d802cd3e7def6, type: 3}
+  m_Script: {fileID: 11500000, guid: 818e4b9b08efa504c9a1096f44aa88f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   material:
     colour: {r: 1, g: 1, b: 1, a: 1}
     emissionColour: {r: 1, g: 1, b: 1, a: 1}
     specularColour: {r: 1, g: 1, b: 1, a: 1}
-    emissionStrength: 0.5
+    emissionStrength: 0
     smoothness: 0
     specularProbability: 1
     flag: 0
@@ -464,18 +464,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 785816929}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e150298c1b392d54db4d802cd3e7def6, type: 3}
+  m_Script: {fileID: 11500000, guid: 818e4b9b08efa504c9a1096f44aa88f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   material:
     colour: {r: 1, g: 1, b: 1, a: 1}
     emissionColour: {r: 1, g: 1, b: 1, a: 1}
     specularColour: {r: 1, g: 1, b: 1, a: 1}
-    emissionStrength: 0.5
+    emissionStrength: 0
     smoothness: 0
     specularProbability: 1
     flag: 0
-  shapeClass: 4
+  shapeClass: 0
   materialObjectID: 0
   materialInitFlag: 1
   mesh: {fileID: 11400000, guid: f021605c20740204babb4c2117d07d53, type: 2}
@@ -562,14 +562,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 910719714}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e150298c1b392d54db4d802cd3e7def6, type: 3}
+  m_Script: {fileID: 11500000, guid: 818e4b9b08efa504c9a1096f44aa88f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   material:
     colour: {r: 1, g: 1, b: 1, a: 1}
     emissionColour: {r: 1, g: 1, b: 1, a: 1}
     specularColour: {r: 1, g: 1, b: 1, a: 1}
-    emissionStrength: 0.5
+    emissionStrength: 0
     smoothness: 0
     specularProbability: 1
     flag: 0
@@ -747,7 +747,11 @@ MonoBehaviour:
   defocusStrength: 0
   divergeStrength: 0.3
   useShaderInSceneView: 1
+  accumulateAverageScene: 0
+  accumulateWeight: 1000
   rayTracingShader: {fileID: 4800000, guid: ed41b07e3f2d7438287f4369958d9911, type: 3}
+  accumulateShader: {fileID: 0}
+  numRenderedFrames: 0
   defaultMat:
     colour: {r: 0, g: 0, b: 0, a: 0}
     emissionColour: {r: 0, g: 0, b: 0, a: 0}

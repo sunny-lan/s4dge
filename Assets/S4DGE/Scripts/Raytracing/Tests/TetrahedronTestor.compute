@@ -3,7 +3,7 @@
 
 #include "UnityCG.cginc"	
 #include "../ShaderIncludes/Tet.hlsl"
-#include "ShaderIncludes/RayTracingStructs.hlsl"
+#include "../ShaderIncludes/RayTracingStructs.hlsl"
 
 RWStructuredBuffer<Tet> ret;
 RWStructuredBuffer<HitInfo> hitInfo;
