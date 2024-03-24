@@ -9,8 +9,9 @@ using S4DGE;
 using Unity.Mathematics;
 
 
-// Video that this shader is based on and hopefully we can adopt
-// https://www.youtube.com/watch?v=Qz0KTGYJtUk
+// Starter code adopted from: https://github.com/SebLague/Ray-Tracing
+// Under MIT license by Sebastian Lague
+// Expanded to 4D
 
 /// <summary>
 /// A 4D renderer based on ray tracing techniques
