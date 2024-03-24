@@ -115,17 +115,19 @@ namespace RasterizationRenderer
             if (useCuller)
             {
                 VariableLengthComputeBuffer.BufferList tetrahedraToDraw = culler.Render(vertexBuffer);
-                _tetDrawBuffer = tetrahedraToDraw.Buffers[0].Buffer;
-                _numTetsBuffer = tetrahedraToDraw.GetBufferLengths();
+                ComputeBuffer tetDrawBuffer = tetrahedraToDraw.Buffers[0].Buffer;
+                ComputeBuffer numTetsBuffer = tetrahedraToDraw.GetBufferLengths();
+
+                return (vertexBuffer, tetDrawBuffer, numTetsBuffer);
             }
             else
             {
                 var tetrahedraUnpacked = tetMesh.tets.SelectMany(tet => tet.tetPoints).ToArray();
                 _tetDrawBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), tetrahedraUnpacked);
                 _numTetsBuffer = RenderUtils.InitComputeBuffer<int>(sizeof(int), new int[1] { tetrahedraUnpacked.Length / TetMesh4D.PTS_PER_TET });
-            }
 
-            return (vertexBuffer, _tetDrawBuffer, _numTetsBuffer);
+                return (vertexBuffer, _tetDrawBuffer, _numTetsBuffer);
+            }
         }
 
         // Generate triangle mesh
