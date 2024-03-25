@@ -1,0 +1,51 @@
+#pragma kernel Culler4D
+
+#define VL_BUFFER_COUNT 1
+
+#include "VertexShaderUtils.cginc"
+#include "SlicerUtils.cginc"
+#include "VariableLengthBufferUtils.cginc"
+
+StructuredBuffer<VertexData> transformedVertices;
+StructuredBuffer<Tet4D> tetrahedra;
+groupshared VLComputeBuffer tetsToDrawManager;
+RWStructuredBuffer<Tet4D> tetsToDraw;
+uint tetCount;
+
+bool backFaceCull(uint3 id) {
+    if (id.x >= tetCount) {
+        return false;
+    }
+
+    Tet4D tetrahedron = tetrahedra[id.x];
+    float4 p0 = transformedVertices[tetrahedron.vertexIndices[0]].pos;
+    float4 p1 = transformedVertices[tetrahedron.vertexIndices[1]].pos;
+    float4 p2 = transformedVertices[tetrahedron.vertexIndices[2]].pos;
+    float4 p3 = transformedVertices[tetrahedron.vertexIndices[3]].pos;
+
+    // Only draw tetrahedron if it is "front-facing"
+    float3 v1 = p1.xyz - p0.xyz;
+    float3 S4DGE = p2.xyz - p0.xyz;
+    float3 v3 = p3.xyz - p0.xyz;
+
+    return (dot(v1, cross(S4DGE, v3)) > 0);
+}
+
+[numthreads(64,1,1)]
+void Culler4D (uint3 globalId : SV_DispatchThreadID, uint3 threadId: SV_GroupThreadID)
+{
+    tetsToDrawManager.Init(globalId, threadId, 0);
+    GroupMemoryBarrierWithGroupSync();
+
+    bool shouldDraw = backFaceCull(globalId);
+    uint localDrawIdx = tetsToDrawManager.IncreaseLocalAppendIdx(shouldDraw ? 1 : 0);
+    GroupMemoryBarrierWithGroupSync();
+
+    tetsToDrawManager.IncreaseGlobalAppendIdx(threadId);
+    GroupMemoryBarrierWithGroupSync();
+    uint groupDrawIdx = tetsToDrawManager.GetGroupAppendIdx();
+    
+    if (shouldDraw) {
+        tetsToDraw[groupDrawIdx + localDrawIdx] = tetrahedra[globalId.x];
+    }
+}
