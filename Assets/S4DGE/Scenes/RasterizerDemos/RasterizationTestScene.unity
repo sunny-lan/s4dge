@@ -865,10 +865,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1240992786616724268, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
-      propertyPath: useCuller
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1240992786616724268, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: modelWorldTransform4D
       value: 
       objectReference: {fileID: 0}
@@ -887,22 +883,6 @@ PrefabInstance:
     - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: vanishingW
       value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
-      propertyPath: zSliceStart
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
-      propertyPath: zSliceLength
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
-      propertyPath: zSliceInterval
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059179108556614259, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
-      propertyPath: samplingInterval
-      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 4116801327568581918, guid: 027789136c8407649ba3643ae24c26d6, type: 3}
       propertyPath: localScale.w
